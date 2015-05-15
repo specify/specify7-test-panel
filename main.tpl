@@ -9,10 +9,11 @@
   <h3>Specify Test Servers</h3>
   <form method="post" action="set_dbs/">
     <table style="text-align: center; width: 100%">
-      <tr><th>Server</th><th>Database</th></tr>
-      %for server in servers:
+      <tr><th>Server</th><th>Branch</th><th>Database</th></tr>
+      %for server, branch in zip(servers, branches):
       <tr>
         <td><a href="http://{{server + '.' + host}}/">{{server}}</a></td>
+        <td>{{branch}}</td>
         <td>
           <select name="{{server}}">
             %if db_map.get(server, None) not in available_dbs:

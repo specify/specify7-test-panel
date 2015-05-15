@@ -1,7 +1,7 @@
 # -*- python -*-
 import os, sys
 
-specifypanel_dir = os.path.join(os.path.dirname(__file__), 'specifypanel')
+specifypanel_dir = os.path.dirname(__file__)
 
 os.chdir(specifypanel_dir)
 sys.path.append(specifypanel_dir)

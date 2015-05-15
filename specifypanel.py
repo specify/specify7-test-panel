@@ -5,20 +5,28 @@ from bottle import route, template, request, response, abort, static_file, redir
 
 CHUNK_SIZE = 2**16
 
-SPECIFYWEB_DIR = path.abspath(path.join(path.dirname(__file__), '..'))
-DB_MAP_FILE = path.join(SPECIFYWEB_DIR, 'db_map.json')
-REPORT_CONF_FILE = path.join(path.expanduser("~"), '.specify-report.properties')
-APACHE_CONF_FILE = path.join(SPECIFYWEB_DIR, 'specifypanel_apache.conf')
-VIRTHOST_WSGI = path.join(SPECIFYWEB_DIR, 'specifyweb_vh.wsgi')
-PANEL_WSGI = path.join(SPECIFYWEB_DIR, 'specifypanel.wsgi')
-MANAGE_PY = path.join(SPECIFYWEB_DIR, 'specifyweb', "manage.py")
+HOME_DIR = path.expanduser("~")
+SELF_DIR = path.dirname(__file__)
+
+SPECIFY7_DIRS = (
+    path.join(HOME_DIR, "specify7-master"),
+    path.join(HOME_DIR, "specify7-release"),
+)
+
+DB_MAP_FILE = path.join(SELF_DIR, 'db_map.json')
+APACHE_CONF_FILE = path.join(SELF_DIR, 'specifypanel_apache.conf')
+
+VIRTHOST_WSGI_FILES = [path.join(dir, 'specifyweb_vh.wsgi') for dir in SPECIFY7_DIRS]
+
+PANEL_WSGI = path.join(SELF_DIR, 'specifypanel.wsgi')
 
 MYSQL_USER = "-uMasterUser"
 MYSQL_PASS = "-pMasterPassword"
 
 with open(APACHE_CONF_FILE) as f:
     conf = f.read()
-    SERVERS = re.findall(r'Use +SpecifyVH +(.*)$', conf, re.MULTILINE)
+    SERVERS = re.findall(r'Use +SpecifyVH +(.*) +.*$', conf, re.MULTILINE)
+    BRANCHES =  re.findall(r'Use +SpecifyVH +.* +(.*)$', conf, re.MULTILINE)
 
 @route('/')
 def main():
@@ -31,19 +39,21 @@ def main():
         else:
             raise
 
-    git_log = check_output(["/usr/bin/git",
-                            "--work-tree=" + SPECIFYWEB_DIR,
-                            "--git-dir=" + path.join(SPECIFYWEB_DIR, '.git'),
-                            "log", "-n", "10"])
+    # for dir in SPECIFY7_DIRS:
+    #     git_log = check_output(["/usr/bin/git",
+    #                             "--work-tree=" + dir,
+    #                             "--git-dir=" + path.join(dir, '.git'),
+    #                             "log", "-n", "10"])
 
 
     show_databases = check_output(["/usr/bin/mysql", MYSQL_USER, MYSQL_PASS, "-e", "show databases"])
     available_dbs = set(show_databases.split('\n')[1:]) - {'', 'information_schema', 'performance_schema', 'mysql'}
     return template('main.tpl',
                     servers=SERVERS,
+                    branches=BRANCHES,
                     db_map=db_map,
                     available_dbs=available_dbs,
-                    git_log=git_log,
+                    git_log="", #git_log,
                     host=request.get_header('Host'))
 
 @route('/set_dbs/', method='POST')
@@ -55,17 +65,9 @@ def set_dbs():
     with open(DB_MAP_FILE, 'w') as f:
         json.dump(db_map, f)
 
-    check_call(['/usr/bin/touch', VIRTHOST_WSGI])
+    for f in VIRTHOST_WSGI_FILES:
+        check_call(['/usr/bin/touch', f])
 
-    with open(REPORT_CONF_FILE) as f:
-        report_conf_file = f.read()
-
-    dbname = db_map.get(SERVERS[0], None)
-    if dbname is not None:
-        with open(REPORT_CONF_FILE, 'w') as f:
-            report_conf_file = re.sub(r'^dbname=.*$', 'dbname=' + dbname, report_conf_file, flags=re.M)
-            f.write(report_conf_file)
-        check_call(['sudo', 'restart', 'specify-report-service'])
     redirect('/')
 
 @route('/upload/')
@@ -94,25 +96,7 @@ def upload_db():
     mysql.stdin.close()
     mysql.wait()
 
-    # yield "syncing db.\n"
-    # do_sync(db_name)
     yield "done.\n"
-
-def do_sync(db_name):
-    env = environ.copy()
-    env['SPECIFY_DATABASE_NAME'] = db_name
-    check_call(["/usr/bin/python", MANAGE_PY, "syncdb"], env=env)
-
-@route('/sync/')
-def sync_confirm():
-    db_name = request.query['dbname']
-    return template('sync_confirm.tpl', db=db_name)
-
-@route('/sync/', method='POST')
-def sync():
-    db_name = request.forms['dbname']
-    do_sync(db_name)
-    redirect('/')
 
 @route('/export/')
 def export():
@@ -142,12 +126,15 @@ def drop():
 
 @route('/github_hook/', method='POST')
 def github_hook():
-    check_call(["/usr/bin/git",
-                "--work-tree=" + SPECIFYWEB_DIR,
-                "--git-dir=" + path.join(SPECIFYWEB_DIR, '.git'),
-                "pull"])
-    check_call(['/usr/bin/make', '-C', path.join(SPECIFYWEB_DIR, 'specifyweb')])
-    check_call(['/usr/bin/touch', VIRTHOST_WSGI])
+    for dir in SPECIFY7_DIRS:
+        check_call(["/usr/bin/git",
+                    "--work-tree=" + dir,
+                    "--git-dir=" + path.join(dir, '.git'),
+                    "pull"])
+        check_call(['/usr/bin/make', '-C', path.join(dir, 'specifyweb')])
+
+    for f in VIRTHOST_WSGI_FILES:
+        check_call(['/usr/bin/touch', f])
     check_call(['/usr/bin/touch', PANEL_WSGI])
 
 
