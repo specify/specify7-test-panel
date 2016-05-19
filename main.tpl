@@ -37,6 +37,7 @@
       <a href="/export/?dbname={{db}}">download</a>
       <a href="/drop/?dbname={{db}}">drop</a>
       <!-- <a href="/sync/?dbname={{db}}">sync</a> -->
+      <a href="/listusers/?dbname={{db}}">list users</a>
     </dd>
     %end
     <dt>New</dt>

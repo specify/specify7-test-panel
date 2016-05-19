@@ -23,6 +23,8 @@ PANEL_WSGI = path.join(SELF_DIR, 'specifypanel.wsgi')
 MYSQL_USER = "-uMasterUser"
 MYSQL_PASS = "-pMasterPassword"
 
+TESTUSER_PW = 'EC62DEF08F5E4FD556DAA86AEC5F3FB0390EF8A862A41ECA'
+
 with open(APACHE_CONF_FILE) as f:
     conf = f.read()
     SERVERS = re.findall(r'Use +SpecifyVH +(.*) +.*$', conf, re.MULTILINE)
@@ -95,7 +97,10 @@ def upload_db():
         yield "loaded: %d\n" % loaded
     mysql.stdin.close()
     mysql.wait()
-
+    if 'reset_passwds' in request.forms:
+        yield 'reseting passwords.\n'
+        check_call(["/usr/bin/mysql", MYSQL_USER, MYSQL_PASS, db_name, '-e',
+                    "update specifyuser set password = '%s'" % TESTUSER_PW])
     yield "done.\n"
 
 @route('/export/')
@@ -123,6 +128,14 @@ def drop():
     db_name = request.forms['dbname']
     call(["/usr/bin/mysqladmin", "-f", MYSQL_USER, MYSQL_PASS, "drop", db_name])
     redirect('/')
+
+@route('/listusers/')
+def list_users():
+    db_name = request.query['dbname']
+    users = check_output(["/usr/bin/mysql", MYSQL_USER, MYSQL_PASS, db_name,
+                          "--html", "-e", "select name, usertype from specifyuser"])
+    yield users
+
 
 @route('/github_hook/', method='POST')
 def github_hook():
