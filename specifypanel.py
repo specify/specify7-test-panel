@@ -9,8 +9,8 @@ HOME_DIR = path.expanduser("~")
 SELF_DIR = path.dirname(__file__)
 
 SPECIFY7_DIRS = (
+    path.join(HOME_DIR, "specify7-develop"),
     path.join(HOME_DIR, "specify7-master"),
-    path.join(HOME_DIR, "specify7-release"),
 )
 
 DB_MAP_FILE = path.join(SELF_DIR, 'db_map.json')
@@ -131,11 +131,11 @@ def github_hook():
                     "--work-tree=" + dir,
                     "--git-dir=" + path.join(dir, '.git'),
                     "pull"])
-        check_call(['/usr/bin/make', '-C', path.join(dir, 'specifyweb')])
+    #     check_call(['/usr/bin/make', '-C', dir])
 
-    for f in VIRTHOST_WSGI_FILES:
-        check_call(['/usr/bin/touch', f])
-    check_call(['/usr/bin/touch', PANEL_WSGI])
+    # for f in VIRTHOST_WSGI_FILES:
+    #     check_call(['/usr/bin/touch', f])
+    # check_call(['/usr/bin/touch', PANEL_WSGI])
 
 
 if __name__ == '__main__':
