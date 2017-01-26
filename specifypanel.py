@@ -90,6 +90,9 @@ def upload_db():
     db_name = request.forms['dbname']
     upload_file = request.files['file'].file
 
+    create_db_re = re.compile(r'^CREATE DATABASE.*$', re.M)
+    use_db_re = re.compile(r'^USE `.*$', re.M)
+
     response.set_header('Content-Type', 'text/plain')
 
     yield "dropping db.\n"
@@ -102,6 +105,8 @@ def upload_db():
     loaded = 0
     for chunk in iter(lambda: upload_file.read(CHUNK_SIZE), ""):
         loaded += len(chunk)
+        chunk = re.sub(create_db_re, '', chunk)
+        chunk = re.sub(use_db_re, '', chunk)
         mysql.stdin.write(chunk)
         yield "loaded: %d\n" % loaded
     mysql.stdin.close()
