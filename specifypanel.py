@@ -67,6 +67,15 @@ def set_dbs():
     with open(DB_MAP_FILE, 'w') as f:
         json.dump(db_map, f)
 
+    dir = SPECIFY7_DIRS[0]
+
+    for db in set(db_map.values()):
+        check_call(['/usr/bin/make',
+                    '-C', dir,
+                    'django_migrations',
+                    'VIRTUAL_ENV=%s' % path.join(dir, 'virtualenv'),
+                    'SPECIFY_DATABASE_NAME=%s' % db])
+
     for f in VIRTHOST_WSGI_FILES:
         check_call(['/usr/bin/touch', f])
 
