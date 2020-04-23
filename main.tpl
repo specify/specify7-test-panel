@@ -10,7 +10,7 @@
   <form method="post" action="set_dbs/">
     <table style="text-align: center; width: 100%">
       <tr><th>Server</th><th>Branch</th><th>Database</th></tr>
-      %for server, branch in zip(servers, branches):
+      %for server, branch in zip(servers, ['develop','develop','develop','master','master','master',]):
       <tr>
         <td><a href="http://{{server + '.' + host}}/">{{server}}</a></td>
         <td>{{branch}}</td>

@@ -16,7 +16,8 @@ SPECIFY7_DIRS = (
 DB_MAP_FILE = path.join(SELF_DIR, 'db_map.json')
 APACHE_CONF_FILE = path.join(SELF_DIR, 'specifypanel_apache.conf')
 
-VIRTHOST_WSGI_FILES = [path.join(dir, 'specifyweb_vh.wsgi') for dir in SPECIFY7_DIRS]
+# VIRTHOST_WSGI_FILES = [path.join(dir, 'specifyweb_vh.wsgi') for dir in SPECIFY7_DIRS]
+WSGI_FILE = path.join(HOME_DIR, "servers", "tricky.wsgi")
 
 PANEL_WSGI = path.join(SELF_DIR, 'specifypanel.wsgi')
 
@@ -27,8 +28,8 @@ TESTUSER_PW = 'EC62DEF08F5E4FD556DAA86AEC5F3FB0390EF8A862A41ECA'
 
 with open(APACHE_CONF_FILE) as f:
     conf = f.read()
-    SERVERS = re.findall(r'Use +SpecifyVH +(.*) +.*$', conf, re.MULTILINE)
-    BRANCHES =  re.findall(r'Use +SpecifyVH +.* +(.*)$', conf, re.MULTILINE)
+    SERVERS = re.findall(r'Use +SpecifyVH +(.*)$', conf, re.MULTILINE)
+    BRANCHES =  re.findall(r'Use +SpecifyVH +.* +(.*) +.*$', conf, re.MULTILINE)
 
 @route('/')
 def main():
@@ -49,7 +50,7 @@ def main():
 
 
     show_databases = check_output(["/usr/bin/mysql", MYSQL_USER, MYSQL_PASS, "-e", "show databases"])
-    available_dbs = set(show_databases.split('\n')[1:]) - {'', 'information_schema', 'performance_schema', 'mysql'}
+    available_dbs = set(show_databases.split('\n')[1:]) - {'', 'information_schema', 'performance_schema', 'mysql', 'sys'}
     return template('main.tpl',
                     servers=SERVERS,
                     branches=BRANCHES,
@@ -67,17 +68,7 @@ def set_dbs():
     with open(DB_MAP_FILE, 'w') as f:
         json.dump(db_map, f)
 
-    dir = SPECIFY7_DIRS[0]
-
-    for db in set(db_map.values()):
-        check_call(['/usr/bin/make',
-                    '-C', dir,
-                    'django_migrations',
-                    'VIRTUAL_ENV=%s' % path.join(dir, 'virtualenv'),
-                    'SPECIFY_DATABASE_NAME=%s' % db])
-
-    for f in VIRTHOST_WSGI_FILES:
-        check_call(['/usr/bin/touch', f])
+    check_call(['/usr/bin/touch', WSGI_FILE])
 
     redirect('/')
 
@@ -111,8 +102,18 @@ def upload_db():
         yield "loaded: %d\n" % loaded
     mysql.stdin.close()
     mysql.wait()
+
+    yield "applying migrations.\n"
+    dir = SPECIFY7_DIRS[0]
+    check_call(['/usr/bin/make',
+                '-C', dir,
+                'django_migrations',
+                'VIRTUAL_ENV=%s' % path.join(dir, 'virtualenv'),
+                'SPECIFY_SIX=%s' % path.join(SELF_DIR, 'Specify6'),
+                'SPECIFY_DATABASE_NAME=%s' % db_name])
+
     if 'reset_passwds' in request.forms:
-        yield 'reseting passwords.\n'
+        yield 'resetting passwords.\n'
         check_call(["/usr/bin/mysql", MYSQL_USER, MYSQL_PASS, db_name, '-e',
                     "update specifyuser set password = '%s'" % TESTUSER_PW])
     yield "done.\n"
