@@ -55,7 +55,7 @@ def main():
                     servers=SERVERS,
                     branches=BRANCHES,
                     db_map=db_map,
-                    available_dbs=available_dbs,
+                    available_dbs=sorted(available_dbs, key=str.lower),
                     git_log="", #git_log,
                     host=request.get_header('Host'))
 
