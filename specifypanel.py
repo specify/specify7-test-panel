@@ -1,7 +1,9 @@
 import errno, re, tempfile, json
-from os import environ, path
+from os import environ, getenv, path
 from subprocess import Popen, PIPE, call, check_call, check_output
-from bottle import route, template, request, response, abort, static_file, redirect
+from bottle import route, template, request, response, abort, static_file, redirect # type: ignore
+
+from typing import Any
 
 CHUNK_SIZE = 2**16
 
@@ -21,8 +23,10 @@ WSGI_FILE = path.join(HOME_DIR, "servers", "tricky.wsgi")
 
 PANEL_WSGI = path.join(SELF_DIR, 'specifypanel.wsgi')
 
-MYSQL_USER = "-uMasterUser"
-MYSQL_PASS = "-pMasterPassword"
+MYSQL_HOST = environ['MYSQL_HOST']
+# MYSQL_PORT = getenv('MYSQL_PORT', '3306')
+MYSQL_USER = "-u" + environ['MYSQL_USER']
+MYSQL_PASS = "-p" + environ['MYSQL_PASSWORD']
 
 TESTUSER_PW = 'EC62DEF08F5E4FD556DAA86AEC5F3FB0390EF8A862A41ECA'
 
@@ -32,7 +36,7 @@ with open(APACHE_CONF_FILE) as f:
     BRANCHES =  re.findall(r'Use +SpecifyVH +.* +(.*) +.*$', conf, re.MULTILINE)
 
 @route('/')
-def main():
+def main() -> Any:
     try:
         with open(DB_MAP_FILE) as f:
             db_map = json.load(f)
@@ -49,7 +53,7 @@ def main():
     #                             "log", "-n", "10"])
 
 
-    show_databases = check_output(["/usr/bin/mysql", MYSQL_USER, MYSQL_PASS, "-e", "show databases"])
+    show_databases = check_output(["/usr/bin/mysql", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, "-e", "show databases"]).decode('utf-8')
     available_dbs = set(show_databases.split('\n')[1:]) - {'', 'information_schema', 'performance_schema', 'mysql', 'sys'}
     return template('main.tpl',
                     servers=SERVERS,
@@ -60,7 +64,7 @@ def main():
                     host=request.get_header('Host'))
 
 @route('/set_dbs/', method='POST')
-def set_dbs():
+def set_dbs() -> Any:
     db_map = {server: db
               for server in SERVERS
               for db in [ request.forms[server] ]
@@ -73,11 +77,11 @@ def set_dbs():
     redirect('/')
 
 @route('/upload/')
-def upload_form():
+def upload_form() -> Any:
     return template('upload_db.html')
 
 @route('/upload/', method='POST')
-def upload_db():
+def upload_db() -> Any:
     db_name = request.forms['dbname']
     upload_file = request.files['file'].file
 
@@ -119,7 +123,7 @@ def upload_db():
     yield "done.\n"
 
 @route('/export/')
-def export():
+def export() -> Any:
     db_name = request.query['dbname']
     mysqldump = Popen(["/usr/bin/mysqldump", MYSQL_USER, MYSQL_PASS, db_name], stdout=PIPE)
 
@@ -134,18 +138,18 @@ def export():
     return result()
 
 @route('/drop/')
-def drop_form():
+def drop_form() -> Any:
     db_name = request.query['dbname']
     return template('drop.tpl', db=db_name)
 
 @route('/drop/', method='POST')
-def drop():
+def drop() -> Any:
     db_name = request.forms['dbname']
     call(["/usr/bin/mysqladmin", "-f", MYSQL_USER, MYSQL_PASS, "drop", db_name])
     redirect('/')
 
 @route('/listusers/')
-def list_users():
+def list_users() -> Any:
     db_name = request.query['dbname']
     users = check_output(["/usr/bin/mysql", MYSQL_USER, MYSQL_PASS, db_name,
                           "--html", "-e", "select name, usertype from specifyuser"])
@@ -153,7 +157,7 @@ def list_users():
 
 
 @route('/github_hook/', method='POST')
-def github_hook():
+def github_hook() -> Any:
     for dir in SPECIFY7_DIRS:
         check_call(["/usr/bin/git",
                     "--work-tree=" + dir,
