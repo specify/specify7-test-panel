@@ -4,8 +4,7 @@ LABEL maintainer="Specify Collections Consortium <github.com/specify>"
 
 RUN apt-get update && apt-get -y install --no-install-recommends \
         python3 \
-        python3-bottle \
-        python3-mypy \
+        python3-venv \
         mariadb-client \
         && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -16,7 +15,12 @@ RUN mkdir -p /home/specify && chown specify.specify /home/specify
 
 WORKDIR /home/specify
 USER specify
+
+COPY requirements.txt ./
+
+RUN python3 -m venv ve
+RUN ve/bin/pip install --no-cache-dir -r requirements.txt
+
 COPY . .
 
-
-CMD python3 ./specifypanel.py
+CMD ["ve/bin/python", "./specifypanel.py"]

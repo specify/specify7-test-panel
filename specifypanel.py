@@ -1,27 +1,17 @@
-import errno, re, tempfile, json
+import errno, re, tempfile, json, requests, pickle
+from glob import glob
 from os import environ, getenv, path
 from subprocess import Popen, PIPE, call, check_call, check_output
 from bottle import route, template, request, response, abort, static_file, redirect # type: ignore
 
-from typing import Any
+from typing import Any, Dict, List, Optional, NamedTuple
 
 CHUNK_SIZE = 2**16
 
 HOME_DIR = path.expanduser("~")
 SELF_DIR = path.dirname(__file__)
-
-SPECIFY7_DIRS = (
-    path.join(HOME_DIR, "specify7-develop"),
-    path.join(HOME_DIR, "specify7-master"),
-)
-
-DB_MAP_FILE = path.join(SELF_DIR, 'db_map.json')
-APACHE_CONF_FILE = path.join(SELF_DIR, 'specifypanel_apache.conf')
-
-# VIRTHOST_WSGI_FILES = [path.join(dir, 'specifyweb_vh.wsgi') for dir in SPECIFY7_DIRS]
-WSGI_FILE = path.join(HOME_DIR, "servers", "tricky.wsgi")
-
-PANEL_WSGI = path.join(SELF_DIR, 'specifypanel.wsgi')
+PICKLE_FILE = path.join(SELF_DIR, "state.pickle")
+DB_DIR = "/tmp"
 
 MYSQL_HOST = environ['MYSQL_HOST']
 # MYSQL_PORT = getenv('MYSQL_PORT', '3306')
@@ -30,49 +20,79 @@ MYSQL_PASS = "-p" + environ['MYSQL_PASSWORD']
 
 TESTUSER_PW = 'EC62DEF08F5E4FD556DAA86AEC5F3FB0390EF8A862A41ECA'
 
-with open(APACHE_CONF_FILE) as f:
-    conf = f.read()
-    SERVERS = re.findall(r'Use +SpecifyVH +(.*)$', conf, re.MULTILINE)
-    BRANCHES =  re.findall(r'Use +SpecifyVH +.* +(.*) +.*$', conf, re.MULTILINE)
+class Tag(NamedTuple):
+    name: str
+    updated: str
 
-@route('/')
-def main() -> Any:
+class Sp7Server(NamedTuple):
+    tag: str
+    database: str
+
+class State(NamedTuple):
+    db1: Optional[Sp7Server]
+    db2: Optional[Sp7Server]
+    db3: Optional[Sp7Server]
+    db4: Optional[Sp7Server]
+    db5: Optional[Sp7Server]
+    db6: Optional[Sp7Server]
+
+
+def load_state() -> State:
     try:
-        with open(DB_MAP_FILE) as f:
-            db_map = json.load(f)
+        with open(PICKLE_FILE, "rb") as f:
+            state = pickle.load(f)
+            assert isinstance(state, State)
+            return state
     except IOError as e:
         if e.errno == errno.ENOENT:
-            db_map = {}
+            return State(None,None,None,None,None,None)
         else:
             raise
 
-    # for dir in SPECIFY7_DIRS:
-    #     git_log = check_output(["/usr/bin/git",
-    #                             "--work-tree=" + dir,
-    #                             "--git-dir=" + path.join(dir, '.git'),
-    #                             "log", "-n", "10"])
+def get_tags(image: str) -> List[Tag]:
+    resp = requests.get("https://hub.docker.com/v2/repositories/specifyconsortium/{}/tags/".format(image)).json()
+    tags = [
+        Tag(r['name'], r['last_updated'])
+        for r in resp['results']
+        if not r['name'].startswith('sha')
+    ]
+    return sorted(tags, key=lambda tag: tag.name)
 
+@route('/')
+def main() -> Any:
+    state = load_state()
 
+    sp7_tags = get_tags("specify7-service")
+    sp6_tags = get_tags("specify6-service")
     show_databases = check_output(["/usr/bin/mysql", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, "-e", "show databases"]).decode('utf-8')
     available_dbs = set(show_databases.split('\n')[1:]) - {'', 'information_schema', 'performance_schema', 'mysql', 'sys'}
     return template('main.tpl',
-                    servers=SERVERS,
-                    branches=BRANCHES,
-                    db_map=db_map,
+                    sp7_tags=sp7_tags,
+                    sp6_tags=sp6_tags,
+                    state=state,
                     available_dbs=sorted(available_dbs, key=str.lower),
                     git_log="", #git_log,
                     host=request.get_header('Host'))
 
-@route('/set_dbs/', method='POST')
-def set_dbs() -> Any:
-    db_map = {server: db
-              for server in SERVERS
-              for db in [ request.forms[server] ]
-              if db != 'None'}
-    with open(DB_MAP_FILE, 'w') as f:
-        json.dump(db_map, f)
 
-    check_call(['/usr/bin/touch', WSGI_FILE])
+@route('/update_state/', method='POST')
+def update_state() -> Any:
+    state = State._make(
+        Sp7Server(
+            tag=request.forms[server + "-sp7-tag"],
+            database=request.forms[server + "-db"],
+        )
+        for server in State._fields
+    )
+
+    with open(path.join(SELF_DIR, "docker-compose.yml"), "w") as docker_compose:
+        docker_compose.write(template('docker-compose.tpl', state=state))
+
+    with open(path.join(SELF_DIR, "nginx.conf"), "w") as nginx:
+        nginx.write(template('nginx.tpl', state=state))
+
+    with open(PICKLE_FILE, 'wb') as f:
+        pickle.dump(state, f)
 
     redirect('/')
 
@@ -85,20 +105,21 @@ def upload_db() -> Any:
     db_name = request.forms['dbname']
     upload_file = request.files['file'].file
 
-    create_db_re = re.compile(r'^CREATE DATABASE.*$', re.M)
-    use_db_re = re.compile(r'^USE `.*$', re.M)
+    create_db_re = re.compile(b'^CREATE DATABASE.*$', re.M)
+    use_db_re = re.compile(b'^USE `.*$', re.M)
 
     response.set_header('Content-Type', 'text/plain')
 
     yield "dropping db.\n"
-    call(["/usr/bin/mysqladmin", "-f", MYSQL_USER, MYSQL_PASS, "drop", db_name])
+    call(["/usr/bin/mysqladmin", "-f", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, "drop", db_name])
     yield "creating db.\n"
-    check_call(["/usr/bin/mysqladmin", MYSQL_USER, MYSQL_PASS, "create", db_name])
+    check_call(["/usr/bin/mysqladmin", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, "create", db_name])
     yield "loading db.\n"
-    mysql = Popen(["/usr/bin/mysql", MYSQL_USER, MYSQL_PASS, db_name], stdin=PIPE)
+    mysql = Popen(["/usr/bin/mysql", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, db_name], stdin=PIPE)
+    assert mysql.stdin is not None
 
     loaded = 0
-    for chunk in iter(lambda: upload_file.read(CHUNK_SIZE), ""):
+    for chunk in iter(lambda: upload_file.read(CHUNK_SIZE), b""):
         loaded += len(chunk)
         chunk = re.sub(create_db_re, '', chunk)
         chunk = re.sub(use_db_re, '', chunk)
@@ -107,31 +128,31 @@ def upload_db() -> Any:
     mysql.stdin.close()
     mysql.wait()
 
-    yield "applying migrations.\n"
-    dir = SPECIFY7_DIRS[0]
-    check_call(['/usr/bin/make',
-                '-C', dir,
-                'django_migrations',
-                'VIRTUAL_ENV=%s' % path.join(dir, 'virtualenv'),
-                'SPECIFY_SIX=%s' % path.join(SELF_DIR, 'Specify6'),
-                'SPECIFY_DATABASE_NAME=%s' % db_name])
+    # yield "applying migrations.\n"
+    # dir = SPECIFY7_DIRS[0]
+    # check_call(['/usr/bin/make',
+    #             '-C', dir,
+    #             'django_migrations',
+    #             'VIRTUAL_ENV=%s' % path.join(dir, 'virtualenv'),
+    #             'SPECIFY_SIX=%s' % path.join(SELF_DIR, 'Specify6'),
+    #             'SPECIFY_DATABASE_NAME=%s' % db_name])
 
     if 'reset_passwds' in request.forms:
         yield 'resetting passwords.\n'
-        check_call(["/usr/bin/mysql", MYSQL_USER, MYSQL_PASS, db_name, '-e',
+        check_call(["/usr/bin/mysql", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, db_name, '-e',
                     "update specifyuser set password = '%s'" % TESTUSER_PW])
     yield "done.\n"
 
 @route('/export/')
 def export() -> Any:
     db_name = request.query['dbname']
-    mysqldump = Popen(["/usr/bin/mysqldump", MYSQL_USER, MYSQL_PASS, db_name], stdout=PIPE)
+    mysqldump = Popen(["/usr/bin/mysqldump", "-q", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, db_name], stdout=PIPE)
 
     response.set_header('Content-Type', 'text/plain')
     response.set_header('Content-Disposition', 'attachment; filename=%s.sql' % db_name)
 
     def result():
-        for chunk in iter(lambda: mysqldump.stdout.read(CHUNK_SIZE), ""):
+        for chunk in iter(lambda: mysqldump.stdout.read(CHUNK_SIZE), b""):
             yield chunk
         mysqldump.wait()
 
@@ -145,32 +166,18 @@ def drop_form() -> Any:
 @route('/drop/', method='POST')
 def drop() -> Any:
     db_name = request.forms['dbname']
-    call(["/usr/bin/mysqladmin", "-f", MYSQL_USER, MYSQL_PASS, "drop", db_name])
+    call(["/usr/bin/mysqladmin", "-f", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, "drop", db_name])
     redirect('/')
 
 @route('/listusers/')
 def list_users() -> Any:
     db_name = request.query['dbname']
-    users = check_output(["/usr/bin/mysql", MYSQL_USER, MYSQL_PASS, db_name,
+    users = check_output(["/usr/bin/mysql", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, db_name,
                           "--html", "-e", "select name, usertype from specifyuser"])
     yield users
-
-
-@route('/github_hook/', method='POST')
-def github_hook() -> Any:
-    for dir in SPECIFY7_DIRS:
-        check_call(["/usr/bin/git",
-                    "--work-tree=" + dir,
-                    "--git-dir=" + path.join(dir, '.git'),
-                    "pull"])
-    #     check_call(['/usr/bin/make', '-C', dir])
-
-    # for f in VIRTHOST_WSGI_FILES:
-    #     check_call(['/usr/bin/touch', f])
-    # check_call(['/usr/bin/touch', PANEL_WSGI])
 
 
 if __name__ == '__main__':
     from bottle import run, debug
     debug(True)
-    run(host='0.0.0.0', port='8080', reloader=True)
+    run(host='0.0.0.0', port='8080')

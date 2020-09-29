@@ -7,46 +7,51 @@
 
 <body>
   <h3>Specify Test Servers</h3>
-  <form method="post" action="set_dbs/">
+  <form method="post" action="update_state/">
     <table style="text-align: center; width: 100%">
-      <tr><th>Server</th><th>Branch</th><th>Database</th></tr>
-      %for server, branch in zip(servers, ['develop','develop','develop','master','master','master',]):
+      <tr><th>Server</th><th>Specify7 Build</th><th>Specify6 Build</th><th>Database</th></tr>
+      %for server, info in state._asdict().items():
       <tr>
         <td><a href="http://{{server + '.' + host}}/">{{server}}</a></td>
-        <td>{{branch}}</td>
         <td>
-          <select name="{{server}}">
-            %if db_map.get(server, None) not in available_dbs:
-            <option value="None" selected>None</option>
+          <select name="{{server}}-sp7-tag">
+            %for choice in sp7_tags:
+            <option value="{{choice.name}}" {{'selected' if info and choice == info.tag else ''}}>{{choice.name}}</option>
             %end
+          </select>
+        </td>
+        <td>
+          <select name="{{server}}-sp6-tag">
+            %for choice in sp6_tags:
+            <option value="{{choice.name}}">{{choice.name}}</option>
+            %end
+          </select>
+        </td>
+        <td>
+          <select name="{{server}}-db">
             %for choice in available_dbs:
-            <option value="{{choice}}" {{'selected' if choice == db_map.get(server, None) else ''}}>{{choice}}</option>
+            <option value="{{choice}}" {{'selected' if info and choice == info.database else ''}}>{{choice}}</option>
             %end
           </select>
         </td>
       </tr>
       %end
     </table>
-    <input type="submit" value="Set Databases">
+    <input id="update-state" type="submit" value="Apply">
   </form>
   <h3>Test Databases</h3>
   <dl>
     %for db in available_dbs:
     <dt>{{db}}</dt>
     <dd>
-      <a href="/export/?dbname={{db}}">download</a>
+      <a href="/export/?dbname={{db}}">export</a>
       <a href="/drop/?dbname={{db}}">drop</a>
       <!-- <a href="/sync/?dbname={{db}}">sync</a> -->
       <a href="/listusers/?dbname={{db}}">list users</a>
     </dd>
     %end
     <dt>New</dt>
-    <dd><a href="/upload/">upload</a></dd>
+    <dd><a href="/upload/">import</a></dd>
   </dl>
-  <h3>Git Log</h3>
-  <pre>
-{{git_log}}
-  </pre>
-  <a href="https://github.com/specify/specifyweb/commits/master">(more)</a>
 </body>
 </html>
