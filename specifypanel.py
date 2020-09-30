@@ -3,6 +3,7 @@ from glob import glob
 from os import environ, getenv, path
 from subprocess import Popen, PIPE, call, check_call, check_output
 from bottle import route, template, request, response, abort, static_file, redirect # type: ignore
+from uuid import uuid4
 
 from typing import Any, Dict, List, Optional, NamedTuple
 
@@ -11,7 +12,7 @@ CHUNK_SIZE = 2**16
 HOME_DIR = path.expanduser("~")
 SELF_DIR = path.dirname(__file__)
 PICKLE_FILE = path.join(SELF_DIR, "state.pickle")
-DB_DIR = "/tmp"
+
 
 MYSQL_HOST = environ['MYSQL_HOST']
 # MYSQL_PORT = getenv('MYSQL_PORT', '3306')
@@ -85,11 +86,11 @@ def update_state() -> Any:
         for server in State._fields
     )
 
-    with open(path.join(SELF_DIR, "docker-compose.yml"), "w") as docker_compose:
-        docker_compose.write(template('docker-compose.tpl', state=state))
-
-    with open(path.join(SELF_DIR, "nginx.conf"), "w") as nginx:
+    with open(path.join(SELF_DIR, "nginx.d", "sp7servers.conf"), "w") as nginx:
         nginx.write(template('nginx.tpl', state=state))
+
+    with open(path.join(SELF_DIR, "docker-compose.d", "docker-compose.override.yml"), "w") as docker_compose:
+        docker_compose.write(template('docker-compose.override.tpl', state=state, nginx_recreate=uuid4()))
 
     with open(PICKLE_FILE, 'wb') as f:
         pickle.dump(state, f)
