@@ -9,10 +9,7 @@ from typing import Any, Dict, List, Optional, NamedTuple
 
 CHUNK_SIZE = 2**16
 
-HOME_DIR = path.expanduser("~")
-SELF_DIR = path.dirname(__file__)
-PICKLE_FILE = path.join(SELF_DIR, "state.pickle")
-
+STATE_DIR = path.join(path.dirname(__file__), "state")
 
 MYSQL_HOST = environ['MYSQL_HOST']
 # MYSQL_PORT = getenv('MYSQL_PORT', '3306')
@@ -26,7 +23,8 @@ class Tag(NamedTuple):
     updated: str
 
 class Sp7Server(NamedTuple):
-    tag: str
+    sp7_tag: str
+    sp6_tag: str
     database: str
 
 class State(NamedTuple):
@@ -40,7 +38,7 @@ class State(NamedTuple):
 
 def load_state() -> State:
     try:
-        with open(PICKLE_FILE, "rb") as f:
+        with open(path.join(STATE_DIR, "state.pickle"), "rb") as f:
             state = pickle.load(f)
             assert isinstance(state, State)
             return state
@@ -50,6 +48,19 @@ def load_state() -> State:
         else:
             raise
 
+def save_state(state: State) -> None:
+    with open(path.join(STATE_DIR, "nginx.conf"), "w") as nginx:
+        nginx.write(template('nginx.tpl', state=state))
+
+    sp6_tags = set(s.sp6_tag for s in state if s is not None)
+
+    with open(path.join(STATE_DIR, "docker-compose.override.yml"), "w") as docker_compose:
+        docker_compose.write(template('docker-compose.override.tpl', state=state, sp6_tags=sp6_tags, nginx_recreate=uuid4()))
+
+    with open(path.join(STATE_DIR, "state.pickle"), 'wb') as f:
+        pickle.dump(state, f)
+
+
 def get_tags(image: str) -> List[Tag]:
     resp = requests.get("https://hub.docker.com/v2/repositories/specifyconsortium/{}/tags/".format(image)).json()
     tags = [
@@ -57,7 +68,7 @@ def get_tags(image: str) -> List[Tag]:
         for r in resp['results']
         if not r['name'].startswith('sha')
     ]
-    return sorted(tags, key=lambda tag: tag.name)
+    return sorted(tags, key=lambda tag: tag.name, reverse=True)
 
 @route('/')
 def main() -> Any:
@@ -71,7 +82,7 @@ def main() -> Any:
                     sp7_tags=sp7_tags,
                     sp6_tags=sp6_tags,
                     state=state,
-                    available_dbs=sorted(available_dbs, key=str.lower),
+                    available_dbs=sorted(available_dbs, key=str.lower, reverse=True),
                     git_log="", #git_log,
                     host=request.get_header('Host'))
 
@@ -80,21 +91,14 @@ def main() -> Any:
 def update_state() -> Any:
     state = State._make(
         Sp7Server(
-            tag=request.forms[server + "-sp7-tag"],
+            sp7_tag=request.forms[server + "-sp7-tag"],
+            sp6_tag=request.forms[server + "-sp6-tag"],
             database=request.forms[server + "-db"],
         )
         for server in State._fields
     )
 
-    with open(path.join(SELF_DIR, "nginx.d", "sp7servers.conf"), "w") as nginx:
-        nginx.write(template('nginx.tpl', state=state))
-
-    with open(path.join(SELF_DIR, "docker-compose.d", "docker-compose.override.yml"), "w") as docker_compose:
-        docker_compose.write(template('docker-compose.override.tpl', state=state, nginx_recreate=uuid4()))
-
-    with open(PICKLE_FILE, 'wb') as f:
-        pickle.dump(state, f)
-
+    save_state(state)
     redirect('/')
 
 @route('/upload/')
@@ -179,6 +183,9 @@ def list_users() -> Any:
 
 
 if __name__ == '__main__':
+    save_state(load_state())
+
     from bottle import run, debug
+
     debug(True)
     run(host='0.0.0.0', port='8080')

@@ -16,14 +16,14 @@
         <td>
           <select name="{{server}}-sp7-tag">
             %for choice in sp7_tags:
-            <option value="{{choice.name}}" {{'selected' if info and choice == info.tag else ''}}>{{choice.name}}</option>
+            <option value="{{choice.name}}" {{'selected' if info and choice.name == info.sp7_tag else ''}}>{{choice.name}}</option>
             %end
           </select>
         </td>
         <td>
           <select name="{{server}}-sp6-tag">
             %for choice in sp6_tags:
-            <option value="{{choice.name}}">{{choice.name}}</option>
+            <option value="{{choice.name}}" {{'selected' if info and choice.name == info.sp6_tag else ''}}>{{choice.name}}</option>
             %end
           </select>
         </td>
