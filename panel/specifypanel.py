@@ -55,7 +55,15 @@ def save_state(state: State) -> None:
     sp6_tags = set(s.sp6_tag for s in state if s is not None)
 
     with open(path.join(STATE_DIR, "docker-compose.override.yml"), "w") as docker_compose:
-        docker_compose.write(template('docker-compose.override.tpl', state=state, sp6_tags=sp6_tags, nginx_recreate=uuid4()))
+        docker_compose.write(template(
+            'docker-compose.override.tpl',
+            state=state,
+            sp6_tags=sp6_tags,
+            nginx_recreate=uuid4(),
+            db_host=environ['MYSQL_HOST'],
+            db_user=environ['MYSQL_USER'],
+            db_pass=environ['MYSQL_PASSWORD'],
+        ))
 
     with open(path.join(STATE_DIR, "state.pickle"), 'wb') as f:
         pickle.dump(state, f)

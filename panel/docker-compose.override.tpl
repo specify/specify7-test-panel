@@ -11,9 +11,9 @@ services:
       - "{{name}}-static-files:/volumes/static-files"
     environment:
       - DATABASE_NAME={{server.database}}
-      - DATABASE_HOST=mariadb
-      - MASTER_NAME=master
-      - MASTER_PASSWORD=master
+      - DATABASE_HOST={{db_host}}
+      - MASTER_NAME={{db_user}}
+      - MASTER_PASSWORD={{db_pass}}
       - SECRET_KEY="change this to some unique random string"
       - REPORT_RUNNER_HOST=report-runner
       - REPORT_RUNNER_PORT=8080
