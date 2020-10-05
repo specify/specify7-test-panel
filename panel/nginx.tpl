@@ -3,7 +3,7 @@
 %if server:
 server {
     listen 80;
-    server_name {{name}};
+    server_name {{name}}.biwebdbtest.nhm.ku.edu;
     root /usr/share/nginx;
 
     location /static/ {

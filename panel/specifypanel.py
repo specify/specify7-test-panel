@@ -90,7 +90,7 @@ def main() -> Any:
                     sp7_tags=sp7_tags,
                     sp6_tags=sp6_tags,
                     state=state,
-                    available_dbs=sorted(available_dbs, key=str.lower, reverse=True),
+                    available_dbs=sorted(available_dbs, key=str.lower),
                     git_log="", #git_log,
                     host=request.get_header('Host'))
 
