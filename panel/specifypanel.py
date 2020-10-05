@@ -182,6 +182,18 @@ def drop() -> Any:
     call(["/usr/bin/mysqladmin", "-f", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, "drop", db_name])
     redirect('/')
 
+@route('/resetpasswds/')
+def reset_passwords_form():
+    db_name = request.query['dbname']
+    return template('reset_passwords.tpl', db=db_name)
+    
+@route('/resetpasswds/', method='POST')
+def reset_passwords():
+    db_name = request.forms['dbname']
+    check_call(["/usr/bin/mysql", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, db_name, '-e',
+                "update specifyuser set password = '%s'" % TESTUSER_PW])
+    redirect('/')
+    
 @route('/listusers/')
 def list_users() -> Any:
     db_name = request.query['dbname']

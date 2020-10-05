@@ -48,6 +48,7 @@
       <a href="/drop/?dbname={{db}}">drop</a>
       <!-- <a href="/sync/?dbname={{db}}">sync</a> -->
       <a href="/listusers/?dbname={{db}}">list users</a>
+      <a href="/resetpasswds/?dbname={{db}}">reset-passwords</a>
     </dd>
     %end
     <dt>New</dt>
@@ -55,3 +56,4 @@
   </dl>
 </body>
 </html>
+
