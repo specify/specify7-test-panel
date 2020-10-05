@@ -1,3 +1,6 @@
-/db_map.json
 /htpasswd
 *.pyc
+/.mypy_cache/
+/panel-state/docker-compose.override.yml
+/panel-state/state.pickle
+/panel/ve/

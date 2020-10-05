@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+        
+  mariadb:
+    image: mariadb
+    volumes:
+      - "database:/var/lib/mysql"
+      # - "./sp7demofish.sql:/docker-entrypoint-initdb.d/sp7demofish.sql"
+    # environment:
+      # - MYSQL_DATABASE=sp7demofish
+      # - MYSQL_USER=master
+      # - MYSQL_PASSWORD=master
+      # - MYSQL_ROOT_PASSWORD=root
+
+  nginx:
+    image: nginx
+    depends_on:
+      - panel
+    ports:
+      - "80:80"
+    volumes:
+      - "./panel.conf:/etc/nginx/conf.d/default.conf:ro"
+      - "./panel-state/nginx.conf:/etc/nginx/conf.d/var.conf:ro"
+
+  report-runner:
+    image: specifyconsortium/report-runner
+
+  panel:
+    user: 1000:100
+    build:
+      context: panel
+    init: true
+    environment:
+      - MYSQL_HOST=mariadb
+      - MYSQL_USER=master
+      - MYSQL_PASSWORD=master
+    volumes:
+      - "./panel-state:/home/specify/state"
+
+volumes:
+  database:
