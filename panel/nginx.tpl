@@ -3,10 +3,16 @@
 %if server:
 server {
     listen 80;
-    server_name {{name}}.biwebdbtest.nhm.ku.edu;
+    server_name {{name}}.{{host}};
     root /usr/share/nginx;
 
     location /static/ {
+        if ($request_method = 'GET') {
+           add_header 'Access-Control-Allow-Origin' '*';
+           add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+           add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+           add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+        }
         root /volumes;
         rewrite ^/static/config/(.*)$ /specify{{server.sp6_tag}}/config/$1 break;
         rewrite ^/static/depository/(.)$ /{{name}}-static-files/depository/$1 break;
@@ -14,6 +20,12 @@ server {
     }
 
     location / {
+        if ($request_method = 'GET') {
+           add_header 'Access-Control-Allow-Origin' '*';
+           add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+           add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+           add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+        }
         resolver 127.0.0.11 valid=30s;
         set $backend "http://{{name}}:8000";
         proxy_pass $backend;

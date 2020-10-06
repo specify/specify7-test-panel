@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+
+<body>
+  <h3>Specify Test Servers</h3>
+    <table style="text-align: center; width: 100%">
+      <tr><th>Server</th><th>Specify7 Build</th><th>Specify6 Build</th><th>Database</th></tr>
+      %for server, info in state._asdict().items():
+      <tr class="server">
+        <td><a class="server-link" href="http://{{server + '.' + host}}/">{{server}}</a></td>
+        <td><span class="sp7-build">?</span> - <span class="sp7-sha">?</span> - <span class="sp7-build-date">?</span></td>
+        <td class="sp6-build"> </td>
+        <td class="database"> </td>
+      </tr>
+      %end
+    </table>
+    <a href="/configure/">Change configuration.</a>
+    <script>
+      function update() {
+          $('tr.server').each(function() {
+              var tr = this;
+              var server = $('a.server-link', tr).attr('href')
+              $.get(server + "static/build_version.txt").done(function(s) {
+                  $('.sp7-build', tr).text(s);
+              });
+              $.get(server + "static/git_sha.txt").done(function(s) {
+                  $('.sp7-sha', tr).text(s);
+              });
+              $.get(server + "static/build_date.txt").done(function(s) {
+                  var d = new Date(s);
+                  $('.sp7-build-date', tr).text(d.toLocaleString());
+              });
+              $.get(server + "context/system_info.json").done(function(s) {
+                  $('.sp6-build', tr).text(s.specify6_version);
+                  $('.database', tr).text(s.database);
+              });
+          });
+          setTimeout(update, 10*1000);
+      }
+      update();
+    </script>
+</body>
+</html>
+

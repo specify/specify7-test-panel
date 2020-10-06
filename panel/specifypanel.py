@@ -48,9 +48,9 @@ def load_state() -> State:
         else:
             raise
 
-def save_state(state: State) -> None:
+def save_state(state: State, host: str) -> None:
     with open(path.join(STATE_DIR, "nginx.conf"), "w") as nginx:
-        nginx.write(template('nginx.tpl', state=state))
+        nginx.write(template('nginx.tpl', state=state, host=host))
 
     sp6_tags = set(s.sp6_tag for s in state if s is not None)
 
@@ -82,11 +82,17 @@ def get_tags(image: str) -> List[Tag]:
 def main() -> Any:
     state = load_state()
 
+    return template('main.html', state=state, host=request.get_header('Host'))
+
+@route('/configure/')
+def state() -> Any:
+    state = load_state()
+
     sp7_tags = get_tags("specify7-service")
     sp6_tags = get_tags("specify6-service")
     show_databases = check_output(["/usr/bin/mysql", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, "-e", "show databases"]).decode('utf-8')
     available_dbs = set(show_databases.split('\n')[1:]) - {'', 'information_schema', 'performance_schema', 'mysql', 'sys'}
-    return template('main.tpl',
+    return template('state.tpl',
                     sp7_tags=sp7_tags,
                     sp6_tags=sp6_tags,
                     state=state,
@@ -95,7 +101,7 @@ def main() -> Any:
                     host=request.get_header('Host'))
 
 
-@route('/update_state/', method='POST')
+@route('/configure/update_state/', method='POST')
 def update_state() -> Any:
     state = State._make(
         Sp7Server(
@@ -106,7 +112,7 @@ def update_state() -> Any:
         for server in State._fields
     )
 
-    save_state(state)
+    save_state(state, request.get_header('Host'))
     redirect('/')
 
 @route('/upload/')
@@ -186,14 +192,14 @@ def drop() -> Any:
 def reset_passwords_form():
     db_name = request.query['dbname']
     return template('reset_passwords.tpl', db=db_name)
-    
+
 @route('/resetpasswds/', method='POST')
 def reset_passwords():
     db_name = request.forms['dbname']
     check_call(["/usr/bin/mysql", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, db_name, '-e',
                 "update specifyuser set password = '%s'" % TESTUSER_PW])
     redirect('/')
-    
+
 @route('/listusers/')
 def list_users() -> Any:
     db_name = request.query['dbname']
@@ -203,8 +209,6 @@ def list_users() -> Any:
 
 
 if __name__ == '__main__':
-    save_state(load_state())
-
     from bottle import run, debug
 
     debug(True)

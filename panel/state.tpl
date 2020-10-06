@@ -12,7 +12,7 @@
       <tr><th>Server</th><th>Specify7 Build</th><th>Specify6 Build</th><th>Database</th></tr>
       %for server, info in state._asdict().items():
       <tr>
-        <td><a href="http://{{server + '.' + host}}/">{{server}}</a></td>
+        <td>{{server}}</td>
         <td>
           <select name="{{server}}-sp7-tag">
             %for choice in sp7_tags:
