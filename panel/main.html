@@ -12,7 +12,7 @@
       %for server, info in state._asdict().items():
       <tr class="server">
         <td><a class="server-link" href="http://{{server + '.' + host}}/">{{server}}</a></td>
-        <td><span class="sp7-build">?</span> - <span class="sp7-sha">?</span> - <span class="sp7-build-date">?</span></td>
+        <td><span class="sp7-build">?</span> - <a class="sp7-sha">?</a> - <span class="sp7-build-date">?</span></td>
         <td class="sp6-build"> </td>
         <td class="database"> </td>
       </tr>
@@ -28,7 +28,9 @@
                   $('.sp7-build', tr).text(s);
               });
               $.get(server + "static/git_sha.txt").done(function(s) {
-                  $('.sp7-sha', tr).text(s);
+                  $('.sp7-sha', tr)
+                      .text(s.slice(0,8))
+                      .attr('href', 'https://github.com/specify/specify7/commits/' + s);
               });
               $.get(server + "static/build_date.txt").done(function(s) {
                   var d = new Date(s);
