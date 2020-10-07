@@ -13,7 +13,7 @@ services:
   #     - MYSQL_ROOT_PASSWORD=root
 
   nginx:
-    image: nginx
+    image: nginx:1.19.3
     depends_on:
       - panel
     ports:
