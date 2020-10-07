@@ -70,7 +70,7 @@ def save_state(state: State, host: str) -> None:
 
 
 def get_tags(image: str) -> List[Tag]:
-    resp = requests.get("https://hub.docker.com/v2/repositories/specifyconsortium/{}/tags/".format(image)).json()
+    resp = requests.get("https://hub.docker.com/v2/repositories/specifyconsortium/{}/tags/?page_size=1000".format(image)).json()
     tags = [
         Tag(r['name'], r['last_updated'])
         for r in resp['results']
