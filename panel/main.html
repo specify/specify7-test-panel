@@ -24,22 +24,34 @@
           $('tr.server').each(function() {
               var tr = this;
               var server = $('a.server-link', tr).attr('href')
-              $.get(server + "static/build_version.txt").done(function(s) {
-                  $('.sp7-build', tr).text(s);
-              });
-              $.get(server + "static/git_sha.txt").done(function(s) {
-                  $('.sp7-sha', tr)
-                      .text(s.slice(0,8))
-                      .attr('href', 'https://github.com/specify/specify7/commits/' + s);
-              });
-              $.get(server + "static/build_date.txt").done(function(s) {
-                  var d = new Date(s);
-                  $('.sp7-build-date', tr).text(d.toLocaleString());
-              });
-              $.get(server + "context/system_info.json").done(function(s) {
-                  $('.sp6-build', tr).text(s.specify6_version);
-                  $('.database', tr).text(s.database);
-              });
+              $.get(server + "static/build_version.txt")
+                  .catch(function() { return "??"; })
+                  .done(function(s) {
+                      $('.sp7-build', tr).text(s);
+                  });
+
+              $.get(server + "static/git_sha.txt")
+                  .done(function(s) {
+                      $('.sp7-sha', tr)
+                          .text(s.slice(0,8))
+                          .attr('href', 'https://github.com/specify/specify7/commits/' + s);
+                  })
+                  .fail(function() {
+                      $('.sp7-sha', tr).text("??").attr('href', 'https://github.com/specify/specify7');
+                  });
+
+              $.get(server + "static/build_date.txt")
+                  .then(function(s) { return new Date(s).toLocaleString(); }, function() { return "??"; })
+                  .done(function(s) { $('.sp7-build-date', tr).text(s); });
+
+              $.get(server + "context/system_info.json")
+                  .done(function(s) {
+                      $('.sp6-build', tr).text(s.specify6_version);
+                      $('.database', tr).text(s.database);
+                  }).fail(function() {
+                      $('.sp6-build', tr).text("??");
+                      $('.database', tr).text("??");
+                  });
           });
           setTimeout(update, 10*1000);
       }
