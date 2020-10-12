@@ -20,6 +20,8 @@
     </table>
     <a href="/configure/">Change configuration.</a>
     <script>
+      $.ajaxSetup({cache: false});
+
       function update() {
           $('tr.server').each(function() {
               var tr = this;
