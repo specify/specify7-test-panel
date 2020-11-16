@@ -17,6 +17,29 @@ services:
       - SECRET_KEY="change this to some unique random string"
       - REPORT_RUNNER_HOST=report-runner
       - REPORT_RUNNER_PORT=8080
+      - CELERY_BROKER_URL=redis://redis/0
+      - CELERY_RESULT_BACKEND=redis://redis/1
+      - SP7_DEBUG=true
+      - LOG_LEVEL=DEBUG
+
+  {{name}}-worker:
+    image: specifyconsortium/specify7-service:{{server.sp7_tag}}
+    command: ve/bin/celery -A specifyweb worker -l INFO --concurrency=1 -Q {{server.database}}
+    init: true
+    volumes:
+      - "specify{{server.sp6_tag}}:/opt/Specify:ro"
+    environment:
+      - LC_ALL=C.UTF-8
+      - LANG=C.UTF-8
+      - DATABASE_NAME={{server.database}}
+      - DATABASE_HOST={{db_host}}
+      - MASTER_NAME={{db_user}}
+      - MASTER_PASSWORD={{db_pass}}
+      - SECRET_KEY="change this to some unique random string"
+      - REPORT_RUNNER_HOST=report-runner
+      - REPORT_RUNNER_PORT=8080
+      - CELERY_BROKER_URL=redis://redis/0
+      - CELERY_RESULT_BACKEND=redis://redis/1
       - SP7_DEBUG=true
       - LOG_LEVEL=DEBUG
 %end

@@ -12,6 +12,9 @@ services:
   #     - MYSQL_PASSWORD=master
   #     - MYSQL_ROOT_PASSWORD=root
 
+  redis:
+    image: redis
+
   nginx:
     image: nginx:1.19.3
     depends_on:
