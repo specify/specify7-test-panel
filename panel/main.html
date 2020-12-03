@@ -12,7 +12,7 @@
       %for server, info in state._asdict().items():
       <tr class="server">
         <td><a class="server-link" href="http://{{server + '.' + host}}/">{{server}}</a></td>
-        <td><span class="sp7-build">?</span> - <a class="sp7-sha">?</a> - <span class="sp7-build-date">?</span></td>
+        <td><span class="sp7-build">?</span> - <a class="sp7-sha">?</a> - <span class="current"></span> - <span class="sp7-build-date">?</span></td>
         <td class="sp6-build"> </td>
         <td class="database"> </td>
       </tr>
@@ -22,17 +22,35 @@
     <script>
       $.ajaxSetup({cache: false});
 
+      var branchesByName = {};
+
+      function getBranches() {
+          $.get("https://api.github.com/repos/specify/specify7/branches")
+              .done(function(branches) {
+                  branchesByName = {};
+                  branches.forEach(function(branch) {
+                      branchesByName[branch.name] = branch;
+                  });
+              });
+          setTimeout(getBranches, 5*60*1000);
+      }
+
       function update() {
           $('tr.server').each(function() {
               var tr = this;
               var server = $('a.server-link', tr).attr('href')
-              $.get(server + "static/build_version.txt")
+
+              var getBuildName = $.get(server + "static/build_version.txt");
+
+              getBuildName
                   .catch(function() { return "??"; })
                   .done(function(s) {
                       $('.sp7-build', tr).text(s);
                   });
 
-              $.get(server + "static/git_sha.txt")
+              var getBuildSha = $.get(server + "static/git_sha.txt");
+
+              getBuildSha
                   .done(function(s) {
                       $('.sp7-sha', tr)
                           .text(s.slice(0,8))
@@ -41,6 +59,17 @@
                   .fail(function() {
                       $('.sp7-sha', tr).text("??").attr('href', 'https://github.com/specify/specify7');
                   });
+
+              $.when(getBuildName, getBuildSha).done(function(nameP, shaP) {
+                  var name = nameP[0].trim();
+                  var sha = shaP[0].trim();
+
+                  var branchFromGH = branchesByName[name];
+                  if (branchFromGH) {
+                      var status = branchFromGH.commit.sha === sha ? "current" : "behind";
+                      $('.current', tr).text(status)
+                  }
+              });
 
               $.get(server + "static/build_date.txt")
                   .then(function(s) { return new Date(s).toLocaleString(); }, function() { return "??"; })
@@ -57,7 +86,9 @@
           });
           setTimeout(update, 10*1000);
       }
+
       update();
+      getBranches();
     </script>
 </body>
 </html>
