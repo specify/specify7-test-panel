@@ -14,7 +14,11 @@
         <td><a class="server-link" href="http://{{server + '.' + host}}/">{{server}}</a></td>
         <td><span class="sp7-build">?</span> - <a class="sp7-sha">?</a> - <span class="current"></span> - <span class="sp7-build-date">?</span></td>
         <td class="sp6-build"> </td>
-        <td class="database"> </td>
+        <td>
+          <span class="database"></span>
+          <a class="list-users" title="List Users" style="display: none">lu</a>
+          <a class="reset-passwords" title="Reset Passwords" style="display: none">rp</a>
+        </td>
       </tr>
       %end
     </table>
@@ -79,9 +83,13 @@
                   .done(function(s) {
                       $('.sp6-build', tr).text(s.specify6_version);
                       $('.database', tr).text(s.database);
+                      $('.list-users', tr).attr("href", "/listusers/?dbname=" + s.database).show()
+                      $('.reset-passwords', tr).attr("href", "/resetpasswds/?dbname=" + s.database).show()
                   }).fail(function() {
                       $('.sp6-build', tr).text("??");
                       $('.database', tr).text("??");
+                      $('.list-users', tr).attr("href", "").hide()
+                      $('.reset-passwords', tr).attr("href", "").hide()
                   });
           });
           setTimeout(update, 10*1000);
