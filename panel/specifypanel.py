@@ -90,16 +90,22 @@ def state() -> Any:
 
     sp7_tags = get_tags("specify7-service")
     sp6_tags = get_tags("specify6-service")
-    show_databases = check_output(["/usr/bin/mysql", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, "-e", "show databases"]).decode('utf-8')
-    available_dbs = set(show_databases.split('\n')[1:]) - {'', 'information_schema', 'performance_schema', 'mysql', 'sys'}
     return template('state.tpl',
                     sp7_tags=sp7_tags,
                     sp6_tags=sp6_tags,
                     state=state,
-                    available_dbs=sorted(available_dbs, key=str.lower),
+                    available_dbs=get_available_dbs(),
                     git_log="", #git_log,
                     host=request.get_header('Host'))
 
+@route('/databases/')
+def databases() -> Any:
+    return template('databases.tpl', available_dbs=get_available_dbs())
+
+def get_available_dbs() -> Any:
+    show_databases = check_output(["/usr/bin/mysql", "-h", MYSQL_HOST, MYSQL_USER, MYSQL_PASS, "-e", "show databases"]).decode('utf-8')
+    dbs = set(show_databases.split('\n')[1:]) - {'', 'information_schema', 'performance_schema', 'mysql', 'sys'}
+    return sorted(dbs, key=str.lower)
 
 @route('/configure/update_state/', method='POST')
 def update_state() -> Any:

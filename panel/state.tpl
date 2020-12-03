@@ -6,7 +6,7 @@
 </head>
 
 <body>
-  <h3>Specify Test Servers</h3>
+  <h3>Configuration</h3>
   <form method="post" action="update_state/">
     <table style="text-align: center; width: 100%">
       <tr><th>Server</th><th>Specify7 Build</th><th>Specify6 Build</th><th>Database</th></tr>
@@ -39,21 +39,6 @@
     </table>
     <input id="update-state" type="submit" value="Apply">
   </form>
-  <h3>Test Databases</h3>
-  <dl>
-    %for db in available_dbs:
-    <dt>{{db}}</dt>
-    <dd>
-      <a href="/export/?dbname={{db}}">export</a>
-      <a href="/drop/?dbname={{db}}">drop</a>
-      <!-- <a href="/sync/?dbname={{db}}">sync</a> -->
-      <a href="/listusers/?dbname={{db}}">list users</a>
-      <a href="/resetpasswds/?dbname={{db}}">reset-passwords</a>
-    </dd>
-    %end
-    <dt>New</dt>
-    <dd><a href="/upload/">import</a></dd>
-  </dl>
 </body>
 </html>
 
