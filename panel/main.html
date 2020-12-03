@@ -30,14 +30,16 @@
       var branchesByName = {};
 
       function getBranches() {
-          $.get("https://api.github.com/repos/specify/specify7/branches")
+          var request = $.get("https://api.github.com/repos/specify/specify7/branches")
               .done(function(branches) {
                   branchesByName = {};
                   branches.forEach(function(branch) {
                       branchesByName[branch.name] = branch;
                   });
               });
+
           setTimeout(getBranches, 5*60*1000);
+          return request;
       }
 
       function update() {
@@ -96,8 +98,7 @@
           setTimeout(update, 10*1000);
       }
 
-      update();
-      getBranches();
+      getBranches().done(update);
     </script>
 </body>
 </html>
