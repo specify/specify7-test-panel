@@ -15,7 +15,7 @@ server {
         }
         root /volumes;
         rewrite ^/static/config/(.*)$ /specify{{server.sp6_tag}}/config/$1 break;
-        rewrite ^/static/depository/(.)$ /{{name}}-static-files/depository/$1 break;
+        rewrite ^/static/depository/(.*)$ /{{name}}-static-files/depository/$1 break;
         rewrite ^/static/(.*)$ /{{name}}-static-files/frontend-static/$1 break;
     }
 
