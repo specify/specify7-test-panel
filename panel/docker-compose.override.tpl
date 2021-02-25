@@ -19,12 +19,13 @@ services:
       - REPORT_RUNNER_PORT=8080
       - CELERY_BROKER_URL=redis://redis/0
       - CELERY_RESULT_BACKEND=redis://redis/1
+      - CELERY_TASK_QUEUE={{name}}
       - SP7_DEBUG=true
       - LOG_LEVEL=DEBUG
 
   {{name}}-worker:
     image: specifyconsortium/specify7-service:{{server.sp7_tag}}
-    command: ve/bin/celery -A specifyweb worker -l INFO --concurrency=1 -Q {{server.database}}
+    command: ve/bin/celery -A specifyweb worker -l INFO --concurrency=1 -Q {{name}}
     init: true
     volumes:
       - "specify{{server.sp6_tag}}:/opt/Specify:ro"
@@ -40,6 +41,7 @@ services:
       - REPORT_RUNNER_PORT=8080
       - CELERY_BROKER_URL=redis://redis/0
       - CELERY_RESULT_BACKEND=redis://redis/1
+      - CELERY_TASK_QUEUE={{name}}
       - SP7_DEBUG=true
       - LOG_LEVEL=DEBUG
 %end
