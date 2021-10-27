@@ -1,7 +1,4 @@
-/htpasswd
-*.pyc
-/.mypy_cache/
-/panel-state/docker-compose.override.yml
-/panel-state/state.pickle
-/panel/ve/
-/panel/.mypy_cache/
+node_modules
+.next
+.env*.local
+/state
