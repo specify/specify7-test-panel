@@ -5,6 +5,33 @@ authentication  and a test panel for setting configuration
 
 ![Main Page](./docs/src/main-page.png)
 
+## Create a GitHub OAuth App
+
+In order to enable authentication though GitHub and usage of GitHub
+APIs, a GitHub OAuth application needs to be configured.
+
+This can be done for a GitHub organization or user profile:
+
+1. Open organization / user settings on GitHub
+2. On the sidebar, select "Developer Settings"
+3. Select "OAuth Apps"
+4. Press "New OAuth App"
+5. Fill out the required information
+6. Set authentication callback URL to this URL:
+   ```
+   http://localhost:3000/sign-in
+   ```
+   When in production, replace `http://localhost:3000` with the actual
+   protocol + hostname
+7. Press "Generate a new client secret"
+8. In the repository, create an `.env.local` file:
+   ```yaml
+   NEXT_PUBLIC_GITHUB_CLIENT_ID=<client_id>
+   GITHUB_CLIENT_SECRET=<client_secret>
+   ```
+   Replace `<client_id>` and `<client_secret>` with the actual values
+   from the OAuth app configuration page on GitHub.
+
 ## Development
 
 // TODO: update this documentation
