@@ -1,0 +1,39 @@
+version: '3.9'
+services:
+  mariadb:
+    extends:
+      file: docker-compose.yml
+      service: mariadb
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+
+  nginx:
+    extends:
+      file: docker-compose.yml
+      service: nginx
+
+  report-runner:
+    extends:
+      file: docker-compose.yml
+      service: report-runner
+
+  panel:
+    build:
+      context: ./.
+      target: runner
+    networks:
+      - database
+      - nginx
+    restart: unless-stopped
+    volumes:
+      - './state:/app/state'
+
+volumes:
+  database:
+
+networks:
+  database:
+  nginx:
