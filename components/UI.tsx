@@ -10,5 +10,6 @@ export const Centered = ({
   </main>
 );
 
-export const unpaddedContentClassName = 'container mx-auto max-w-screen-lg';
-export const contentClassName = `${unpaddedContentClassName} mb-10 p-4`;
+export const unpaddedContentClassName =
+  'flex-1 container mx-auto max-w-screen-lg gap-10';
+export const contentClassName = `${unpaddedContentClassName} p-4`;

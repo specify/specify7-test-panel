@@ -26,7 +26,6 @@ export default function ErrorPage({
   return (
     <Layout
       title={errorCode.toString()}
-      privatePage
       localizationStrings={localizationStrings}
     >
       {(

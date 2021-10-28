@@ -19,7 +19,7 @@ COPY --from=deps /app/node_modules ./node_modules
 RUN npm run build
 
 
-# Development image
+# Common for production & development deployments
 FROM node:16.13.0-alpine3.14 AS runner-common
 WORKDIR /app
 
@@ -27,6 +27,7 @@ RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
 
 
+# Development image
 FROM runner-common AS dev-runner
 COPY . .
 RUN npm i --no-save @swc/core @swc/cli

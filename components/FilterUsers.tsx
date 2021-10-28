@@ -1,8 +1,7 @@
-import type { User } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import { UserContext } from './UserContext';
+import { User, UserContext } from './UserContext';
 import { Loading } from './ModalDialog';
 
 const defaultRedirectLocations = {
