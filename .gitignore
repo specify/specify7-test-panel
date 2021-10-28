@@ -2,3 +2,7 @@ node_modules
 .next
 .env*.local
 /state
+tsconfig.tsbuildinfo
+.tsbuildinfo
+/config/fullchain.pem
+/config/privkey.pem
