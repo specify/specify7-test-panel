@@ -6,6 +6,7 @@ const commonLocalizationStrings: LocalizationStrings<{
   readonly add: string;
   readonly delete: string;
   readonly goBack: string;
+  readonly cancel: string;
 }> = {
   'en-US': {
     yes: 'Yes',
@@ -13,6 +14,7 @@ const commonLocalizationStrings: LocalizationStrings<{
     add: 'Add',
     delete: 'Delete',
     goBack: 'Go Back',
+    cancel: 'Cancel',
   },
 };
 

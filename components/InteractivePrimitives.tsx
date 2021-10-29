@@ -10,8 +10,8 @@ export const dangerButtonClassName = `${baseButtonStyle} bg-red-600
   hover:bg-red-700`;
 export const successButtonClassName = `${baseButtonStyle} bg-green-600
   hover:bg-green-700`;
-export const dangerLinkClassName = `border-none p-none m-none text-red-500
-  hover:underline text-left`;
+export const extraButtonClassName = `${baseButtonStyle} bg-purple-600
+  hover:bg-purple-700`;
 
 export const fieldClassName = 'border p-1.5 rounded-md bg-gray-200';
 
@@ -23,8 +23,8 @@ export function LabeledField({
   readonly children: React.ReactNode;
 }): JSX.Element {
   return (
-    <label className="flex flex-col first:border-none">
-      <span className="text-sm pb-1">{label}</span>
+    <label className="first:border-none flex flex-col">
+      <span className="pb-1 text-sm">{label}</span>
       <span className={fieldClassName}>{children}</span>
     </label>
   );

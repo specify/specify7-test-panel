@@ -7,6 +7,10 @@ import { RA } from '../lib/typescriptCommonTypes';
 import { localizationStrings } from '../pages';
 import { reducer } from '../reducers/Dashboard';
 import Link from 'next/link';
+import {
+  extraButtonClassName,
+  successButtonClassName,
+} from './InteractivePrimitives';
 
 export function Dashboard({
   languageStrings,
@@ -49,25 +53,17 @@ export function Dashboard({
       </div>
       <div className="flex gap-2">
         <Link href="/databases/">
-          <a className="hover:bg-purple-800 rounded-xl p-3 bg-purple-500">
-            {languageStrings.databases}
-          </a>
+          <a className={extraButtonClassName}>{languageStrings.databases}</a>
         </Link>
         <span className="flex-1" />
-        {state.deployment.length < maxDeployments && (
-          <button
-            type="button"
-            className="hover:bg-green-800 rounded-xl p-3 bg-green-500"
-          >
-            {languageStrings.addInstance}
+        {JSON.stringify(initialState) !== JSON.stringify(state.deployment) && (
+          <button type="button" className={successButtonClassName}>
+            {languageStrings.saveChanges}
           </button>
         )}
-        {JSON.stringify(initialState) !== JSON.stringify(state.deployment) && (
-          <button
-            type="button"
-            className="hover:bg-green-800 rounded-xl p-3 bg-green-500"
-          >
-            {languageStrings.saveChanges}
+        {state.deployment.length < maxDeployments && (
+          <button type="button" className={successButtonClassName}>
+            {languageStrings.addInstance}
           </button>
         )}
       </div>
