@@ -49,8 +49,8 @@ Create `.env.local` file in the root folder of this repository:
 NEXT_PUBLIC_GITHUB_CLIENT_ID=<client_id>
 GITHUB_CLIENT_SECRET=<client_secret>
 
-MYSQL_USERNAME=master
-MYSQL_PASSWORD=master
+MYSQL_USERNAME=root
+MYSQL_PASSWORD=root
 MYSQL_HOST=mariadb
 ```
 

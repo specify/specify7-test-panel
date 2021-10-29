@@ -26,6 +26,8 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
 
+RUN apk add --no-cache mariadb-client
+
 
 # Development image
 FROM runner-common AS dev-runner

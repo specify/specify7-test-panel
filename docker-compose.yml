@@ -6,9 +6,6 @@ services:
       - database
     restart: unless-stopped
     environment:
-      - MYSQL_DATABASE=sp7demofish
-      - MYSQL_USER=master
-      - MYSQL_PASSWORD=master
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - 'database:/var/lib/mysql'
