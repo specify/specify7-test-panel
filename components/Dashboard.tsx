@@ -6,6 +6,7 @@ import { Deployment } from '../lib/deployment';
 import { RA } from '../lib/typescriptCommonTypes';
 import { localizationStrings } from '../pages';
 import { reducer } from '../reducers/Dashboard';
+import Link from 'next/link';
 
 export function Dashboard({
   languageStrings,
@@ -47,12 +48,11 @@ export function Dashboard({
         <h2 className="text-2xl">{languageStrings.customDeployments}</h2>
       </div>
       <div className="flex gap-2">
-        <a
-          className="hover:bg-purple-800 rounded-xl p-3 bg-purple-500"
-          href="/databases/"
-        >
-          {languageStrings.databases}
-        </a>
+        <Link href="/databases/">
+          <a className="hover:bg-purple-800 rounded-xl p-3 bg-purple-500">
+            {languageStrings.databases}
+          </a>
+        </Link>
         <span className="flex-1" />
         {state.deployment.length < maxDeployments && (
           <button

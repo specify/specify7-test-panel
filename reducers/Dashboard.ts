@@ -1,6 +1,10 @@
-import { Action, generateReducer } from 'typesafe-reducer';
+import { Action, generateReducer, State } from 'typesafe-reducer';
 import { Deployment } from '../lib/deployment';
-import { States } from '../stateReducers/Dashboard';
+import { RA } from '../lib/typescriptCommonTypes';
+
+type MainState = State<'MainState', { deployment: RA<Deployment> }>;
+
+export type States = MainState;
 
 type DestroyInstanceAction = Action<
   'DestroyInstanceAction',

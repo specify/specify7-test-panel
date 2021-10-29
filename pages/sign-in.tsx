@@ -25,8 +25,11 @@ const localizationStrings: LocalizationStrings<{
   },
 };
 
-export default function SignIn({code}: {readonly code: string}): JSX.Element {
-
+export default function SignIn({
+  code,
+}: {
+  readonly code: string;
+}): JSX.Element {
   const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
   const signInUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=read:org`;
 
@@ -39,79 +42,76 @@ export default function SignIn({code}: {readonly code: string}): JSX.Element {
   const languageStrings = localizationStrings[language];
 
   React.useEffect(() => {
-
-    if (code.length === 0)
-      return;
+    if (code.length === 0) return;
 
     addStatusMessage({
       message: (
         <span className={`${statusLineContentClassName} bg-blue-200`}>
-      {languageStrings.loading}
-    </span>
-      ), id: 'signInStatus',
-    });
-
-    fetch(`/api/login?code=${code}`).then(response => response.json()).then((response) => {
-      if(response.error.length > 0)
-        throw new Error(response.error);
-
-      const isSecure = window.location.protocol === 'https:';
-      const cookieString = Object.entries({
-        token: response.error,
-        path: '/',
-        'mag-age': 60 * 60 * 24 * 365,
-        samesite: 'strict',
-      }).map(([key, value]) => `${key}=${value}`).join('; ');
-      document.cookie = isSecure ? `${cookieString}; secure` : cookieString;
-      router.push('/').catch(console.error);
-    }).catch(error => {
-      console.error(error);
-      addStatusMessage({
-        message: (
-          <span className={`${statusLineContentClassName} bg-red-200`}>
-          {languageStrings.unexpectedErrorHasOccurred}:
-          <br />{error.toString()}
+          {languageStrings.loading}
         </span>
-        ), id: 'signInStatus',
-      });
+      ),
+      id: 'signInStatus',
     });
 
+    fetch(`/api/login?code=${code}`)
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.error.length > 0) throw new Error(response.error);
+
+        const isSecure = window.location.protocol === 'https:';
+        const cookieString = Object.entries({
+          token: response.error,
+          path: '/',
+          'mag-age': 60 * 60 * 24 * 365,
+          samesite: 'strict',
+        })
+          .map(([key, value]) => `${key}=${value}`)
+          .join('; ');
+        document.cookie = isSecure ? `${cookieString}; secure` : cookieString;
+        router.push('/').catch(console.error);
+      })
+      .catch((error) => {
+        console.error(error);
+        addStatusMessage({
+          message: (
+            <span className={`${statusLineContentClassName} bg-red-200`}>
+              {languageStrings.unexpectedErrorHasOccurred}:
+              <br />
+              {error.toString()}
+            </span>
+          ),
+          id: 'signInStatus',
+        });
+      });
   }, [code, language]);
 
   return (
-    <Layout
-      title={localizationStrings}
-    >
-      {(
-        _languageStrings,
-        language,
-      ): JSX.Element => (
+    <Layout title={localizationStrings}>
+      {(_languageStrings, language): JSX.Element => (
         <FilterUsers>
-          {(): JSX.Element => (
-            <Centered>
-              <div>
-                <h1 className="text-5xl">{siteInfo[language].title}</h1>
-                <div className="flex-column gap-y-1 flex pt-4">
-                  <a
-                    href={signInUrl}
-                    className="hover:bg-white box-content w-full p-4 bg-gray-200 border border-gray-200"
-                  >
-                    {languageStrings.signInWithGitHub}
-                  </a>
-                </div>
+          <Centered>
+            <div>
+              <h1 className="text-5xl">{siteInfo[language].title}</h1>
+              <div className="flex-column gap-y-1 flex pt-4">
+                <a
+                  href={signInUrl}
+                  className="hover:bg-white box-content w-full p-4 bg-gray-200 border border-gray-200"
+                >
+                  {languageStrings.signInWithGitHub}
+                </a>
               </div>
-            </Centered>
-          )}
+            </div>
+          </Centered>
         </FilterUsers>
       )}
     </Layout>
   );
 }
 
-export const getServerSideProps: GetServerSideProps<{readonly code: string | undefined}> = async (context) => (
-  {
-    props: {
-      code: context.query.code as string ?? '',
-    },
-  }
-);
+export const getServerSideProps: GetServerSideProps<{
+  readonly code: string | undefined;
+}> = async (context) => ({
+  props: {
+    code: (context.query.code as string) ?? '',
+  },
+});

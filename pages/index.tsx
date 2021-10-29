@@ -1,10 +1,11 @@
 import React from 'react';
 import { Dashboard } from '../components/Dashboard';
-
 import FilterUsers from '../components/FilterUsers';
+
 import Layout from '../components/Layout';
 import { Loading, ModalDialog } from '../components/ModalDialog';
 import { contentClassName } from '../components/UI';
+import { useApi } from '../components/useApi';
 import type { LocalizationStrings } from '../lib/languages';
 import type { Deployment } from '../lib/deployment';
 import { RA } from '../lib/typescriptCommonTypes';
@@ -36,22 +37,7 @@ export const localizationStrings: LocalizationStrings<{
 };
 
 export default function Index(): JSX.Element {
-  const [state, setState] = React.useState<undefined | string | RA<Deployment>>(
-    undefined
-  );
-
-  React.useEffect(() => {
-    fetch('/api/state')
-      .then(async (response) => {
-        const state = await response.json();
-        if (response.status === 200) setState(state);
-        else setState(state.error);
-      })
-      .catch((error) => {
-        console.error(error);
-        setState(error.toString());
-      });
-  }, []);
+  const state = useApi<RA<Deployment>>('/api/state');
 
   return (
     <Layout
@@ -60,23 +46,21 @@ export default function Index(): JSX.Element {
     >
       {(languageStrings, language): JSX.Element => (
         <FilterUsers protected>
-          {(): JSX.Element => (
-            <main className={`${contentClassName} flex flex-col`}>
-              {typeof state === 'undefined' ? (
-                <Loading />
-              ) : typeof state === 'string' ? (
-                <ModalDialog title={languageStrings['title']}>
-                  {state}
-                </ModalDialog>
-              ) : (
-                <Dashboard
-                  languageStrings={languageStrings}
-                  language={language}
-                  initialState={state}
-                />
-              )}
-            </main>
-          )}
+          <main className={`${contentClassName} flex flex-col`}>
+            {typeof state === 'undefined' ? (
+              <Loading />
+            ) : typeof state === 'string' ? (
+              <ModalDialog title={languageStrings['title']}>
+                {state}
+              </ModalDialog>
+            ) : (
+              <Dashboard
+                languageStrings={languageStrings}
+                language={language}
+                initialState={state}
+              />
+            )}
+          </main>
         </FilterUsers>
       )}
     </Layout>

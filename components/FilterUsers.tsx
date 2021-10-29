@@ -1,8 +1,7 @@
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import { User, UserContext } from './UserContext';
-import { Loading } from './ModalDialog';
+import { getUserTokenCookie } from '../lib/user';
 
 const defaultRedirectLocations = {
   protected: '/sign-in',
@@ -18,12 +17,9 @@ export default function FilterUsers<
 }: {
   readonly protected?: IS_PROTECTED;
   readonly redirectPath?: string;
-  readonly children?: (props: {
-    readonly user: IS_PROTECTED extends true ? User : null;
-  }) => React.ReactNode;
-}): JSX.Element {
+  readonly children: JSX.Element;
+}): JSX.Element | null {
   const router = useRouter();
-  const { user } = React.useContext(UserContext);
 
   const isProtected = typeof pageIsProtected === 'boolean' && pageIsProtected;
 
@@ -31,19 +27,17 @@ export default function FilterUsers<
     redirectPath ??
     defaultRedirectLocations[isProtected ? 'protected' : 'notProtected'];
 
-  if (user === 'loading') return <Loading />;
-  else if (Boolean(user) === isProtected)
-    return typeof children === 'undefined' ? (
-      <React.Fragment />
-    ) : (
-      <>
-        {children({
-          user: user as unknown as IS_PROTECTED extends true ? User : null,
-        })}
-      </>
-    );
+  const [isSignedIn, setIsSignedIn] = React.useState<boolean | undefined>();
+
+  React.useEffect(() => {
+    setIsSignedIn(typeof getUserTokenCookie(document.cookie) !== 'undefined');
+  }, [typeof document]);
+
+  if (typeof isSignedIn === 'undefined') return null;
+  else if (isSignedIn === isProtected)
+    return typeof children === 'undefined' ? <React.Fragment /> : children;
   else {
     void router.push(resolvedRedirectPath);
-    return <Loading />;
+    return null;
   }
 }

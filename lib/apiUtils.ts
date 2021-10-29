@@ -1,10 +1,7 @@
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  getUserInfo,
-  getUserTokenCookie,
-  User,
-} from '../components/UserContext';
+import { getUserInfo, getUserTokenCookie, User } from './user';
+import { exec } from 'child_process';
 
 export async function getUser(
   req: NextApiRequest,
@@ -36,4 +33,12 @@ export async function fileExists(path: string) {
   } catch {
     return false;
   }
+}
+
+export async function run(command: string) {
+  return await new Promise((resolve, reject) =>
+    exec(command, (error, stdout, stderr) =>
+      error ? reject(error) : stderr ? reject(stderr) : resolve(stdout)
+    )
+  );
 }

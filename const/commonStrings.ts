@@ -5,12 +5,14 @@ const commonLocalizationStrings: LocalizationStrings<{
   readonly no: string;
   readonly add: string;
   readonly delete: string;
+  readonly goBack: string;
 }> = {
   'en-US': {
     yes: 'Yes',
     no: 'No',
     add: 'Add',
     delete: 'Delete',
+    goBack: 'Go Back',
   },
 };
 
