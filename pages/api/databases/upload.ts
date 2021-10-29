@@ -11,6 +11,8 @@ export const config = {
   },
 };
 
+const testuserPassword = 'EC62DEF08F5E4FD556DAA86AEC5F3FB0390EF8A862A41ECA';
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -61,6 +63,11 @@ export default async function handler(
           `-h${process.env.MYSQL_HOST} `,
           `--database ${databaseName} < ${filePath}`,
         ].join('')
+      )
+    )
+    .then(() =>
+      connection.execute(
+        `UPDATE ${databaseName}.specifyuser SET Password="${testuserPassword}";`
       )
     )
     .then(() => fs.promises.unlink(filePath))
