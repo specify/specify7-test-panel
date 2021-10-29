@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import React from 'react';
 import FilterUsers from '../../components/FilterUsers';
+import {
+  dangerButtonClassName,
+  primaryButtonClassName,
+  successButtonClassName,
+} from '../../components/InteractivePrimitives';
 
 import Layout from '../../components/Layout';
 import { Loading, ModalDialog } from '../../components/ModalDialog';
@@ -18,6 +23,8 @@ export const localizationStrings: LocalizationStrings<{
   readonly download: string;
   readonly uploadNew: string;
   readonly usersOfDatabase: (database: string) => string;
+  readonly deleteDialogTitle: string;
+  readonly deleteDialogMessage: (database: string) => string;
 }> = {
   'en-US': {
     title: 'Databases',
@@ -26,6 +33,9 @@ export const localizationStrings: LocalizationStrings<{
     download: 'Download',
     uploadNew: 'Upload New',
     usersOfDatabase: (database) => `Specify Users in ${database}`,
+    deleteDialogTitle: 'Delete Database?',
+    deleteDialogMessage: (database) =>
+      `Are you sure you want to delete ${database} database?`,
   },
 };
 
@@ -34,6 +44,10 @@ export default function Index(): JSX.Element {
   const [listUsers, setListUsers] = React.useState<string | undefined>(
     undefined
   );
+
+  const [deleteDatabase, setDeleteDatabase] = React.useState<
+    string | undefined
+  >(undefined);
 
   return (
     <Layout
@@ -82,6 +96,10 @@ export default function Index(): JSX.Element {
                         <a
                           className="hover:underline text-red-400"
                           href={`/api/databases/${database}/drop`}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setDeleteDatabase(database);
+                          }}
                         >
                           {commonStrings[language].delete}
                         </a>
@@ -91,7 +109,7 @@ export default function Index(): JSX.Element {
                 </div>
                 <div className="flex gap-2">
                   <Link href="/databases/upload">
-                    <a className="hover:bg-green-800 rounded-xl p-3 bg-green-500">
+                    <a className={successButtonClassName}>
                       {languageStrings.uploadNew}
                     </a>
                   </Link>
@@ -101,6 +119,13 @@ export default function Index(): JSX.Element {
                     database={listUsers}
                     language={language}
                     onClose={() => setListUsers(undefined)}
+                  />
+                )}
+                {typeof deleteDatabase === 'string' && (
+                  <DeleteDatabase
+                    database={deleteDatabase}
+                    language={language}
+                    onClose={() => setDeleteDatabase(undefined)}
                   />
                 )}
               </>
@@ -122,7 +147,7 @@ function ListUsers({
   readonly onClose: () => void;
 }) {
   const users = useApi<{ readonly data: RA<string> }>(
-    `/api/databases/${database}/users`
+    `/databases/${database}/users`
   );
   const languageStrings = localizationStrings[language];
 
@@ -142,6 +167,44 @@ function ListUsers({
           ))}
         </ul>
       )}
+    </ModalDialog>
+  );
+}
+
+function DeleteDatabase({
+  database,
+  language,
+  onClose: handleClose,
+}: {
+  readonly database: string;
+  readonly language: Language;
+  readonly onClose: () => void;
+}) {
+  const languageStrings = localizationStrings[language];
+
+  return (
+    <ModalDialog
+      title={languageStrings.deleteDialogTitle}
+      onCloseClick={handleClose}
+      buttons={
+        <>
+          <button
+            type="button"
+            className={primaryButtonClassName}
+            onClick={handleClose}
+          >
+            {commonStrings[language].cancel}
+          </button>
+          <a
+            href={`/api/databases/${database}/drop`}
+            className={dangerButtonClassName}
+          >
+            {commonStrings[language].delete}
+          </a>
+        </>
+      }
+    >
+      {languageStrings.deleteDialogMessage(database)}
     </ModalDialog>
   );
 }
