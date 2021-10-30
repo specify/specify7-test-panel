@@ -40,7 +40,7 @@ export const localizationStrings: LocalizationStrings<{
 };
 
 export default function Index(): JSX.Element {
-  const databaseList = useApi<{ readonly data: RA<string> }>('/api/databases');
+  const databaseList = useApi<RA<string>>('/api/databases');
   const [listUsers, setListUsers] = React.useState<string | undefined>(
     undefined
   );
@@ -146,9 +146,7 @@ function ListUsers({
   readonly language: Language;
   readonly onClose: () => void;
 }) {
-  const users = useApi<{ readonly data: RA<string> }>(
-    `/databases/${database}/users`
-  );
+  const users = useApi<RA<string>>(`/databases/${database}/users`);
   const languageStrings = localizationStrings[language];
 
   return typeof users === 'undefined' ? (

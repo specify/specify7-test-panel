@@ -1,6 +1,8 @@
 import React from 'react';
 
-export function useApi<Type>(endpoint: string): Type | undefined | string {
+export function useAsync<Type>(
+  callback: () => Promise<Type>
+): Type | undefined | string {
   const [value, setValue] = React.useState<undefined | string | Type>(
     undefined
   );
@@ -11,12 +13,8 @@ export function useApi<Type>(endpoint: string): Type | undefined | string {
     destructorCalled.current ? undefined : setValue(newValue);
 
   React.useEffect(() => {
-    fetch(endpoint)
-      .then(async (response) => {
-        const state = await response.json();
-        if (response.status === 200) saveStateUpdate(state);
-        else saveStateUpdate(state.error);
-      })
+    callback()
+      .then(saveStateUpdate)
       .catch((error) => {
         console.error(error);
         saveStateUpdate(error.toString());
@@ -28,3 +26,12 @@ export function useApi<Type>(endpoint: string): Type | undefined | string {
 
   return value;
 }
+
+export const useApi = <Type,>(endpoint: string) =>
+  useAsync<{ readonly data: Type }>(() =>
+    fetch(endpoint).then(async (response) => {
+      const state = await response.json();
+      if (response.status === 200) return state;
+      else throw new Error(state.error || state);
+    })
+  );

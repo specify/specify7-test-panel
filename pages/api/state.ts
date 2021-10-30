@@ -8,7 +8,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const user = getUser(req, res);
+  const user = await getUser(req, res);
   if (typeof user === 'undefined') return;
 
   const fileName = path.resolve(workingDirectory, 'configuration.json');
@@ -27,7 +27,7 @@ export default async function handler(
     await fs.promises
       .readFile(fileName)
       .then((file) => file.toString())
-      .then((content) => res.status(200).json(content))
+      .then((content) => res.status(200).json({ data: JSON.parse(content) }))
       .catch((error) => res.status(500).json({ error: error.toString() }));
   } else
     return res.status(400).json({

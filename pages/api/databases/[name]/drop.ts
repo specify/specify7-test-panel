@@ -13,7 +13,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const user = getUser(req, res);
+  const user = await getUser(req, res);
   if (typeof user === 'undefined') return;
 
   await connectToDatabase();
