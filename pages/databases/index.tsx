@@ -56,81 +56,79 @@ export default function Index(): JSX.Element {
     >
       {(languageStrings, language): JSX.Element => (
         <FilterUsers protected>
-          <main className={`${contentClassName} flex flex-col`}>
-            {typeof databaseList === 'undefined' ? (
-              <Loading />
-            ) : typeof databaseList === 'string' ? (
-              <ModalDialog title={languageStrings['title']}>
-                {databaseList}
-              </ModalDialog>
-            ) : (
-              <>
-                <div className="flex flex-col flex-1 gap-5">
-                  <Link href="/">
-                    <a className="hover:underline text-blue-500">
-                      {commonStrings[language].goBack}
-                    </a>
-                  </Link>
-                  <h1 className="text-5xl">{siteInfo[language].title}</h1>
-                  <h2 className="text-2xl">{languageStrings.title}</h2>
-                  <ul className="gap-y-5 flex flex-col w-8/12">
-                    {databaseList.data.map((database) => (
-                      <li
-                        key={database}
-                        className="gap-x-5 flex flex-row p-5 bg-gray-500 rounded"
+          {typeof databaseList === 'undefined' ? (
+            <Loading />
+          ) : typeof databaseList === 'string' ? (
+            <ModalDialog title={languageStrings['title']}>
+              {databaseList}
+            </ModalDialog>
+          ) : (
+            <>
+              <div className="flex flex-col flex-1 gap-5">
+                <Link href="/">
+                  <a className="hover:underline text-blue-500">
+                    {commonStrings[language].goBack}
+                  </a>
+                </Link>
+                <h1 className="text-5xl">{siteInfo[language].title}</h1>
+                <h2 className="text-2xl">{languageStrings.title}</h2>
+                <ul className="gap-y-5 flex flex-col w-8/12">
+                  {databaseList.data.map((database) => (
+                    <li
+                      key={database}
+                      className="gap-x-5 flex flex-row p-5 bg-gray-400 rounded"
+                    >
+                      <span className="flex-1">{database}</span>
+                      <a
+                        className="hover:underline text-green-400"
+                        href={`/api/databases/${database}/export`}
                       >
-                        <span className="flex-1">{database}</span>
-                        <a
-                          className="hover:underline text-green-400"
-                          href={`/api/databases/${database}/export`}
-                        >
-                          {languageStrings.download}
-                        </a>
-                        <button
-                          type="button"
-                          className="hover:underline text-blue-400"
-                          onClick={() => setListUsers(database)}
-                        >
-                          {languageStrings.listUsers}
-                        </button>
-                        <a
-                          className="hover:underline text-red-400"
-                          href={`/api/databases/${database}/drop`}
-                          onClick={(event) => {
-                            event.preventDefault();
-                            setDeleteDatabase(database);
-                          }}
-                        >
-                          {commonStrings[language].delete}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex gap-2">
-                  <Link href="/databases/upload">
-                    <a className={successButtonClassName}>
-                      {languageStrings.uploadNew}
-                    </a>
-                  </Link>
-                </div>
-                {typeof listUsers === 'string' && (
-                  <ListUsers
-                    database={listUsers}
-                    language={language}
-                    onClose={() => setListUsers(undefined)}
-                  />
-                )}
-                {typeof deleteDatabase === 'string' && (
-                  <DeleteDatabase
-                    database={deleteDatabase}
-                    language={language}
-                    onClose={() => setDeleteDatabase(undefined)}
-                  />
-                )}
-              </>
-            )}
-          </main>
+                        {languageStrings.download}
+                      </a>
+                      <button
+                        type="button"
+                        className="hover:underline text-blue-400"
+                        onClick={() => setListUsers(database)}
+                      >
+                        {languageStrings.listUsers}
+                      </button>
+                      <a
+                        className="hover:underline text-red-400"
+                        href={`/api/databases/${database}/drop`}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setDeleteDatabase(database);
+                        }}
+                      >
+                        {commonStrings[language].delete}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex gap-2">
+                <Link href="/databases/upload">
+                  <a className={successButtonClassName}>
+                    {languageStrings.uploadNew}
+                  </a>
+                </Link>
+              </div>
+              {typeof listUsers === 'string' && (
+                <ListUsers
+                  database={listUsers}
+                  language={language}
+                  onClose={() => setListUsers(undefined)}
+                />
+              )}
+              {typeof deleteDatabase === 'string' && (
+                <DeleteDatabase
+                  database={deleteDatabase}
+                  language={language}
+                  onClose={() => setDeleteDatabase(undefined)}
+                />
+              )}
+            </>
+          )}
         </FilterUsers>
       )}
     </Layout>

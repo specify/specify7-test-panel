@@ -60,7 +60,7 @@ export default function SignIn({
 
         const isSecure = window.location.protocol === 'https:';
         const cookieString = Object.entries({
-          token: response.error,
+          token: response.data,
           path: '/',
           'mag-age': 60 * 60 * 24 * 365,
           samesite: 'strict',
@@ -95,7 +95,7 @@ export default function SignIn({
               <div className="flex-column gap-y-1 flex pt-4">
                 <a
                   href={signInUrl}
-                  className="hover:bg-white box-content w-full p-4 bg-gray-200 border border-gray-200"
+                  className="hover:bg-white box-content w-full p-4 bg-gray-300 border border-gray-400"
                 >
                   {languageStrings.signInWithGitHub}
                 </a>

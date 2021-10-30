@@ -54,17 +54,14 @@ export default function Layout<
 }): JSX.Element {
   return (
     <GetUserLanguage localizationStrings={siteInfo}>
-      {(
-        _siteInfoStrings,
-        language: Language
-      ): JSX.Element => (
+      {(_siteInfoStrings, language: Language): JSX.Element => (
         <>
           <Head>
             <title>{extractTitle(language, title)}</title>
             <link rel="icon" href="/favicon.ico" />
             <meta name="robots" content={'noindex,nofollow'} />
           </Head>
-          <div id="root" className="flex flex-col w-screen min-h-screen">
+          <main className="flex flex-col flex-1 w-screen min-h-screen gap-10 p-8">
             {children(
               /*
                * Need to cheat here a little bit if definitions were not
@@ -78,7 +75,7 @@ export default function Layout<
               language,
               commonLocalizationStrings[language]
             )}
-          </div>
+          </main>
         </>
       )}
     </GetUserLanguage>

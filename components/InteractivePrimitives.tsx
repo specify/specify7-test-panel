@@ -1,9 +1,12 @@
 import React from 'react';
 
 const baseButtonStyle =
-  'inline-flex px-4 py-2 rounded-md sm:text-sm justify-center text-white';
-export const primaryButtonClassName = `${baseButtonStyle} bg-white
-  hover:bg-grey-500 border`;
+  'inline-flex px-4 py-2 rounded-md sm:text-sm justify-center text-white' +
+  ' items-center';
+export const primaryButtonClassName = `${baseButtonStyle} bg-black
+  hover:bg-gray-800 border border-gray-500`;
+export const infoButtonClassName = `${baseButtonStyle} bg-blue-600
+  hover:bg-blue-600 border border-blue-700`;
 export const secondaryButtonClassName = `${baseButtonStyle} bg-grey-200
   hover:bg-grey-700 border`;
 export const dangerButtonClassName = `${baseButtonStyle} bg-red-600

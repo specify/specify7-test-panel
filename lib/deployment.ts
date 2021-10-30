@@ -1,8 +1,10 @@
-export type Deployment = {
-  id: string;
+export type ActiveDeployment = Deployment & {
   hostname: string;
   deployedAt: string;
   accessedAt: string;
+};
+
+export type Deployment = {
   branch: string;
   database: string;
   schemaVersion: string;

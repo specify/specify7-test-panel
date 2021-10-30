@@ -32,55 +32,53 @@ export const getUserInfo = async (token: string): Promise<User> =>
     login
   }
 }`
-  )
-    .then((response) => response.json())
-    .then(
-      (response: {
-        readonly data: {
-          readonly organization: {
-            readonly teams: {
-              readonly nodes: RA<{
-                readonly name: string;
-                readonly members: {
-                  readonly nodes: RA<{
-                    readonly login: string;
-                  }>;
-                };
-              }>;
-            };
-          };
-          readonly viewer: {
-            readonly name: string;
-            readonly login: string;
+  ).then(
+    (response: {
+      readonly data: {
+        readonly organization: {
+          readonly teams: {
+            readonly nodes: RA<{
+              readonly name: string;
+              readonly members: {
+                readonly nodes: RA<{
+                  readonly login: string;
+                }>;
+              };
+            }>;
           };
         };
-      }) => {
-        const teams = response.data.organization.teams.nodes
-          .map(({ name, members }) => ({
-            teamName: name,
-            members: members.nodes.map(({ login }) => login),
-          }))
-          .reduce<R<string[]>>((people, { teamName, members }) => {
-            members.forEach((username) => {
-              people[username] ??= [];
-              people[username].push(teamName);
-            });
-            return people;
-          }, {});
-        if (Object.keys(teams).length === 0)
-          throw new Error(
-            `User is not a member of the ${organization} organization`
-          );
-        return {
-          token,
-          name: response.data.viewer.name,
-          login: response.data.viewer.login,
-          organization: {
-            teams,
-          },
+        readonly viewer: {
+          readonly name: string;
+          readonly login: string;
         };
-      }
-    );
+      };
+    }) => {
+      const teams = response.data.organization.teams.nodes
+        .map(({ name, members }) => ({
+          teamName: name,
+          members: members.nodes.map(({ login }) => login),
+        }))
+        .reduce<R<string[]>>((people, { teamName, members }) => {
+          members.forEach((username) => {
+            people[username] ??= [];
+            people[username].push(teamName);
+          });
+          return people;
+        }, {});
+      if (Object.keys(teams).length === 0)
+        throw new Error(
+          `User is not a member of the ${organization} organization`
+        );
+      return {
+        token,
+        name: response.data.viewer.name,
+        login: response.data.viewer.login,
+        organization: {
+          teams,
+        },
+      };
+    }
+  );
 
 export const getUserTokenCookie = (cookies: string): string | undefined =>
   cookies
