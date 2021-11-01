@@ -25,7 +25,26 @@ export type Deployment = Partial<DeploymentDetails> & {
   wasAutoDeployed: boolean;
 };
 
-export const formalizeState = (state: RA<Deployment>): RA<ActiveDeployment> =>
+export type DeploymentWithInfo = Deployment & {
+  readonly frontend: {
+    readonly id: number;
+    readonly status?:
+      | 'fetching'
+      | 'unreachable'
+      | {
+          readonly collection: string;
+          readonly discipline: string;
+          readonly institution: string;
+          readonly schemaVersion: string;
+          readonly version: string;
+        };
+  };
+};
+
+export const formalizeState = (
+  state: RA<Deployment>,
+  originalState?: RA<Deployment>
+): RA<ActiveDeployment> =>
   state
     .slice(0, maxDeployments)
     .map<ActiveDeployment>((state) => ({
@@ -39,6 +58,13 @@ export const formalizeState = (state: RA<Deployment>): RA<ActiveDeployment> =>
     .map((state, index) => ({
       ...state,
       hostname: state.hostname.length > 0 ? state.hostname : `server-${index}`,
+      deployedAt:
+        typeof originalState?.[index] === 'undefined' ||
+        (['branch', 'database', 'schemaVersion'] as const).every(
+          (key) => state[key] === originalState[index][key]
+        )
+          ? state.deployedAt
+          : Date.now(),
     }))
     .reduce<RA<ActiveDeployment>>(
       (deployments, deployment) => [

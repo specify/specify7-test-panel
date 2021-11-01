@@ -1,8 +1,8 @@
 import { Action, generateReducer, State } from 'typesafe-reducer';
-import { Deployment } from '../lib/deployment';
+import { DeploymentWithInfo } from '../lib/deployment';
 import { RA } from '../lib/typescriptCommonTypes';
 
-type MainState = State<'MainState', { deployment: RA<Deployment> }>;
+type MainState = State<'MainState', { deployment: RA<DeploymentWithInfo> }>;
 
 export type States = MainState;
 
@@ -16,7 +16,7 @@ type DestroyInstanceAction = Action<
 type AddInstanceAction = Action<
   'AddInstanceAction',
   {
-    deployment: Deployment;
+    deployment: DeploymentWithInfo;
   }
 >;
 
@@ -24,7 +24,7 @@ type ChangeConfigurationAction = Action<
   'ChangeConfigurationAction',
   {
     id: number;
-    newState: Deployment;
+    newState: DeploymentWithInfo;
   }
 >;
 

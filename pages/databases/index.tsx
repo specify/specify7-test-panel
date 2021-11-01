@@ -143,7 +143,7 @@ function ListUsers({
   readonly language: Language;
   readonly onClose: () => void;
 }) {
-  const users = useApi<RA<string>>(`/databases/${database}/users`)[0];
+  const users = useApi<RA<string>>(`/api/databases/${database}/users`)[0];
   const languageStrings = localizationStrings[language];
 
   return typeof users === 'undefined' ? (

@@ -89,7 +89,10 @@ export default function Index(): JSX.Element {
             <Dashboard
               languageStrings={languageStrings}
               language={language}
-              initialState={state.data}
+              initialState={state.data.map((deployment, id) => ({
+                ...deployment,
+                frontend: { id },
+              }))}
               schemaVersions={schemaVersions.data}
               branches={branches.data}
               databases={databases.data}
@@ -98,7 +101,9 @@ export default function Index(): JSX.Element {
                 setState(undefined);
                 fetch('/api/state', {
                   method: 'POST',
-                  body: JSON.stringify(newState),
+                  body: JSON.stringify(
+                    newState.map(({ frontend: _, ...rest }) => rest)
+                  ),
                 })
                   .then(async (response) => {
                     const data = await response.json();
