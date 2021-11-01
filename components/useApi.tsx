@@ -32,8 +32,9 @@ export function useAsync<Type>(
 export const useApi = <Type,>(endpoint: string) =>
   useAsync<{ readonly data: Type }>(() =>
     fetch(endpoint).then(async (response) => {
+      if (response.status === 404) throw new Error('API endpoint not found');
       const state = await response.json();
       if (response.status === 200) return state;
-      else throw new Error(state.error || state);
+      else throw new Error(state.error ?? state);
     })
   );
