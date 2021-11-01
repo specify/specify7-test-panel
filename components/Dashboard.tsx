@@ -1,4 +1,3 @@
-import { language } from '@hapi/accept';
 import React from 'react';
 import { maxDeployments } from '../const/siteConfig';
 import siteInfo from '../const/siteInfo';
@@ -13,7 +12,6 @@ import Link from 'next/link';
 import {
   extraButtonClassName,
   infoButtonClassName,
-  primaryButtonClassName,
   successButtonClassName,
 } from './InteractivePrimitives';
 

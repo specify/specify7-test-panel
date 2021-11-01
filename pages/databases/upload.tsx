@@ -2,7 +2,6 @@ import Link from 'next/link';
 import React from 'react';
 
 import Layout from '../../components/Layout';
-import { contentClassName } from '../../components/UI';
 import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
 import type { LocalizationStrings } from '../../lib/languages';

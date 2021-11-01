@@ -4,7 +4,6 @@ import FilterUsers from '../components/FilterUsers';
 
 import Layout from '../components/Layout';
 import { Loading, ModalDialog } from '../components/ModalDialog';
-import { contentClassName } from '../components/UI';
 import { useApi, useAsync } from '../components/useApi';
 import { getPullRequests } from '../lib/github';
 import type { LocalizationStrings } from '../lib/languages';

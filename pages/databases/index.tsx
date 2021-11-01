@@ -9,7 +9,6 @@ import {
 
 import Layout from '../../components/Layout';
 import { Loading, ModalDialog } from '../../components/ModalDialog';
-import { contentClassName } from '../../components/UI';
 import { useApi } from '../../components/useApi';
 import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
