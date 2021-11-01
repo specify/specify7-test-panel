@@ -10,4 +10,7 @@ export const maxDeployments = 6;
 // Auto deployed instances may be garbage collected after 2 days
 export const staleAfter = 60 * 60 * 24 * 2;
 
+// Manually deployed instances may be garbage collected after 4 days
+export const customStaleAfter = 2 * staleAfter;
+
 export const workingDirectory = './state';

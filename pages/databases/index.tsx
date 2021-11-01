@@ -39,7 +39,7 @@ export const localizationStrings: LocalizationStrings<{
 };
 
 export default function Index(): JSX.Element {
-  const databaseList = useApi<RA<string>>('/api/databases');
+  const databaseList = useApi<RA<string>>('/api/databases')[0];
   const [listUsers, setListUsers] = React.useState<string | undefined>(
     undefined
   );
@@ -75,7 +75,7 @@ export default function Index(): JSX.Element {
                   {databaseList.data.map((database) => (
                     <li
                       key={database}
-                      className="gap-x-5 flex flex-row p-5 bg-gray-400 rounded"
+                      className="gap-x-5 flex flex-row p-5 bg-gray-300 rounded"
                     >
                       <span className="flex-1">{database}</span>
                       <a
@@ -143,7 +143,7 @@ function ListUsers({
   readonly language: Language;
   readonly onClose: () => void;
 }) {
-  const users = useApi<RA<string>>(`/databases/${database}/users`);
+  const users = useApi<RA<string>>(`/databases/${database}/users`)[0];
   const languageStrings = localizationStrings[language];
 
   return typeof users === 'undefined' ? (

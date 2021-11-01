@@ -2,7 +2,9 @@ import React from 'react';
 
 export function useAsync<Type>(
   callback: () => Promise<Type>
-): Type | undefined | string {
+): Readonly<
+  [Type | undefined | string, (value: Type | undefined | string) => void]
+> {
   const [value, setValue] = React.useState<undefined | string | Type>(
     undefined
   );
@@ -24,7 +26,7 @@ export function useAsync<Type>(
     };
   }, []);
 
-  return value;
+  return [value, setValue];
 }
 
 export const useApi = <Type,>(endpoint: string) =>

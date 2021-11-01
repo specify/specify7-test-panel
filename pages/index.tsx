@@ -18,6 +18,7 @@ export const localizationStrings: LocalizationStrings<{
   readonly readyForTesting: string;
   readonly customDeployments: string;
   readonly automatic: string;
+  readonly automaticDescription: string;
   readonly database: string;
   readonly databases: string;
   readonly saveChanges: string;
@@ -35,6 +36,9 @@ export const localizationStrings: LocalizationStrings<{
     readyForTesting: 'Ready for Testing',
     customDeployments: 'Custom Deployments',
     automatic: 'Automatic',
+    automaticDescription:
+      'This instance was deployed automatically because it is ready for ' +
+      'testing',
     database: 'Database',
     databases: 'Databases',
     saveChanges: 'Save Changes',
@@ -48,13 +52,15 @@ export const localizationStrings: LocalizationStrings<{
 };
 
 export default function Index(): JSX.Element {
-  const state = useApi<RA<Deployment>>('/api/state');
-  const specifyVersions = useApi<IR<string>>('/api/dockerhub/specify7-service');
-  const schemaVersions = useApi<IR<string>>('/api/dockerhub/specify6-service');
-  const databases = useApi<RA<string>>('/api/databases/');
+  const [state, setState] = useApi<RA<Deployment>>('/api/state');
+  const branches = useApi<IR<string>>('/api/dockerhub/specify7-service')[0];
+  const schemaVersions = useApi<IR<string>>(
+    '/api/dockerhub/specify6-service'
+  )[0];
+  const databases = useApi<RA<string>>('/api/databases/')[0];
   const pullRequests = useAsync(() =>
     getPullRequests(getUserTokenCookie(document.cookie ?? '') ?? '')
-  );
+  )[0];
 
   return (
     <Layout
@@ -65,23 +71,19 @@ export default function Index(): JSX.Element {
         <FilterUsers protected>
           {typeof state === 'undefined' ||
           typeof schemaVersions === 'undefined' ||
-          typeof specifyVersions === 'undefined' ||
+          typeof branches === 'undefined' ||
           typeof databases === 'undefined' ||
           typeof pullRequests === 'undefined' ? (
             <Loading />
           ) : typeof state === 'string' ||
             typeof schemaVersions === 'string' ||
-            typeof specifyVersions === 'string' ||
+            typeof branches === 'string' ||
             typeof databases === 'string' ||
             typeof pullRequests === 'string' ? (
             <ModalDialog title={languageStrings['title']}>
-              {[
-                state,
-                schemaVersions,
-                specifyVersions,
-                databases,
-                pullRequests,
-              ].find((value) => typeof value === 'string')}
+              {[state, schemaVersions, branches, databases, pullRequests].find(
+                (value) => typeof value === 'string'
+              )}
             </ModalDialog>
           ) : (
             <Dashboard
@@ -89,9 +91,22 @@ export default function Index(): JSX.Element {
               language={language}
               initialState={state.data}
               schemaVersions={schemaVersions.data}
-              specifyVersions={specifyVersions.data}
+              branches={branches.data}
               databases={databases.data}
               pullRequests={pullRequests}
+              onSave={async (newState) => {
+                setState(undefined);
+                fetch('/api/state', {
+                  method: 'POST',
+                  body: JSON.stringify(newState),
+                })
+                  .then(async (response) => {
+                    const data = await response.json();
+                    if (response.status === 200) setState(data);
+                    else setState(data.error ?? data);
+                  })
+                  .catch(setState);
+              }}
             />
           )}
         </FilterUsers>

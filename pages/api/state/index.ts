@@ -1,8 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { workingDirectory } from '../../const/siteConfig';
-import { fileExists, getUser } from '../../lib/apiUtils';
+import { workingDirectory } from '../../../const/siteConfig';
+import { fileExists, getUser } from '../../../lib/apiUtils';
 import path from 'path';
 import fs from 'fs';
+import {
+  autoDeployPullRequests,
+  formalizeState,
+} from '../../../lib/deployment';
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,13 +17,17 @@ export default async function handler(
 
   const fileName = path.resolve(workingDirectory, 'configuration.json');
 
-  if (req.method === 'PUT') {
+  if (req.method === 'POST') {
     const request = JSON.parse(req.body);
     if (typeof request !== 'object')
       return res.status(400).json({
         error: 'Invalid request body specified',
       });
-    await fs.promises.writeFile(fileName, JSON.stringify(request));
+    const state = await autoDeployPullRequests(formalizeState(request), user);
+    // FIXME: uncomment this
+    // FIXME: update accessAt on click
+    //await fs.promises.writeFile(fileName, JSON.stringify(state));
+    res.status(200).json({ data: state });
   } else if (req.method === 'GET') {
     if (!(await fileExists(fileName)))
       await fs.promises.writeFile(fileName, JSON.stringify([]));
@@ -31,6 +39,6 @@ export default async function handler(
       .catch((error) => res.status(500).json({ error: error.toString() }));
   } else
     return res.status(400).json({
-      error: 'Only PUT and GET Methods are allowed',
+      error: 'Only POST and GET Methods are allowed',
     });
 }

@@ -10,6 +10,20 @@ const databasesToExclude = new Set([
   'sys',
 ]);
 
+export const getDatabases = async (): Promise<RA<string>> =>
+  connectToDatabase().then(() =>
+    connection
+      .execute({
+        sql: 'SHOW DATABASES',
+        rowsAsArray: true,
+      })
+      .then(([rows]) =>
+        (rows as unknown as RA<RA<string>>)
+          .flat()
+          .filter((database) => !databasesToExclude.has(database))
+      )
+  );
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -17,18 +31,10 @@ export default async function handler(
   const user = await getUser(req, res);
   if (typeof user === 'undefined') return;
 
-  await connectToDatabase();
-
-  await connection
-    .execute({
-      sql: 'SHOW DATABASES',
-      rowsAsArray: true,
-    })
-    .then(([rows]) =>
+  await getDatabases()
+    .then((databases) =>
       res.status(200).send({
-        data: (rows as unknown as RA<RA<string>>)
-          .flat()
-          .filter((database) => !databasesToExclude.has(database)),
+        data: databases,
       })
     )
     .catch((error) => {

@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { IR, RA } from '../../../lib/typescriptCommonTypes';
 
-const getTags = async (image: string): Promise<IR<string>> =>
+export const getTags = async (image: string): Promise<IR<string>> =>
   fetch(
     `https://hub.docker.com/v2/repositories/specifyconsortium/${image}/tags/?page_size=1000`
   )

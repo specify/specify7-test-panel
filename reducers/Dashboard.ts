@@ -28,7 +28,7 @@ type ChangeConfigurationAction = Action<
   }
 >;
 
-type Actions =
+export type Actions =
   | DestroyInstanceAction
   | AddInstanceAction
   | ChangeConfigurationAction;
@@ -44,10 +44,10 @@ export const reducer = generateReducer<States, Actions>({
   }),
   ChangeConfigurationAction: ({ state, action }) => ({
     ...state,
-    deployment: Array.from(state.deployment).splice(
-      action.id,
-      1,
-      action.newState
-    ),
+    deployment: [
+      ...state.deployment.slice(0, action.id),
+      action.newState,
+      ...state.deployment.slice(action.id + 1),
+    ],
   }),
 });

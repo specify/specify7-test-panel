@@ -60,6 +60,7 @@ export type PullRequest = {
   readonly closingIssuesReferences: {
     readonly nodes: RA<{
       readonly number: number;
+      readonly title: string;
     }>;
   };
   readonly headRefName: string;
@@ -113,6 +114,7 @@ export const getPullRequests = async (
             closingIssuesReferences(first: 10) {
               nodes {
                 number
+                title
               }
             }
             headRefName
@@ -167,6 +169,3 @@ export const filterPullRequests = (
       );
       return pendingTeamReviews.length !== 0 || pendingUserReviews.length !== 0;
     });
-
-export const pullRequestFormatter = (pullRequest: PullRequest): string =>
-  `#${pullRequest.number} ${pullRequest.title}`;

@@ -17,3 +17,8 @@ export const getMostRecentTag = (tags: IR<string>) =>
   Object.entries(tags).sort(([_, dateLeft], [__, dateRight]) =>
     new Date(dateLeft).getTime() > new Date(dateRight).getTime() ? -1 : 1
   )[0][0];
+
+export const trimString = (string: string, maxLength: number): string =>
+  string.length <= maxLength
+    ? string
+    : `${string.substr(0, maxLength - 3).trim()}...`;
