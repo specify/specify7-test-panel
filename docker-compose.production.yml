@@ -1,29 +1,35 @@
+# Production config
+
 version: '3.9'
 services:
   mariadb:
     extends:
-      file: docker-compose.yml
+      file: docker-compose.base.yml
       service: mariadb
 
   redis:
     extends:
-      file: docker-compose.yml
+      file: docker-compose.base.yml
       service: redis
 
   nginx:
     extends:
-      file: docker-compose.yml
+      file: docker-compose.base.yml
       service: nginx
+    depends_on:
+      - panel
 
   report-runner:
     extends:
-      file: docker-compose.yml
+      file: docker-compose.base.yml
       service: report-runner
 
   panel:
     build:
       context: ./.
       target: runner
+    depends_on:
+      - mariadb
     networks:
       - database
       - nginx

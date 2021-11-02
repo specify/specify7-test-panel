@@ -1,43 +1,35 @@
+# Development config
+
 version: '3.9'
 services:
   mariadb:
-    image: mariadb:10.6.4-focal
-    networks:
-      - database
-    restart: unless-stopped
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-    volumes:
-      - 'database:/var/lib/mysql'
-      - './seed-database/:/docker-entrypoint-initdb.d/:ro'
+    extends:
+      file: docker-compose.base.yml
+      service: mariadb
 
   redis:
-    image: redis
+    extends:
+      file: docker-compose.base.yml
+      service: redis
 
   nginx:
-    image: nginx:1.21.3-alpine
+    extends:
+      file: docker-compose.base.yml
+      service: nginx
     depends_on:
       - panel
-    ports:
-      - '80:80'
-      - '443:443'
-    networks:
-      - nginx
-    restart: unless-stopped
-    volumes:
-      - './config/panel.conf:/etc/nginx/conf.d/default.conf:ro'
-      - './state/nginx.conf:/etc/nginx/conf.d/var.conf:ro'
-
-      - './config/fullchain.pem:/etc/letsencrypt/fullchain.pem:ro'
-      - './config/privkey.pem:/etc/letsencrypt/privkey.pem:ro'
 
   report-runner:
-    image: specifyconsortium/report-runner
+    extends:
+      file: docker-compose.base.yml
+      service: report-runner
 
   panel:
     build:
       context: ./.
       target: dev-runner
+    depends_on:
+      - mariadb
     networks:
       - database
       - nginx

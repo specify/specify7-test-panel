@@ -47,7 +47,7 @@ export function Deployments({
     .map(([branch]) => branch);
 
   return (
-    <ul className="gap-y-5 flex flex-col mt-4 mb-8">
+    <ul className="gap-y-5 flex flex-col mt-4">
       {deployments.map((deployment) => (
         <li
           key={deployment.frontend.id}

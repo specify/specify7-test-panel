@@ -79,7 +79,7 @@ export function Dashboard({
           )}
           {customDeploymentProps.deployments.length > 0 && (
             <>
-              <h2 className="text-2xl">{languageStrings.customDeployments}</h2>
+              <h2 className="text-2xl mt-8">{languageStrings.customDeployments}</h2>
               <Deployments {...customDeploymentProps} />
             </>
           )}
