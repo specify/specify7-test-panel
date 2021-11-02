@@ -14,20 +14,22 @@ export const queryGithubApi = async (token: string, query: string) =>
 export type PullRequest = {
   readonly title: string;
   readonly commits: {
-    readonly nodes: [
-      {
-        readonly commit: {
-          readonly statusCheckRollup: {
-            readonly state:
-              | 'EXPECTED'
-              | 'ERROR'
-              | 'FAILURE'
-              | 'PENDING'
-              | 'SUCCESS';
+    readonly nodes: Readonly<
+      [
+        {
+          readonly commit: {
+            readonly statusCheckRollup: {
+              readonly state:
+                | 'EXPECTED'
+                | 'ERROR'
+                | 'FAILURE'
+                | 'PENDING'
+                | 'SUCCESS';
+            };
           };
-        };
-      }
-    ];
+        }
+      ]
+    >;
   };
   readonly number: number;
   readonly mergeable: 'MERGEABLE' | 'CONFCLICTING' | 'UNKNOWN';

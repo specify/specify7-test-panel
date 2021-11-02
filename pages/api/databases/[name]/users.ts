@@ -25,13 +25,20 @@ export default async function handler(
     return res.status(400).json({ error: 'Database name is invalid' });
 
   connection
-    .execute({
-      sql: `SELECT Name FROM ${databaseName}.specifyuser`,
-      rowsAsArray: true,
-    })
+    .execute(
+      `SELECT Name, UserType
+     FROM ${databaseName}.specifyuser`
+    )
     .then(([users]) =>
       res.status(200).send({
-        data: (users as unknown as RA<RA<string>>).flat(),
+        data: Object.fromEntries(
+          (
+            users as unknown as RA<{
+              readonly Name: string;
+              readonly UserType: string;
+            }>
+          ).map(Object.values)
+        ),
       })
     )
     .catch((error) => res.status(500).json({ error: error.toString() }));

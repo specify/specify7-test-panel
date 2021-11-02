@@ -13,7 +13,7 @@ import { useApi } from '../../components/useApi';
 import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
 import type { Language, LocalizationStrings } from '../../lib/languages';
-import { RA } from '../../lib/typescriptCommonTypes';
+import { IR, RA } from '../../lib/typescriptCommonTypes';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -143,7 +143,7 @@ function ListUsers({
   readonly language: Language;
   readonly onClose: () => void;
 }) {
-  const users = useApi<RA<string>>(`/api/databases/${database}/users`)[0];
+  const users = useApi<IR<string>>(`/api/databases/${database}/users`)[0];
   const languageStrings = localizationStrings[language];
 
   return typeof users === 'undefined' ? (
@@ -157,8 +157,8 @@ function ListUsers({
         users
       ) : (
         <ul>
-          {users.data.map((user) => (
-            <li key={user}>{user}</li>
+          {Object.entries(users.data).map(([user, type]) => (
+            <li key={user}>{`${user} (${type})`}</li>
           ))}
         </ul>
       )}
