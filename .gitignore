@@ -1,7 +1,7 @@
 node_modules
 .next
 .env*.local
-/state
+./state
 tsconfig.tsbuildinfo
 .tsbuildinfo
 /config/fullchain.pem

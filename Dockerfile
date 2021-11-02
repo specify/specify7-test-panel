@@ -35,6 +35,11 @@ COPY . .
 RUN npm i --no-save @swc/core @swc/cli
 RUN npm i
 
+RUN mkdir -f ./state \
+ && touch ./state/configuration.json \
+ && touch ./state/docker-compose.override.json \
+ && touch ./state/nginx.conf
+
 ENV NODE_ENV development
 USER nextjs
 CMD ["npm", "run", "dev"]
@@ -50,6 +55,11 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+
+RUN mkdir -f ./state \
+ && touch ./state/configuration.json \
+ && touch ./state/docker-compose.override.json \
+ && touch ./state/nginx.conf
 
 USER nextjs
 CMD ["npm", "run", "start"]
