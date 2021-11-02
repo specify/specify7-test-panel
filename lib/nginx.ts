@@ -9,9 +9,15 @@ export const createNginxConfig = (
     .map(
       (deployment) => `
 server {
-    listen 80;
+    listen 443 ssl;
     server_name ${deployment.hostname}.${host};
     root /usr/share/nginx;
+    
+    ssl_certificate /etc/letsencrypt/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/privkey.pem;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 5m;
+    ssl_prefer_server_ciphers on;
 
     location /static/ {
         if ($request_method = 'GET') {

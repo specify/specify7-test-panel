@@ -1,27 +1,28 @@
 import { ActiveDeployment } from './deployment';
 import { RA } from './typescriptCommonTypes';
 
-// FIXME: replace all instances of {{  }}
 export const createDockerConfig = (
-  deployments: RA<ActiveDeployment>
+  deployments: RA<ActiveDeployment>,
+  nginxConfigHash: string
 ): string => `
-version: '3.7'
+version: '3.9'
 services:
-  
+
 ${deployments
   .map(
     (deployment) => `
   ${deployment.hostname}:
     image: specifyconsortium/specify7-service:${deployment.branch}
     init: true
+    restart: unless-stopped
     volumes:
       - "specify${deployment.schemaVersion}:/opt/Specify:ro"
       - "${deployment.hostname}-static-files:/volumes/static-files"
     environment:
       - DATABASE_NAME=${deployment.database}
-      - DATABASE_HOST={{db_host}}
-      - MASTER_NAME={{db_user}}
-      - MASTER_PASSWORD={{db_pass}}
+      - DATABASE_HOST=${process.env.MYSQL_HOST}
+      - MASTER_NAME=${process.env.MYSQL_USERNAME}
+      - MASTER_PASSWORD=${process.env.MYSQL_PASSWORD}
       - SECRET_KEY="change this to some unique random string"
       - REPORT_RUNNER_HOST=report-runner
       - REPORT_RUNNER_PORT=8080
@@ -35,15 +36,16 @@ ${deployments
     image: specifyconsortium/specify7-service:${deployment.branch}
     command: ve/bin/celery -A specifyweb worker -l INFO --concurrency=1 -Q ${deployment.hostname}
     init: true
+    restart: unless-stopped
     volumes:
       - "specify${deployment.schemaVersion}:/opt/Specify:ro"
     environment:
       - LC_ALL=C.UTF-8
       - LANG=C.UTF-8
       - DATABASE_NAME=${deployment.database}
-      - DATABASE_HOST={{db_host}}
-      - MASTER_NAME={{db_user}}
-      - MASTER_PASSWORD={{db_pass}}
+      - DATABASE_HOST=${process.env.MYSQL_HOST}
+      - MASTER_NAME=${process.env.MYSQL_USERNAME}
+      - MASTER_PASSWORD=${process.env.MYSQL_PASSWORD}
       - SECRET_KEY="change this to some unique random string"
       - REPORT_RUNNER_HOST=report-runner
       - REPORT_RUNNER_PORT=8080
@@ -67,7 +69,7 @@ ${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)))
 
   nginx:
     environment:
-      - FORCE_RECREATE={{nginx_recreate}}
+      - CONFIG_HASH=${nginxConfigHash}
     volumes:
     ${deployments
       .map(

@@ -30,6 +30,19 @@ export async function getState(): Promise<RA<ActiveDeployment>> {
     .then((file) => JSON.parse(file.toString()));
 }
 
+async function getHash(string: string, algorithm = 'SHA-256'): Promise<string> {
+  const stringBuf = new TextEncoder().encode(string);
+  return crypto.subtle.digest(algorithm, stringBuf).then((hash) => {
+    // Convert hash from ArrayBuffer to hex string
+    let result = '';
+    const view = new DataView(hash);
+    for (let i = 0; i < hash.byteLength; i += 4) {
+      result += `00000000${view.getUint32(i).toString(16)}`.slice(-8);
+    }
+    return result;
+  });
+}
+
 export async function setState(
   deployments: RA<Deployment>,
   user: User,
@@ -41,13 +54,11 @@ export async function setState(
   );
 
   await fs.promises.writeFile(configurationFile, JSON.stringify(state));
-  await fs.promises.writeFile(
-    nginxConfigurationFile,
-    createNginxConfig(state, new URL(origin).hostname)
-  );
+  const nginxConfig = createNginxConfig(state, new URL(origin).host);
+  await fs.promises.writeFile(nginxConfigurationFile, nginxConfig);
   await fs.promises.writeFile(
     dockerConfigurationFile,
-    createDockerConfig(state)
+    createDockerConfig(state, await getHash(nginxConfig))
   );
   return state;
 }
