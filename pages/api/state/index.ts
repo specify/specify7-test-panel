@@ -27,7 +27,8 @@ export async function getState(): Promise<RA<ActiveDeployment>> {
 
   return fs.promises
     .readFile(configurationFile)
-    .then((file) => JSON.parse(file.toString()));
+    .then((file) => file.toString())
+    .then((content) => (content.length === 0 ? [] : JSON.parse(content)));
 }
 
 async function getHash(string: string, algorithm = 'SHA-256'): Promise<string> {
