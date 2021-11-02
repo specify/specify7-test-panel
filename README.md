@@ -28,18 +28,21 @@ GitHub OAuth application needs to be created.
 This can be done for a GitHub organization or user profile:
 
 1. Open organization / user settings on GitHub
-2. On the sidebar, select "Developer Settings"
-3. Select "OAuth Apps"
-4. Press "New OAuth App"
-5. Fill out the required information
-6. Set authentication callback URL to this URL:
+1. On the sidebar, select "Developer Settings"
+1. Select "OAuth Apps"
+1. Press "New OAuth App"
+1. Fill out the required information
+1. Set authentication callback URL to this URL:
+
    ```
    https://localhost/sign-in
    ```
+
    When in production, replace `localhost` with the actual hostname
-7. Press "Generate a new client secret"
-8. Client ID and Client Secret is displayed on the OAUth app configuration page.
-9. Write them down somewhere temporary as they would be needed later
+
+1. Press "Generate a new client secret"
+1. Client ID and Client Secret is displayed on the OAUth app configuration page.
+1. Write them down somewhere temporary as they would be needed later
 
 ### Configure automatic deployment
 
@@ -55,21 +58,21 @@ auto deploying new pull requests whenever they become ready for testing.
 To configure this, first, create personal authentication token:
 
 1. Open your GitHub's profile settings
-2. Select "Developer Settings" on the sidebar
-3. Select "Personal access tokens" on the next sidebar
-4. Press "Generate new token"
-5. Fill out name and expiration date as appropriate
-6. Check the `read:org` checkbox in the "Select Scopes" section
-7. Press "Generate token"
-8. Write down the generated token temporarily as it would be needed in the next
+1. Select "Developer Settings" on the sidebar
+1. Select "Personal access tokens" on the next sidebar
+1. Press "Generate new token"
+1. Fill out name and expiration date as appropriate
+1. Check the `read:org` checkbox in the "Select Scopes" section
+1. Press "Generate token"
+1. Write down the generated token temporarily as it would be needed in the next
    step
 
 Next, let's setup the webhook:
 
 1. Open the repository settings page
-2. Select "Webhooks" on the sidebar
-3. Press "Add webhook"
-4. Set `https://test.specifysolutions.com/api/webhook` as the payload URL.
+1. Select "Webhooks" on the sidebar
+1. Press "Add webhook"
+1. Set `https://test.specifysolutions.com/api/webhook` as the payload URL.
    Replace the domain name and the protocol with the one you are using.
 
    ```
@@ -81,9 +84,9 @@ Next, let's setup the webhook:
    Google how to expose localhost
    ```
 
-5. Change "Content type" picklist to `application/json`
-6. Select the "Let me select individual events." radio button.
-7. Check the following checkboxes:
+1. Change "Content type" picklist to `application/json`
+1. Select the "Let me select individual events." radio button.
+1. Check the following checkboxes:
 
    - Pull request review comments
    - Pull request review threads
@@ -91,7 +94,7 @@ Next, let's setup the webhook:
    - Pull requests
    - Workflow jobs
 
-8. Click the "Add webhook" button
+1. Click the "Add webhook" button
 
 ### Configure Next.JS
 
