@@ -3,7 +3,7 @@ import { RA } from './typescriptCommonTypes';
 
 export const createDockerConfig = (
   deployments: RA<ActiveDeployment>,
-  nginxConfigHash: string
+  nginxConfigHash: number
 ): string => `
 version: '3.9'
 services:

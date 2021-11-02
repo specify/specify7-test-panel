@@ -108,7 +108,10 @@ export default function Index(): JSX.Element {
                   .then(async (response) => {
                     const data = await response.json();
                     if (response.status === 200) setState(data);
-                    else setState(data.error ?? data);
+                    else
+                      setState(
+                        data.error ?? data ?? 'Unexpected Error Occurred'
+                      );
                   })
                   .catch(setState);
               }}
