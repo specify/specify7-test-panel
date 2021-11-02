@@ -1,9 +1,16 @@
+import { ActiveDeployment } from './deployment';
+import { RA } from './typescriptCommonTypes';
 
-%for name, server in state._asdict().items():
-%if server:
+export const createNginxConfig = (
+  deployments: RA<ActiveDeployment>,
+  host: string
+): string =>
+  deployments
+    .map(
+      (deployment) => `
 server {
     listen 80;
-    server_name {{name}}.{{host}};
+    server_name ${deployment.hostname}.${host};
     root /usr/share/nginx;
 
     location /static/ {
@@ -14,9 +21,9 @@ server {
            add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
         }
         root /volumes;
-        rewrite ^/static/config/(.*)$ /specify{{server.sp6_tag}}/config/$1 break;
-        rewrite ^/static/depository/(.*)$ /{{name}}-static-files/depository/$1 break;
-        rewrite ^/static/(.*)$ /{{name}}-static-files/frontend-static/$1 break;
+        rewrite ^/static/config/(.*)$ /specify${deployment.schemaVersion}/config/$1 break;
+        rewrite ^/static/depository/(.*)$ /${deployment.hostname}-static-files/depository/$1 break;
+        rewrite ^/static/(.*)$ /${deployment.hostname}-static-files/frontend-static/$1 break;
     }
 
     location / {
@@ -27,13 +34,12 @@ server {
            add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
         }
         resolver 127.0.0.11 valid=30s;
-        set $backend "http://{{name}}:8000";
+        set $backend "http://${deployment.hostname}:8000";
         proxy_pass $backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
-}
-
-%end
-%end
+}`
+    )
+    .join('\n\n');
