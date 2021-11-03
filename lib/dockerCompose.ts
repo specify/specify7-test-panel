@@ -8,6 +8,13 @@ export const createDockerConfig = (
 version: '3.9'
 services:
 
+${
+  deployments.length === 0
+    ? `
+  mariadb:
+    restart: unless-stopped`
+    : ''
+}
 ${deployments
   .map(
     (deployment) => `
