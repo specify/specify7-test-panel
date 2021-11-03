@@ -186,14 +186,13 @@ The `./state` directory is indexed by git, but changes are ignored
 
 This was achived like this:
 
-1. Add `./state/` directory with initial content to git and commit
-   changes
+1. Add `./state/` directory with initial content to git and commit changes
 2. Add `./state/` folder to `.gitignore`
-3. Run `git update-index --assume-unchanged state/docker-compose.yml`
-   (do this for each file in that directory)
+3. Run `git update-index --assume-unchanged state/docker-compose.yml` (do this
+   for each file in that directory)
 
-In the future, if you want to change the default `./state/`, run
-this (for each file):
+In the future, if you want to change the default `./state/`, run this (for each
+file):
 
 ```
 git update-index --no-assume-unchanged state/docker-compose.yml

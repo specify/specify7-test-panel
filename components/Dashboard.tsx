@@ -79,7 +79,9 @@ export function Dashboard({
           )}
           {customDeploymentProps.deployments.length > 0 && (
             <>
-              <h2 className="text-2xl mt-8">{languageStrings.customDeployments}</h2>
+              <h2 className="mt-8 text-2xl">
+                {languageStrings.customDeployments}
+              </h2>
               <Deployments {...customDeploymentProps} />
             </>
           )}
@@ -92,7 +94,7 @@ export function Dashboard({
         {state.deployment.length < maxDeployments && (
           <button
             type="button"
-            className={successButtonClassName}
+            className={`${successButtonClassName} bg-green-900 cursor-not-allowed hover:bg-green-900`}
             disabled={databases.length === 0}
             title={
               databases.length === 0

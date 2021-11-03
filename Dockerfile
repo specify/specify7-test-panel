@@ -40,7 +40,6 @@ COPY . .
 VOLUME /home/node
 ENV NODE_ENV development
 USER nextjs
-# CMD ["tail", "-f", "/dev/null"]
 CMD ["npm", "run", "dev"]
 
 
