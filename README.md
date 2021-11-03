@@ -55,6 +55,8 @@ called by GitHub whenever the list pull requests that are ready for testing.
 This endpoint is responsible for checking getting rid of stale instances and
 auto deploying new pull requests whenever they become ready for testing.
 
+### Creating Authentication Token
+
 To configure this, first, create personal authentication token:
 
 1. Open your GitHub's profile settings
@@ -66,6 +68,8 @@ To configure this, first, create personal authentication token:
 1. Press "Generate token"
 1. Write down the generated token temporarily as it would be needed in the next
    step
+
+### Configuring webhook
 
 Next, let's setup the webhook:
 
@@ -127,7 +131,7 @@ After completing all the steps from previous sections, do one of these:
 Run the containers:
 
 ```zsh
-docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
+docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/docker-compose.yml up -d
 ```
 
 Test Panel is now available at [https://localhost/](https://localhost/)
@@ -137,7 +141,7 @@ Test Panel is now available at [https://localhost/](https://localhost/)
 Run the containers:
 
 ```zsh
-docker-compose up
+docker-compose -f docker-compose.yml -f docker-compose.development.yml -f state/docker-compose.yml up
 ```
 
 Test Panel is now available at [https://localhost/](https://localhost/)
@@ -146,3 +150,26 @@ Next.JS has hot-reload enabled, so code changes are reflected in realtime.
 
 Before committing changes, run `npm run test` to verify validity of TypeScript
 types.
+
+### Watch for configuration file changes
+
+After user changes the configuration in the panel, `./state/docker-compose.yml`
+file is modified.
+
+`fswatch` can be used to rerun `docker-compose up` on configuration changes.
+
+Install `fswatch`:
+
+```bash
+# on Ubuntu
+sudo apt-get install fswatch
+# on macOS
+brew install fswatch
+```
+
+Then, run this command though nohup:
+
+```bash
+fswatch -o ./state/docker-compose.yml | xargs -n1 -I{} \ 
+docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/docker-compose.yml up -d
+```
