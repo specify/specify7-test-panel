@@ -18,7 +18,7 @@ const configurationFile = path.resolve(workingDirectory, 'configuration.json');
 const nginxConfigurationFile = path.resolve(workingDirectory, 'nginx.conf');
 const dockerConfigurationFile = path.resolve(
   workingDirectory,
-  'docker-compose.override.yml'
+  'docker-compose.yml'
 );
 
 export async function getState(): Promise<RA<ActiveDeployment>> {
