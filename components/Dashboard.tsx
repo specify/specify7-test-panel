@@ -94,7 +94,11 @@ export function Dashboard({
         {state.deployment.length < maxDeployments && (
           <button
             type="button"
-            className={`${successButtonClassName} bg-green-900 cursor-not-allowed hover:bg-green-900`}
+            className={`${successButtonClassName} ${
+              databases.length === 0
+                ? 'bg-green-900 cursor-not-allowed hover:bg-green-900'
+                : ''
+            }`}
             disabled={databases.length === 0}
             title={
               databases.length === 0
