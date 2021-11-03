@@ -98,7 +98,7 @@ export function Deployments({
                 <option value={branch}>{branch}</option>
               </optgroup>
             ))}
-            <optgroup label={languageStrings.branchesWithoutPullRequest}>
+            <optgroup label={languageStrings.otherBranches}>
               {branchesWithoutPullRequests.map((branch) => (
                 <option key={branch} value={branch}>
                   {branch}

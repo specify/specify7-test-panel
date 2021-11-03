@@ -68,14 +68,19 @@ export type PullRequest = {
   readonly headRefName: string;
 };
 
-export const getPullRequests = async (
-  token: string
-): Promise<RA<PullRequest>> =>
+export const getPullRequests = async (user: User): Promise<RA<PullRequest>> =>
   queryGithubApi(
-    token,
+    user.token,
     `{
       repository(name: "${repository}", owner: "${organization}") {
-        pullRequests(orderBy: {field: UPDATED_AT, direction: DESC}, states: OPEN, first: 100) {
+        pullRequests(
+          orderBy: {
+            field: UPDATED_AT,
+            direction: DESC
+          },
+          states: OPEN,
+          first: 100
+        ) {
           nodes {
             title
             commits(last: 1) {
@@ -133,10 +138,10 @@ export const getPullRequests = async (
           };
         };
       };
-    }) => response.data.repository.pullRequests.nodes
+    }) => filterPullRequests(response.data.repository.pullRequests.nodes, user)
   );
 
-export const filterPullRequests = (
+const filterPullRequests = (
   pullRequests: RA<PullRequest>,
   user: User
 ): RA<PullRequest> =>

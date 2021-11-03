@@ -5,7 +5,7 @@ import {
 } from '../const/siteConfig';
 import { getDatabases } from '../pages/api/databases';
 import { getTags } from '../pages/api/dockerhub/[image]';
-import { filterPullRequests, getPullRequests } from './github';
+import { getPullRequests } from './github';
 import { getMostCommonElement } from './helpers';
 import { RA } from './typescriptCommonTypes';
 import { User } from './user';
@@ -89,10 +89,7 @@ export async function autoDeployPullRequests(
   state: RA<ActiveDeployment>,
   user: User
 ): Promise<RA<ActiveDeployment>> {
-  const pullRequests = filterPullRequests(
-    await getPullRequests(user.token),
-    user
-  );
+  const pullRequests = await getPullRequests(user);
 
   const trimmedState = state.filter(
     ({ branch, accessedAt, wasAutoDeployed }) => {

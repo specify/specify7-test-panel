@@ -9,7 +9,7 @@ import { getPullRequests } from '../lib/github';
 import type { LocalizationStrings } from '../lib/languages';
 import type { Deployment } from '../lib/deployment';
 import { IR, RA } from '../lib/typescriptCommonTypes';
-import { getUserTokenCookie } from '../lib/user';
+import { getUserInfo, getUserTokenCookie } from '../lib/user';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -24,7 +24,7 @@ export const localizationStrings: LocalizationStrings<{
   readonly saveChanges: string;
   readonly destroy: string;
   readonly addInstance: string;
-  readonly branchesWithoutPullRequest: string;
+  readonly otherBranches: string;
   readonly serverName: (index: number) => string;
   readonly uploadDatabasesFirst: string;
   readonly schemaVersion: string;
@@ -44,7 +44,7 @@ export const localizationStrings: LocalizationStrings<{
     saveChanges: 'Save Changes',
     destroy: 'Destroy',
     addInstance: 'Add Instance',
-    branchesWithoutPullRequest: 'Branches without a pull request:',
+    otherBranches: 'Other Branches:',
     serverName: (index) => `Server #${index}`,
     uploadDatabasesFirst: 'Upload database first',
     schemaVersion: 'Schema Version',
@@ -58,8 +58,10 @@ export default function Index(): JSX.Element {
     '/api/dockerhub/specify6-service'
   )[0];
   const databases = useApi<RA<string>>('/api/databases/')[0];
-  const pullRequests = useAsync(() =>
-    getPullRequests(getUserTokenCookie(document.cookie ?? '') ?? '')
+  const pullRequests = useAsync(async () =>
+    getPullRequests(
+      await getUserInfo(getUserTokenCookie(document.cookie ?? '') ?? '')
+    )
   )[0];
 
   return (
