@@ -1,4 +1,4 @@
-# Production config
+# Development config
 
 version: '3.9'
 services:
@@ -9,7 +9,7 @@ services:
   panel:
     build:
       context: ./.
-      target: runner
+      target: dev-runner
     depends_on:
       - mariadb
     networks:
@@ -17,4 +17,4 @@ services:
       - nginx
     restart: unless-stopped
     volumes:
-      - './state:/app/state'
+      - './:/app/'

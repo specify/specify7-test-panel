@@ -5,7 +5,7 @@ authentication and a test panel for setting configuration
 
 ![Main Page](./docs/src/main-page.png)
 
-## Deployment
+## Generate SSL certificates
 
 To run the containers, generate `fullchain.pem` and `privkey.pem` (certificate
 and the private key) using Let's Encrypt and put these files into the
@@ -20,7 +20,7 @@ openssl req \
   -out ./config/fullchain.pem
 ```
 
-### Create a GitHub OAuth App
+## Create a GitHub OAuth App
 
 In order to enable authentication though GitHub and usage of GitHub APIs, a
 GitHub OAuth application needs to be created.
@@ -44,7 +44,7 @@ This can be done for a GitHub organization or user profile:
 1. Client ID and Client Secret is displayed on the OAUth app configuration page.
 1. Write them down somewhere temporary as they would be needed later
 
-### Configure automatic deployment
+## Configure automatic deployment
 
 Most GitHub API calls would be made using the token generated when the user
 authenticates into the system.
@@ -96,7 +96,7 @@ Next, let's setup the webhook:
 
 1. Click the "Add webhook" button
 
-### Configure Next.JS
+## Configure Next.JS
 
 Create `.env.local` file in the root folder of this repository:
 
@@ -118,12 +118,16 @@ OAuth app configuration page on GitHub
 Replace `<github_token>` with the token you generated in
 [the previous step](#configure-automatic-deployment)
 
+## Deployment
+
+After completing all the steps from previous sections, do one of these:
+
 ### Production
 
 Run the containers:
 
 ```zsh
-docker-compose -f docker-compose.production.yml up -d
+docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
 ```
 
 Test Panel is now available at [https://localhost/](https://localhost/)

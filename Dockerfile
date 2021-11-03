@@ -37,10 +37,8 @@ FROM runner-common AS dev-runner
 WORKDIR /app
 VOLUME /app
 
-COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-#RUN npm i --no-save @swc/core @swc/cli
+RUN npm i
 
 ENV NODE_ENV development
 USER nextjs
@@ -53,8 +51,6 @@ FROM runner-common AS runner
 WORKDIR /app
 VOLUME /app/state
 
-ENV NODE_ENV production
-
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
@@ -62,5 +58,6 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.env.local ./.env.local
 
+ENV NODE_ENV production
 USER nextjs
 CMD ["npm", "run", "start"]
