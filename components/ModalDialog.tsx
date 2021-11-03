@@ -20,7 +20,7 @@ export function ModalDialog({
   Modal.setAppElement('#__next');
 
   return (
-    <div className="modal-root">
+    <div className="modal-root contents">
       <Modal
         isOpen={isOpen}
         closeTimeoutMS={100}
