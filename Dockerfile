@@ -40,6 +40,7 @@ COPY . .
 VOLUME /home/node
 ENV NODE_ENV development
 USER nextjs
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["npm", "run", "dev"]
 
 

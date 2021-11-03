@@ -186,7 +186,7 @@ docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/d
 
 The `./state` directory is indexed by git, but changes are ignored
 
-This was achived like this:
+This was achieved like this:
 
 1. Add `./state/` directory with initial content to git and commit changes
 2. Add `./state/` folder to `.gitignore`
@@ -201,10 +201,3 @@ git update-index --no-assume-unchanged state/docker-compose.yml
 ```
 
 Then, commit your changes and repeat step 3
-
-### Windows support
-
-Production composition works fine on Windows.
-
-Development composition does not work on Windows. To fix this,
-run `npm i @swc/core @swc/cli` inside the container.
