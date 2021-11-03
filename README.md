@@ -138,6 +138,12 @@ Test Panel is now available at [https://localhost/](https://localhost/)
 
 ### Development
 
+Install npm dependencies locally:
+
+```zsh
+npm i
+```
+
 Run the containers:
 
 ```zsh
@@ -151,7 +157,7 @@ Next.JS has hot-reload enabled, so code changes are reflected in realtime.
 Before committing changes, run `npm run test` to verify validity of TypeScript
 types.
 
-### Watch for configuration file changes
+## Watch for configuration file changes
 
 After user changes the configuration in the panel, `./state/docker-compose.yml`
 file is modified.

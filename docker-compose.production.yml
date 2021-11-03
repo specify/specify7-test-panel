@@ -17,4 +17,4 @@ services:
       - nginx
     restart: unless-stopped
     volumes:
-      - './state:/app/state'
+      - './state:/home/node/state'

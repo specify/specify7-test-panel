@@ -5,7 +5,7 @@
 FROM node:16.13.0-alpine3.14 AS deps
 
 # RUN apk add --no-cache libc6-compat
-WORKDIR /app
+WORKDIR /home/node
 COPY package*.json ./
 RUN npm ci
 
@@ -13,9 +13,9 @@ RUN npm ci
 # Build source code
 FROM node:16.13.0-alpine3.14 AS builder
 
-WORKDIR /app
+WORKDIR /home/node
 COPY . .
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /home/node/node_modules ./node_modules
 RUN npm run build
 
 
@@ -23,7 +23,7 @@ RUN npm run build
 FROM node:16.13.0-alpine3.14 AS runner-common
 LABEL maintainer="Specify Collections Consortium <github.com/specify>"
 
-WORKDIR /app
+WORKDIR /home/node
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
@@ -34,30 +34,29 @@ RUN apk add --no-cache mariadb-client
 # Development image
 FROM runner-common AS dev-runner
 
-WORKDIR /app
-VOLUME /app
-
+WORKDIR /home/node
 COPY . .
-RUN npm i
 
+VOLUME /home/node
 ENV NODE_ENV development
 USER nextjs
+# CMD ["tail", "-f", "/dev/null"]
 CMD ["npm", "run", "dev"]
 
 
 # Production image, copy all the files and run next
 FROM runner-common AS runner
 
-WORKDIR /app
-VOLUME /app/state
+WORKDIR /home/node
 
-COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/.env.local ./.env.local
+COPY --from=builder /home/node/next.config.js ./
+COPY --from=builder /home/node/public ./public
+COPY --from=builder --chown=nextjs:nodejs /home/node/.next ./.next
+COPY --from=builder /home/node/node_modules ./node_modules
+COPY --from=builder /home/node/package.json ./package.json
+COPY --from=builder /home/node/.env.local ./.env.local
 
+VOLUME /home/node/state
 ENV NODE_ENV production
 USER nextjs
 CMD ["npm", "run", "start"]
