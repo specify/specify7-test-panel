@@ -176,8 +176,10 @@ brew install fswatch
 Then, run this command though nohup:
 
 ```bash
-fswatch -o ./state/docker-compose.yml | xargs -n1 -I{} \ 
-docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/docker-compose.yml up -d
+fswatch -o ./state/docker-compose.yml | xargs -n1 -I{} sh -c " \ 
+docker pull specifyconsortium/specify7-service --all-tags; \
+docker pull specifyconsortium/specify6-service --all-tags; \
+docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/docker-compose.yml up -d"
 ```
 
 ## Miscellaneous
