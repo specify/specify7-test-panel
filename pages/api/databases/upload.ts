@@ -53,21 +53,21 @@ export default async function handler(
 
   await run(`sed -i -e 's/^CREATE DATABASE.*$//g' ${filePath}`)
     .then(() => run(`sed -i -e 's/^USE .*$//g' ${filePath}`))
-    .then(() => connection.execute(`DROP DATABASE IF EXISTS "${databaseName}"`))
-    .then(() => connection.execute(`CREATE DATABASE "${databaseName}"`))
+    .then(() => connection.execute(`DROP DATABASE IF EXISTS \`${databaseName}\``))
+    .then(() => connection.execute(`CREATE DATABASE \`${databaseName}\``))
     .then(() =>
       run(
         [
           `mysql -u${process.env.MYSQL_USERNAME} `,
           `-p${process.env.MYSQL_PASSWORD} `,
           `-h${process.env.MYSQL_HOST} `,
-          `--database ${databaseName} < ${filePath}`,
+          `--database "${databaseName}" < ${filePath}`,
         ].join('')
       )
     )
     .then(() =>
       connection.execute(
-        `UPDATE ${databaseName}.specifyuser SET Password="${testuserPassword}";`
+        `UPDATE \`${databaseName}\`.specifyuser SET Password='${testuserPassword}';`
       )
     )
     .then(() => fs.promises.unlink(filePath))
