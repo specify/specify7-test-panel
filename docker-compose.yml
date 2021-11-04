@@ -13,6 +13,8 @@ services:
 
   redis:
     image: redis
+    networks:
+      - redis
 
   nginx:
     image: nginx:1.21.3-alpine
@@ -38,3 +40,4 @@ volumes:
 networks:
   database:
   nginx:
+  redis:

@@ -22,6 +22,9 @@ ${deployments
     image: specifyconsortium/specify7-service:${deployment.branch}
     init: true
     restart: unless-stopped
+    networks:
+      - database
+      - nginx
     volumes:
       - "specify${deployment.schemaVersion}:/opt/Specify:ro"
       - "${deployment.hostname}-static-files:/volumes/static-files"
@@ -46,6 +49,8 @@ ${deployments
     restart: unless-stopped
     volumes:
       - "specify${deployment.schemaVersion}:/opt/Specify:ro"
+    networks:
+      - redis
     environment:
       - LC_ALL=C.UTF-8
       - LANG=C.UTF-8
