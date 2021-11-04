@@ -24,7 +24,7 @@ export default async function handler(
     return res.status(400).json({ error: 'Database name is invalid' });
 
   connection
-    .execute(`DROP DATABASE ${databaseName}`)
+    .execute(`DROP DATABASE \`${databaseName}\``)
     .then(() => {
       res.writeHead(302, {
         Location: '/databases/',
