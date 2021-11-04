@@ -89,6 +89,7 @@ export function Deployments({
                 newState: {
                   ...deployment,
                   branch: target.value,
+                  hostname: undefined,
                 },
               })
             }
