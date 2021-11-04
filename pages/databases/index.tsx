@@ -156,9 +156,9 @@ function ListUsers({
       {typeof users === 'string' ? (
         users
       ) : (
-        <ul>
+        <ul className="gap-y-3 flex flex-col">
           {Object.entries(users.data).map(([user, type]) => (
-            <li key={user}>{`${user} (${type})`}</li>
+            <li key={user} className="gap-x-1 flex">{`${user} (${type})`}</li>
           ))}
         </ul>
       )}
