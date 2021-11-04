@@ -159,7 +159,7 @@ export function DeploymentLine({
                   pullRequest={pullRequest}
                   key={index}
                 />
-              ))}
+              ))[0]}
         </p>
       </div>
       <span className="flex-1" />
@@ -297,27 +297,30 @@ function StatusIndicator({
 
   return (
     <>
-      <button
-        type="button"
-        className={`flex items-center ${color} ${
-          isReady ? 'cursor-pointer' : ''
-        }`}
-        title={stateDescription}
-        onClick={isReady ? () => setIsOpen(true) : undefined}
-      >
-        {state}
-      </button>
+      {typeof status !== 'undefined' && (
+        <button
+          type="button"
+          className={`flex items-center ${color} ${
+            isReady ? '' : 'cursor-default'
+          }`}
+          disabled={!isReady}
+          title={stateDescription}
+          onClick={isReady ? () => setIsOpen(true) : undefined}
+        >
+          {state}
+        </button>
+      )}
       {isReady && isOpen && (
-        <ModalDialog title={state} onClose={() => setIsOpen(false)}>
-          {languageStrings.collection}: {status.collection}
+        <ModalDialog title={deployment.branch} onClose={() => setIsOpen(false)}>
+          <b>{languageStrings.collection}:</b> {status.collection}
           <br />
-          {languageStrings.discipline}: {status.discipline}
+          <b>{languageStrings.discipline}:</b> {status.discipline}
           <br />
-          {languageStrings.institution}: {status.institution}
+          <b>{languageStrings.institution}:</b> {status.institution}
           <br />
-          {languageStrings.schemaVersion}: {status.schemaVersion}
+          <b>{languageStrings.schemaVersion}:</b> {status.schemaVersion}
           <br />
-          {languageStrings.specifyVersion}: {status.specifyVersion}
+          <b>{languageStrings.specifyVersion}:</b> {status.specifyVersion}
         </ModalDialog>
       )}
     </>
