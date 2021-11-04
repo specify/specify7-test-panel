@@ -81,7 +81,7 @@ export default function Index(): JSX.Element {
                       type="text"
                       name="databaseName"
                       className="p-2 rounded"
-                      pattern="[a-zA-Z0-9]+"
+                      pattern="[a-zA-Z0-9_]+"
                       required
                       value={databaseName}
                       onChange={({ target }) => setDatabaseName(target.value)}
