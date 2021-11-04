@@ -53,10 +53,18 @@ export async function setState(
   await fs.promises.writeFile(configurationFile, JSON.stringify(state));
   const nginxConfig = createNginxConfig(state, new URL(origin).host);
   await fs.promises.writeFile(nginxConfigurationFile, nginxConfig);
-  await fs.promises.writeFile(
-    dockerConfigurationFile,
-    createDockerConfig(state, getHash(nginxConfig))
+  const currentDockerConfigurationFile = (
+    await fs.promises.readFile(dockerConfigurationFile)
+  ).toString();
+  const newDockerConfigurationFile = createDockerConfig(
+    state,
+    getHash(nginxConfig)
   );
+  if (currentDockerConfigurationFile !== newDockerConfigurationFile)
+    await fs.promises.writeFile(
+      dockerConfigurationFile,
+      newDockerConfigurationFile
+    );
   return state;
 }
 
