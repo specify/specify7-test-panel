@@ -1,4 +1,4 @@
-import { organization, repository } from '../const/siteConfig';
+import { organization, repository, targetTeam } from '../const/siteConfig';
 import { RA } from './typescriptCommonTypes';
 import { User } from './user';
 
@@ -32,7 +32,7 @@ export type PullRequest = {
     >;
   };
   readonly number: number;
-  readonly mergeable: 'MERGEABLE' | 'CONFCLICTING' | 'UNKNOWN';
+  readonly mergeable: 'MERGEABLE' | 'CONFLICTING' | 'UNKNOWN';
   readonly merged: boolean;
   readonly isDraft: boolean;
   readonly reviews: {
@@ -149,7 +149,7 @@ const filterPullRequests = (
     .filter(
       ({ mergeable, merged, isDraft, reviewRequests, reviews, commits }) =>
         mergeable === 'MERGEABLE' &&
-        merged == false &&
+        !merged &&
         !isDraft &&
         reviewRequests.nodes.length !== 0 &&
         commits.nodes[0].commit.statusCheckRollup.state === 'SUCCESS' &&
@@ -159,20 +159,34 @@ const filterPullRequests = (
       const approved = reviews.nodes
         .filter(({ state }) => state === 'APPROVED')
         .map(({ author }) => author.login);
-      const pendingTeamReviews = reviewRequests.nodes.filter(
-        ({ requestedReviewer }) =>
-          'teamname' in requestedReviewer &&
-          approved.every(
-            (username) =>
-              !user.organization.teams[username].includes(
-                requestedReviewer.teamname
-              )
-          )
-      );
+
       const pendingUserReviews = reviewRequests.nodes.filter(
         ({ requestedReviewer }) =>
           'username' in requestedReviewer &&
           !approved.includes(requestedReviewer.username)
       );
-      return pendingTeamReviews.length !== 0 || pendingUserReviews.length !== 0;
+
+      const pendingTeamReviews = reviewRequests.nodes
+        .filter(
+          (
+            requests
+          ): requests is {
+            readonly requestedReviewer: { readonly teamname: string };
+          } =>
+            approved.every(
+              (username) =>
+                !user.organization.teams[username].includes(
+                  'teamname' in requests.requestedReviewer
+                    ? requests.requestedReviewer.teamname
+                    : ''
+                )
+            )
+        )
+        .map(({ requestedReviewer }) => requestedReviewer.teamname);
+
+      return (
+        pendingUserReviews.length === 0 &&
+        pendingTeamReviews.includes(targetTeam) &&
+        pendingTeamReviews.length === 1
+      );
     });

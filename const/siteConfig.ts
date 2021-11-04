@@ -2,7 +2,7 @@ export const organization = 'specify';
 export const repository = 'specify7';
 
 // Auto deploy pull requests assigned for review by this team
-export const team = 'ux-testing';
+export const targetTeam = 'UX Testing';
 
 // Don't allow more than 6 simultaneous instances
 export const maxDeployments = 6;
