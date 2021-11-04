@@ -25,6 +25,7 @@ ${deployments
     networks:
       - database
       - nginx
+      - redis
     volumes:
       - "specify${deployment.schemaVersion}:/opt/Specify:ro"
       - "${deployment.hostname}-static-files:/volumes/static-files"
@@ -51,6 +52,7 @@ ${deployments
       - "specify${deployment.schemaVersion}:/opt/Specify:ro"
     networks:
       - redis
+      - database
     environment:
       - LC_ALL=C.UTF-8
       - LANG=C.UTF-8
