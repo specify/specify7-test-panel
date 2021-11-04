@@ -131,7 +131,7 @@ After completing all the steps from previous sections, do one of these:
 Run the containers:
 
 ```zsh
-docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/docker-compose.yml up -d
+docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/docker-compose.yml up --remove-orphans -d
 ```
 
 Test Panel is now available at [https://localhost/](https://localhost/)
@@ -147,7 +147,7 @@ npm i
 Run the containers:
 
 ```zsh
-docker-compose -f docker-compose.yml -f docker-compose.development.yml -f state/docker-compose.yml up
+docker-compose -f docker-compose.yml -f docker-compose.development.yml -f state/docker-compose.yml up --remove-orphans
 ```
 
 Test Panel is now available at [https://localhost/](https://localhost/)
@@ -179,7 +179,7 @@ Then, run this command though nohup:
 fswatch -o ./state/docker-compose.yml | xargs -n1 -I{} sh -c " \ 
 docker pull specifyconsortium/specify7-service --all-tags; \
 docker pull specifyconsortium/specify6-service --all-tags; \
-docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/docker-compose.yml up -d"
+docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/docker-compose.yml up --remove-orphans -d"
 ```
 
 ## Miscellaneous
