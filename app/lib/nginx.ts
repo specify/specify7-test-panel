@@ -12,7 +12,7 @@ server {
     listen 443 ssl;
     server_name ${deployment.hostname}.${host};
     root /usr/share/nginx;
-    
+
     ssl_certificate /etc/letsencrypt/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/privkey.pem;
     ssl_session_cache shared:SSL:10m;

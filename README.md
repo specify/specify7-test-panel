@@ -131,7 +131,11 @@ After completing all the steps from previous sections, do one of these:
 Run the containers:
 
 ```zsh
-docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/docker-compose.yml up --remove-orphans -d
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.production.yml \
+  -f state/docker-compose.yml \
+  up --remove-orphans -d
 ```
 
 Test Panel is now available at [https://localhost/](https://localhost/)
@@ -147,7 +151,11 @@ npm i
 Run the containers:
 
 ```zsh
-docker-compose -f docker-compose.yml -f docker-compose.development.yml -f state/docker-compose.yml up --remove-orphans
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.development.yml \
+  -f state/docker-compose.yml \
+  up --remove-orphans
 ```
 
 Test Panel is now available at [https://localhost/](https://localhost/)
@@ -176,10 +184,14 @@ brew install fswatch
 Then, run this command though nohup:
 
 ```bash
-fswatch -o ./state/docker-compose.yml | xargs -n1 -I{} sh -c " \ 
+fswatch -o ./state/docker-compose.yml | xargs -n1 -I{} sh -c " \
 docker pull specifyconsortium/specify7-service --all-tags; \
 docker pull specifyconsortium/specify6-service --all-tags; \
-docker-compose -f docker-compose.yml -f docker-compose.production.yml -f state/docker-compose.yml up --remove-orphans -d"
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.production.yml \
+  -f state/docker-compose.yml \
+  up --remove-orphans -d"
 ```
 
 ## Miscellaneous
@@ -191,8 +203,8 @@ The `./state` directory is indexed by git, but changes are ignored
 This was achieved like this:
 
 1. Add `./state/` directory with initial content to git and commit changes
-2. Add `./state/` folder to `.gitignore`
-3. Run `git update-index --assume-unchanged state/docker-compose.yml` (do this
+1. Add `./state/` folder to `.gitignore`
+1. Run `git update-index --assume-unchanged state/docker-compose.yml` (do this
    for each file in that directory)
 
 In the future, if you want to change the default `./state/`, run this (for each
