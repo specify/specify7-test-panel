@@ -77,7 +77,7 @@ export const formalizeState = (
             ? `${deployment.hostname}-${
                 deployments.filter(
                   ({ hostname }) => hostname === deployment.hostname
-                ).length
+                ).length + 1
               }`
             : deployment.hostname,
         },
