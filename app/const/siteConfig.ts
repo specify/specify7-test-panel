@@ -13,7 +13,8 @@ export const staleAfter = 60 * 60 * 24 * 2;
 // Manually deployed instances may be garbage collected after 4 days
 export const customStaleAfter = 2 * staleAfter;
 
-export const workingDirectory = './state';
+// Path is relative to package.json
+export const stateDirectory = '../state';
 
 // Refresh deployment's state every 10 seconds
 export const stateRefreshInterval = 10 * 1000;

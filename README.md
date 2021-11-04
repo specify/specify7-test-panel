@@ -102,7 +102,7 @@ Next, let's setup the webhook:
 
 ## Configure Next.JS
 
-Create `.env.local` file in the root folder of this repository:
+Create `.env.local` file in the `app` folder:
 
 ```ini
 NEXT_PUBLIC_GITHUB_CLIENT_ID=<client_id>

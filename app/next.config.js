@@ -9,6 +9,7 @@ module.exports = {
     ignoreDuringBuilds: true,
   },
   webpack: (config) => {
+    // Ignore imports of "fs" when called from front-end files
     config.resolve.fallback = { fs: false };
     return config;
   },

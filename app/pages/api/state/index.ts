@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { workingDirectory } from '../../../const/siteConfig';
+import { stateDirectory } from '../../../const/siteConfig';
 import { fileExists, getUser } from '../../../lib/apiUtils';
 import path from 'path';
 import fs from 'fs';
@@ -14,10 +14,10 @@ import { createNginxConfig } from '../../../lib/nginx';
 import { RA } from '../../../lib/typescriptCommonTypes';
 import { User } from '../../../lib/user';
 
-const configurationFile = path.resolve(workingDirectory, 'configuration.json');
-const nginxConfigurationFile = path.resolve(workingDirectory, 'nginx.conf');
+const configurationFile = path.resolve(stateDirectory, 'configuration.json');
+const nginxConfigurationFile = path.resolve(stateDirectory, 'nginx.conf');
 const dockerConfigurationFile = path.resolve(
-  workingDirectory,
+  stateDirectory,
   'docker-compose.yml'
 );
 
