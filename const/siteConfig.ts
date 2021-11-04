@@ -14,3 +14,6 @@ export const staleAfter = 60 * 60 * 24 * 2;
 export const customStaleAfter = 2 * staleAfter;
 
 export const workingDirectory = './state';
+
+// Refresh deployment's state every 10 seconds
+export const stateRefreshInterval = 10 * 1000;

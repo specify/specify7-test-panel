@@ -28,16 +28,6 @@ export type Deployment = Partial<DeploymentDetails> & {
 export type DeploymentWithInfo = Deployment & {
   readonly frontend: {
     readonly id: number;
-    readonly status?:
-      | 'fetching'
-      | 'unreachable'
-      | {
-          readonly collection: string;
-          readonly discipline: string;
-          readonly institution: string;
-          readonly schemaVersion: string;
-          readonly version: string;
-        };
   };
 };
 

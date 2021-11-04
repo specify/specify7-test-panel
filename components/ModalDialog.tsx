@@ -7,13 +7,13 @@ export function ModalDialog({
   title,
   buttons,
   children,
-  onCloseClick: handleCloseClick,
+  onClose: handleClose,
 }: {
   readonly isOpen?: boolean;
   readonly title: string;
   readonly buttons?: React.ReactNode;
   readonly children: React.ReactNode;
-  readonly onCloseClick?: () => void;
+  readonly onClose?: () => void;
 }): JSX.Element {
   const { className } = css.resolve``;
 
@@ -31,7 +31,7 @@ export function ModalDialog({
           'justify-center bg-shadow transition-opacity'
         }
         className={'w-full outline-none'}
-        shouldCloseOnEsc={typeof handleCloseClick === 'function'}
+        shouldCloseOnEsc={typeof handleClose === 'function'}
       >
         <div className="w-auto w-1/2 m-auto bg-white shadow-xl">
           <div
@@ -39,12 +39,12 @@ export function ModalDialog({
           items-center`}
           >
             <h3 className="text-lg text-gray-900">{title}</h3>
-            {handleCloseClick && (
+            {handleClose && (
               <div
                 className={`flex items-center justify-center
                 rounded-full bg-red-100 sm:h-10 sm:w-10
                 cursor-pointer`}
-                onClick={handleCloseClick}
+                onClick={handleClose}
               >
                 <svg
                   className="w-6 h-6 text-red-600"

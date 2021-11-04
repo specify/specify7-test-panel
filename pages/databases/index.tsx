@@ -151,7 +151,7 @@ function ListUsers({
   ) : (
     <ModalDialog
       title={languageStrings.usersOfDatabase(database)}
-      onCloseClick={handleClose}
+      onClose={handleClose}
     >
       {typeof users === 'string' ? (
         users
@@ -180,7 +180,7 @@ function DeleteDatabase({
   return (
     <ModalDialog
       title={languageStrings.deleteDialogTitle}
-      onCloseClick={handleClose}
+      onClose={handleClose}
       buttons={
         <>
           <button

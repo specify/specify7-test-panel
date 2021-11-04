@@ -19,6 +19,14 @@ export const localizationStrings: LocalizationStrings<{
   readonly customDeployments: string;
   readonly automatic: string;
   readonly automaticDescription: string;
+  readonly ready: string;
+  readonly fetching: string;
+  readonly starting: string;
+  readonly collection: string;
+  readonly discipline: string;
+  readonly institution: string;
+  readonly specifyVersion: string;
+  readonly schemaVersion: string;
   readonly database: string;
   readonly databases: string;
   readonly saveChanges: string;
@@ -27,7 +35,6 @@ export const localizationStrings: LocalizationStrings<{
   readonly otherBranches: string;
   readonly serverName: (index: number) => string;
   readonly uploadDatabasesFirst: string;
-  readonly schemaVersion: string;
 }> = {
   'en-US': {
     title: 'Dashboard',
@@ -39,6 +46,13 @@ export const localizationStrings: LocalizationStrings<{
     automaticDescription:
       'This instance was deployed automatically because it is ready for ' +
       'testing',
+    ready: 'Ready',
+    fetching: 'Fetching',
+    starting: 'Starting',
+    collection: 'Collection',
+    discipline: 'Discipline',
+    institution: 'Institution',
+    specifyVersion: 'Specify Version',
     database: 'Database',
     databases: 'Databases',
     saveChanges: 'Save Changes',
