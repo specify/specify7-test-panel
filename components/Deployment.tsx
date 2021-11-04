@@ -94,12 +94,12 @@ export function DeploymentLine({
     >
       <a
         href={
-          'hostname' in deployment
+          'hostname' in deployment && typeof deployment.hostname !== 'undefined'
             ? `${document.location.protocol}//${deployment.hostname}.${document.location.hostname}/`
             : undefined
         }
         className={
-          'hostname' in deployment
+          'hostname' in deployment && typeof deployment.hostname !== 'undefined'
             ? infoButtonClassName
             : disabledButtonClassName
         }
