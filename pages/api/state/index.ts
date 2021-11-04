@@ -84,7 +84,7 @@ export default async function handler(
 
     res.status(200).json({ data: state });
   } else if (req.method === 'GET')
-    getState()
+    await getState()
       .then((data) => res.status(200).json({ data }))
       .catch((error) => res.status(500).json({ error: error.toString() }));
   else
