@@ -23,7 +23,10 @@ export default async function handler(
   await connectToDatabase();
 
   const data = (await new Promise((resolve, reject) => {
-    const form = new IncomingForm();
+    const form = new IncomingForm({
+      // 4 GB
+      maxFileSize: 4 * 1024 * 1024 * 1024,
+    });
 
     form.parse(req, (err, fields, files) => {
       if (err) return reject(err.toString());
