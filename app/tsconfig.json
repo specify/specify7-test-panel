@@ -45,10 +45,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     /**/
-    /* Experimental*/
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    /**/
     /* Advanced*/
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
