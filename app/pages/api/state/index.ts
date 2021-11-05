@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { stateDirectory } from '../../../const/siteConfig';
+import { stateDirectory, nginxConfDirectory } from '../../../const/siteConfig';
 import { fileExists, getUser } from '../../../lib/apiUtils';
 import path from 'path';
 import fs from 'fs';
@@ -15,7 +15,7 @@ import { RA } from '../../../lib/typescriptCommonTypes';
 import { User } from '../../../lib/user';
 
 const configurationFile = path.resolve(stateDirectory, 'configuration.json');
-const nginxConfigurationFile = path.resolve(stateDirectory, 'nginx.conf');
+const nginxConfigurationFile = path.resolve(nginxConfDirectory, 'nginx.conf');
 const dockerConfigurationFile = path.resolve(
   stateDirectory,
   'docker-compose.yml'

@@ -15,6 +15,7 @@ export const customStaleAfter = 2 * staleAfter;
 
 // Path is relative to package.json
 export const stateDirectory = '../state';
+export const nginxConfDirectory = '../nginx.conf.d';
 
 // Refresh deployment's state every 10 seconds
 export const stateRefreshInterval = 10 * 1000;
