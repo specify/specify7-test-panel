@@ -128,15 +128,29 @@ After completing all the steps from previous sections, do one of these:
 
 ### Production
 
+Build the containers:
+
+```shell
+docker-compose \
+    -f docker-compose.yml \
+    -f docker-compose.production.yml \
+    up --no-start --build
+```
+
 Run the containers:
 
 ```zsh
 docker-compose \
   -f docker-compose.yml \
   -f docker-compose.production.yml \
-  -f state/docker-compose.yml \
+  -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml \
   up --remove-orphans -d
 ```
+
+If
+`/var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml`
+is not correct on your host, you can find the correct path using
+`docker volume ls` and `docker volume inspect`.
 
 Test Panel is now available at [https://localhost/](https://localhost/)
 

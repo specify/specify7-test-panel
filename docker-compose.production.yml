@@ -17,4 +17,5 @@ services:
       - nginx
     restart: unless-stopped
     volumes:
-      - './state:/home/node/state'
+      - 'state:/home/node/state'
+      - 'nginx-conf:/home/node/nginx.conf.d'
