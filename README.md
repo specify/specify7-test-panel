@@ -181,6 +181,47 @@ types.
 
 ## Watch for configuration file changes
 
+### Using systemd
+
+After user changes the configuration in the panel, the file
+`/var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml`
+is modified. Systemd can be configured to watch this file and run
+docker-compose pull and up when changes occur. Use the following unit files:
+
+#### /etc/systemd/system/specify7-test-panel-update.service
+```
+[Unit]
+After=network.target
+Description=Run docker-compose up for test panel.
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/specify/specify7-test-panel
+ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml pull
+ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml up --remove-orphans -d 
+```
+
+#### /etc/systemd/system/specify7-test-panel-update.path
+```
+[Unit]
+
+[Path]
+PathChanged=/var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml
+Unit=specify7-test-panel-update.service
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable the services with the following commands:
+```
+systemctl daemon-reload
+systemctl enable specify7-test-panel-update.path
+systemctl start specify7-test-panel-update.path
+```
+
+### Using fswatch
+
 After user changes the configuration in the panel, `./state/docker-compose.yml`
 file is modified.
 
