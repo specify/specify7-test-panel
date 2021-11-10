@@ -66,9 +66,7 @@ export const getUserInfo = async (token: string): Promise<User> =>
           return people;
         }, {});
       if (Object.keys(teams).length === 0)
-        throw new Error(
-          `User is not a member of the ${organization} organization`
-        );
+        throw new Error('Sorry, you are not authorized to access this page');
       return {
         token,
         name: response.data.viewer.name,

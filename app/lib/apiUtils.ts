@@ -14,11 +14,13 @@ export async function getUser(
     return undefined;
   }
 
-  const user = await getUserInfo(token).catch(console.error);
+  const user: User | string = await getUserInfo(token).catch((error) =>
+    error.toString()
+  );
 
-  if (typeof user === 'undefined') {
+  if (typeof user === 'string') {
     res.status(400).json({
-      error: 'Bad request',
+      error: user,
     });
     return undefined;
   }
