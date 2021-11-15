@@ -1,4 +1,4 @@
-import { organization, repository, targetTeam } from '../const/siteConfig';
+import { organization, repository, targetTeams } from '../const/siteConfig';
 import { RA } from './typescriptCommonTypes';
 import { User } from './user';
 
@@ -186,7 +186,9 @@ const filterPullRequests = (
 
       return (
         pendingUserReviews.length === 0 &&
-        pendingTeamReviews.includes(targetTeam) &&
+        pendingTeamReviews.some(teamName=>
+          targetTeams.includes(teamName)
+        ) &&
         pendingTeamReviews.length === 1
       );
     });
