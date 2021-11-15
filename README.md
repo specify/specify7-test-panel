@@ -16,8 +16,8 @@ While in development, you can generate self-signed certificates:
 ```zsh
 openssl req \
   -x509 -sha256 -nodes -newkey rsa:2048 -days 365 \
-  -keyout ./config/privkey.pem \
-  -out ./config/fullchain.pem
+  -keyout /etc/letsencrypt/live/test.specifysystems.org-0001/privkey.pem \
+  -out /etc/letsencrypt/live/test.specifysystems.org-0001/fullchain.pem
 ```
 
 ## Create a GitHub OAuth App
@@ -132,9 +132,9 @@ Build the containers:
 
 ```shell
 docker-compose \
-    -f docker-compose.yml \
-    -f docker-compose.production.yml \
-    up --no-start --build
+  -f docker-compose.yml \
+  -f docker-compose.production.yml \
+  up --no-start --build
 ```
 
 Run the containers:
@@ -189,6 +189,7 @@ is modified. Systemd can be configured to watch this file and run
 docker-compose pull and up when changes occur. Use the following unit files:
 
 #### /etc/systemd/system/specify7-test-panel-update.service
+
 ```
 [Unit]
 After=network.target
@@ -198,10 +199,11 @@ Description=Run docker-compose up for test panel.
 Type=oneshot
 WorkingDirectory=/home/specify/specify7-test-panel
 ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml pull
-ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml up --remove-orphans -d 
+ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml up --remove-orphans -d
 ```
 
 #### /etc/systemd/system/specify7-test-panel-update.path
+
 ```
 [Unit]
 
@@ -214,6 +216,7 @@ WantedBy=multi-user.target
 ```
 
 Enable the services with the following commands:
+
 ```
 systemctl daemon-reload
 systemctl enable specify7-test-panel-update.path
