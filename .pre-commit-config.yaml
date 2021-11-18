@@ -69,7 +69,7 @@ repos:
           - --skip="./node_modules/,package-lock.json,./.idea/"
 
   - repo: https://github.com/psf/black
-    rev: 21.10b0
+    rev: 21.11b0
     hooks:
       - id: black
         args:
@@ -106,7 +106,7 @@ repos:
         exclude: ^docs/
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.0
+    rev: v2.29.1
     hooks:
       - id: pyupgrade
 
@@ -127,7 +127,7 @@ repos:
           - prettier-plugin-firebase-database@^1.0.1
 
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.1.0
+    rev: v8.2.0
     hooks:
       - id: eslint
         types: [text]
