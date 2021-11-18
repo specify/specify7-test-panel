@@ -33,6 +33,8 @@ services:
 
   report-runner:
     image: specifyconsortium/report-runner
+    networks:
+      - database
 
 volumes:
   database:
