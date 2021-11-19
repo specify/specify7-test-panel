@@ -110,7 +110,7 @@ export const getPullRequests = async (user: User): Promise<RA<PullRequest>> =>
               nodes {
                 requestedReviewer {
                   ... on User {
-                    username: name
+                    username: login
                   }
                   ... on Team {
                     teamname: name
@@ -153,7 +153,9 @@ const filterPullRequests = (
         !isDraft &&
         reviewRequests.nodes.length !== 0 &&
         commits.nodes[0].commit.statusCheckRollup.state === 'SUCCESS' &&
-        reviews.nodes.filter(({ state }) => state !== 'APPROVED').length === 0
+        reviews.nodes.filter(
+          ({ state }) => state !== 'APPROVED' && state !== 'COMMENTED'
+        ).length === 0
     )
     .filter(({ reviewRequests, reviews }) => {
       const approved = reviews.nodes
@@ -186,9 +188,7 @@ const filterPullRequests = (
 
       return (
         pendingUserReviews.length === 0 &&
-        pendingTeamReviews.some(teamName=>
-          targetTeams.includes(teamName)
-        ) &&
+        pendingTeamReviews.some((teamName) => targetTeams.includes(teamName)) &&
         pendingTeamReviews.length === 1
       );
     });
