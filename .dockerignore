@@ -1,3 +1,2 @@
-Dockerfile
-.*
-ve
+node_modules
+.next

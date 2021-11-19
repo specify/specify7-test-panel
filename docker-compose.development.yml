@@ -1,0 +1,21 @@
+# Development config
+
+version: '3.9'
+services:
+  nginx:
+    depends_on:
+      - panel
+
+  panel:
+    build:
+      context: ./.
+      target: dev-runner
+    depends_on:
+      - mariadb
+    networks:
+      - database
+      - nginx
+    restart: unless-stopped
+    volumes:
+      - './state:/home/node/state'
+      - './app:/home/node/app'
