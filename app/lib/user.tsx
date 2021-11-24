@@ -1,6 +1,6 @@
 import { organization } from '../const/siteConfig';
 import { queryGithubApi } from './github';
-import { IR, R, RA } from './typescriptCommonTypes';
+import { IR, RA } from './typescriptCommonTypes';
 
 export type User = {
   readonly token: string;
@@ -53,18 +53,13 @@ export const getUserInfo = async (token: string): Promise<User> =>
         };
       };
     }) => {
-      const teams = response.data.organization.teams.nodes
-        .map(({ name, members }) => ({
-          teamName: name,
-          members: members.nodes.map(({ login }) => login),
-        }))
-        .reduce<R<string[]>>((people, { teamName, members }) => {
-          members.forEach((username) => {
-            people[username] ??= [];
-            people[username].push(teamName);
-          });
-          return people;
-        }, {});
+      const teams = Object.fromEntries(
+        response.data.organization.teams.nodes.map(({ name, members }) => [
+          name,
+          members.nodes.map(({ login }) => login),
+        ])
+      );
+
       if (Object.keys(teams).length === 0)
         throw new Error('Sorry, you are not authorized to access this page');
       return {

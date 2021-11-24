@@ -162,33 +162,53 @@ const filterPullRequests = (
         .filter(({ state }) => state === 'APPROVED')
         .map(({ author }) => author.login);
 
-      const pendingUserReviews = reviewRequests.nodes.filter(
-        ({ requestedReviewer }) =>
-          'username' in requestedReviewer &&
-          !approved.includes(requestedReviewer.username)
+      const pendingUserReviews = reviewRequests.nodes
+        .map(
+          ({ requestedReviewer }) =>
+            'username' in requestedReviewer && requestedReviewer.username
+        )
+        .filter(
+          (username): username is string =>
+            typeof username === 'string' && !approved.includes(username)
+        );
+
+      const pendingNonTargetTeamMemberReviews = pendingUserReviews.filter(
+        (username) =>
+          targetTeams.every(
+            (teamName) => !user.organization.teams[teamName].includes(username)
+          )
+      );
+
+      const isAssignedToTargetTeamMember = !!(
+        pendingUserReviews.length - pendingNonTargetTeamMemberReviews.length
       );
 
       const pendingTeamReviews = reviewRequests.nodes
+        .map(
+          (requests) =>
+            'teamname' in requests.requestedReviewer &&
+            requests.requestedReviewer.teamname
+        )
         .filter(
-          (
-            requests
-          ): requests is {
-            readonly requestedReviewer: { readonly teamname: string };
-          } =>
+          (teamName): teamName is string =>
+            !!teamName &&
             approved.every(
               (username) =>
-                !user.organization.teams[username].includes(
-                  'teamname' in requests.requestedReviewer
-                    ? requests.requestedReviewer.teamname
-                    : ''
-                )
+                !user.organization.teams[teamName].includes(username)
             )
-        )
-        .map(({ requestedReviewer }) => requestedReviewer.teamname);
+        );
+
+      const pendingNonTargetTeamReviews = pendingTeamReviews.filter(
+        (teamName) => !targetTeams.includes(teamName)
+      );
+
+      const isAssignedToTargetTeam = !!(
+        pendingTeamReviews.length - pendingNonTargetTeamReviews.length
+      );
 
       return (
-        pendingUserReviews.length === 0 &&
-        pendingTeamReviews.some((teamName) => targetTeams.includes(teamName)) &&
-        pendingTeamReviews.length === 1
+        (isAssignedToTargetTeam || isAssignedToTargetTeamMember) &&
+        pendingNonTargetTeamMemberReviews.length === 0 &&
+        pendingNonTargetTeamReviews.length === 0
       );
     });
