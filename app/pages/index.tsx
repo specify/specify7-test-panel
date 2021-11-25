@@ -71,7 +71,7 @@ export default function Index(): JSX.Element {
   const schemaVersions = useApi<IR<string>>(
     '/api/dockerhub/specify6-service'
   )[0];
-  const databases = useApi<RA<string>>('/api/databases/')[0];
+  const databases = useApi<IR<string>>('/api/databases/')[0];
   const pullRequests = useAsync(async () =>
     getPullRequests(
       await getUserInfo(getUserTokenCookie(document.cookie ?? '') ?? '')

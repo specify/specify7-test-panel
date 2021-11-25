@@ -13,7 +13,7 @@ import { useApi } from '../../components/useApi';
 import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
 import type { Language, LocalizationStrings } from '../../lib/languages';
-import { IR, RA } from '../../lib/typescriptCommonTypes';
+import { IR } from '../../lib/typescriptCommonTypes';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -39,7 +39,7 @@ export const localizationStrings: LocalizationStrings<{
 };
 
 export default function Index(): JSX.Element {
-  const databaseList = useApi<RA<string>>('/api/databases')[0];
+  const databaseList = useApi<IR<string>>('/api/databases')[0];
   const [listUsers, setListUsers] = React.useState<string | undefined>(
     undefined
   );
@@ -72,37 +72,42 @@ export default function Index(): JSX.Element {
                 <h1 className="text-5xl">{siteInfo[language].title}</h1>
                 <h2 className="text-2xl">{languageStrings.title}</h2>
                 <ul className="gap-y-5 flex flex-col w-8/12">
-                  {databaseList.data.map((database) => (
-                    <li
-                      key={database}
-                      className="gap-x-5 flex flex-row p-5 bg-gray-300 rounded"
-                    >
-                      <span className="flex-1">{database}</span>
-                      <a
-                        className="hover:underline text-green-400"
-                        href={`/api/databases/${database}/export`}
+                  {Object.entries(databaseList.data).map(
+                    ([database, schemaVersion]) => (
+                      <li
+                        key={database}
+                        className="gap-x-5 flex flex-row p-5 bg-gray-300 rounded"
                       >
-                        {languageStrings.download}
-                      </a>
-                      <button
-                        type="button"
-                        className="hover:underline text-blue-400"
-                        onClick={() => setListUsers(database)}
-                      >
-                        {languageStrings.listUsers}
-                      </button>
-                      <a
-                        className="hover:underline text-red-400"
-                        href={`/api/databases/${database}/drop`}
-                        onClick={(event) => {
-                          event.preventDefault();
-                          setDeleteDatabase(database);
-                        }}
-                      >
-                        {commonStrings[language].delete}
-                      </a>
-                    </li>
-                  ))}
+                        <span className="flex-1">
+                          {database}
+                          <b> ({schemaVersion})</b>
+                        </span>
+                        <a
+                          className="hover:underline text-green-400"
+                          href={`/api/databases/${database}/export`}
+                        >
+                          {languageStrings.download}
+                        </a>
+                        <button
+                          type="button"
+                          className="hover:underline text-blue-400"
+                          onClick={() => setListUsers(database)}
+                        >
+                          {languageStrings.listUsers}
+                        </button>
+                        <a
+                          className="hover:underline text-red-400"
+                          href={`/api/databases/${database}/drop`}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setDeleteDatabase(database);
+                          }}
+                        >
+                          {commonStrings[language].delete}
+                        </a>
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
               <div className="flex gap-2">

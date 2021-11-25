@@ -20,7 +20,7 @@ export function Deployments({
   readonly deployments: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
   readonly branches: IR<string>;
-  readonly databases: RA<string>;
+  readonly databases: IR<string>;
   readonly pullRequests: RA<PullRequest>;
   readonly dispatch: (action: Actions) => void;
 }): JSX.Element {

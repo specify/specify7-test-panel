@@ -30,7 +30,7 @@ export function Dashboard({
   readonly initialState: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
   readonly branches: IR<string>;
-  readonly databases: RA<string>;
+  readonly databases: IR<string>;
   readonly pullRequests: RA<PullRequest>;
   readonly onSave: (state: RA<DeploymentWithInfo>) => void;
 }) {
@@ -95,13 +95,13 @@ export function Dashboard({
           <button
             type="button"
             className={`${successButtonClassName} ${
-              databases.length === 0
+              Object.keys(databases).length === 0
                 ? 'bg-green-900 cursor-not-allowed hover:bg-green-900'
                 : ''
             }`}
-            disabled={databases.length === 0}
+            disabled={Object.keys(databases).length === 0}
             title={
-              databases.length === 0
+              Object.keys(databases).length === 0
                 ? languageStrings.uploadDatabasesFirst
                 : undefined
             }
@@ -110,7 +110,10 @@ export function Dashboard({
                 type: 'AddInstanceAction',
                 deployment: {
                   branch: getMostRecentTag(branches),
-                  database: getMostCommonElement(databases) ?? '',
+                  database:
+                    getMostCommonElement(
+                      state.deployment.map(({ database }) => database)
+                    ) ?? '',
                   schemaVersion: getMostRecentTag(schemaVersions),
                   wasAutoDeployed: false,
                   frontend: {

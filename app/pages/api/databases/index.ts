@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getUser } from '../../../lib/apiUtils';
 import { connection, connectToDatabase } from '../../../lib/database';
-import type { RA } from '../../../lib/typescriptCommonTypes';
+import type { IR, RA } from '../../../lib/typescriptCommonTypes';
 
 const databasesToExclude = new Set([
   'information_schema',
@@ -10,7 +10,8 @@ const databasesToExclude = new Set([
   'sys',
 ]);
 
-export const getDatabases = async (): Promise<RA<string>> =>
+// Get databases and schema versions
+export const getDatabases = async (): Promise<IR<string>> =>
   connectToDatabase().then(() =>
     connection
       .execute({
@@ -22,6 +23,25 @@ export const getDatabases = async (): Promise<RA<string>> =>
           .flat()
           .filter((database) => !databasesToExclude.has(database))
       )
+      .then((databases) =>
+        Promise.all(
+          databases.map((database) =>
+            connection
+              .execute({
+                sql: `SELECT AppVersion
+                  FROM ${database}.spversion
+                  LIMIT 1`,
+                rowsAsArray: true,
+              })
+
+              .then(([rows]) => [
+                database,
+                (rows as unknown as Readonly<[Readonly<string>]>)[0][0],
+              ])
+          )
+        )
+      )
+      .then(Object.fromEntries)
   );
 
 export default async function handler(
