@@ -60,7 +60,7 @@ export default function Index(): JSX.Element {
                   <input
                     type="file"
                     required
-                    accept=".sql"
+                    accept=".sql,.gz,.tgz,.zip,.bz2,.tar,.xz"
                     name="file"
                     onChange={({ target }) => {
                       const fileName = target.files?.[0]?.name;
@@ -71,7 +71,11 @@ export default function Index(): JSX.Element {
                         const withoutExtension =
                           fileName.split('.').slice(0, -1).join('.') ||
                           fileName;
-                        setDatabaseName(withoutExtension);
+                        const stripInvalid = withoutExtension.replaceAll(
+                          /[^a-zA-Z0-9_]+/g,
+                          '_'
+                        );
+                        setDatabaseName(stripInvalid);
                       }
                     }}
                   />

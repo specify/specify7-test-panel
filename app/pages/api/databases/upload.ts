@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import path from 'path';
 import { getUser, run } from '../../../lib/apiUtils';
 import { IncomingForm, Fields, Files, File } from 'formidable';
 import fs from 'fs';
@@ -49,39 +50,83 @@ export default async function handler(
   if (databaseName.match(/^\w+$/) === null)
     return res.status(400).json({ error: 'Database name is invalid' });
 
-  const filePath = (data.files.file as File | undefined)?.path;
+  const file = data.files.file as File | undefined;
 
-  if (typeof filePath === 'undefined')
+  if (typeof file === 'undefined' || file.name === null)
     return res.status(400).json({ error: 'No file is attached' });
 
-  await run(`sed -i -e 's/^CREATE DATABASE.*$//g' ${filePath}`)
-    .then(() => run(`sed -i -e 's/^USE .*$//g' ${filePath}`))
-    .then(() =>
-      connection.execute(`DROP DATABASE IF EXISTS \`${databaseName}\``)
-    )
-    .then(() => connection.execute(`CREATE DATABASE \`${databaseName}\``))
-    .then(() =>
-      run(
-        [
-          `mysql -u${process.env.MYSQL_USERNAME} `,
-          `-p${process.env.MYSQL_PASSWORD} `,
-          `-h${process.env.MYSQL_HOST} `,
-          `--database "${databaseName}" < ${filePath}`,
-        ].join('')
+  const destructors: (() => Promise<void>)[] = [];
+  destructors.push(() => fs.promises.unlink(file.path));
+
+  try {
+    const nameParts = file.name.split('.').slice(1);
+    let filePath: string;
+    const isTarArchive = nameParts.includes('tar') || nameParts.includes('tgz');
+    const isZipArchive = nameParts.slice(-1)[0] === 'zip';
+    if (isTarArchive || isZipArchive) {
+      const listOfFiles = await run(
+        `${isTarArchive ? 'tar t -f' : 'unzip -l'} ${file.path}`
       )
-    )
-    .then(() =>
-      connection.execute(
-        `UPDATE \`${databaseName}\`.specifyuser SET Password=?;`,
-        [testuserPassword]
-      )
-    )
-    .then(() => fs.promises.unlink(filePath))
-    .then(() => {
-      res.writeHead(302, {
-        Location: '/databases/',
-      });
-      res.end();
-    })
-    .catch((error) => res.status(500).json({ error: error.toString() }));
+        .then((output) => output.trim().split('\n'))
+        .then((listOfFiles) =>
+          isTarArchive
+            ? listOfFiles
+            : listOfFiles
+                .slice(3, -2)
+                .map((line) => line.split('   ').slice(-1)[0])
+        );
+      const databaseFilePath = listOfFiles.find((filePath) =>
+        filePath.endsWith('.sql')
+      );
+      if (!databaseFilePath)
+        throw new Error('Unable to find a database dump in the archive');
+
+      const directoryName = `${file.path}_dir`;
+      await fs.promises.mkdir(directoryName);
+
+      const databaseFileName = isTarArchive
+        ? path.basename(databaseFilePath)
+        : 'database.sql';
+      filePath = path.join(directoryName, databaseFileName);
+
+      const depth = databaseFilePath.split('/').length - 1;
+      await run(
+        isTarArchive
+          ? `tar xf ${file.path} --strip-components=${depth} \
+              -C ${directoryName} ${databaseFilePath}`
+          : `unzip -p ${file.path} ${databaseFilePath} > ${filePath}`
+      );
+
+      destructors.push(
+        () => fs.promises.unlink(filePath),
+        () => fs.promises.rmdir(directoryName)
+      );
+    } else filePath = file.path;
+
+    await run(`sed -i -e 's/^CREATE DATABASE.*$//g' ${filePath}`);
+    await run(`sed -i -e 's/^USE .*$//g' ${filePath}`);
+    await connection.execute(`DROP DATABASE IF EXISTS \`${databaseName}\``);
+    await connection.execute(`CREATE DATABASE \`${databaseName}\``);
+    await run(
+      [
+        `mysql -u${process.env.MYSQL_USERNAME} `,
+        `-p${process.env.MYSQL_PASSWORD} `,
+        `-h${process.env.MYSQL_HOST} `,
+        `--database "${databaseName}" < ${filePath}`,
+      ].join('')
+    );
+    await connection.execute(
+      `UPDATE \`${databaseName}\`.specifyuser
+       SET Password=?;`,
+      [testuserPassword]
+    );
+    res.writeHead(302, {
+      Location: '/databases/',
+    });
+    res.end();
+  } catch (error: any) {
+    res.status(500).json({ error: error.toString() });
+  } finally {
+    for await (let destructor of destructors) destructor();
+  }
 }

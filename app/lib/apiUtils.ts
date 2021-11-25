@@ -37,7 +37,7 @@ export async function fileExists(path: string) {
   }
 }
 
-export async function run(command: string) {
+export async function run(command: string): Promise<string> {
   return await new Promise((resolve, reject) =>
     exec(command, (error, stdout, stderr) =>
       error ? reject(error) : stderr ? reject(stderr) : resolve(stdout)

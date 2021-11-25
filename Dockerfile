@@ -4,7 +4,6 @@
 # Install dependencies
 FROM node:16.13.0-alpine3.14 AS deps
 
-# RUN apk add --no-cache libc6-compat
 USER node
 WORKDIR /home/node
 RUN mkdir app # So it is owned by node
@@ -42,8 +41,6 @@ RUN mkdir /home/node/app
 WORKDIR /home/node/app
 ENV NODE_ENV development
 
-# Shouldn't need to copy the app code here since you bind mount over it.
-# COPY --chown=node:node app .
 COPY docker-entrypoint.sh ../
 ENTRYPOINT ["../docker-entrypoint.sh"]
 
