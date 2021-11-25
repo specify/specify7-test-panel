@@ -5,6 +5,7 @@ import FilterUsers from '../components/FilterUsers';
 import Layout from '../components/Layout';
 import { Loading, ModalDialog } from '../components/ModalDialog';
 import { useApi, useAsync } from '../components/useApi';
+import { stateRefreshInterval } from '../const/siteConfig';
 import { getPullRequests } from '../lib/github';
 import type { LocalizationStrings } from '../lib/languages';
 import type { Deployment } from '../lib/deployment';
@@ -77,6 +78,53 @@ export default function Index(): JSX.Element {
       await getUserInfo(getUserTokenCookie(document.cookie ?? '') ?? '')
     )
   )[0];
+
+  // Check periodically if deployment configuration has changed
+  React.useEffect(() => {
+    if (typeof state !== 'object') return;
+    const fetchStatus = () => {
+      if (destructorCalled || typeof state !== 'object') return;
+      setTimeout(
+        () =>
+          fetch('/api/state')
+            .then<{ readonly data: RA<Deployment> }>((response) =>
+              response.json()
+            )
+            .then(({ data }) => {
+              if (destructorCalled || typeof state !== 'object') return;
+
+              /* Remove deployedAt, accessedAt and wasAutoDeployed when
+               * comparing the states
+               */
+              const oldState = JSON.stringify(
+                state.data.map(
+                  ({ deployedAt, accessedAt, wasAutoDeployed, ...rest }) => rest
+                )
+              );
+              const newState = JSON.stringify(
+                data.map(
+                  ({ deployedAt, accessedAt, wasAutoDeployed, ...rest }) => rest
+                )
+              );
+
+              if (oldState !== newState) {
+                // Force re-render layout from scratch
+                setState('loading');
+                setTimeout(() => setState({ data }), 0);
+              }
+              fetchStatus();
+            })
+            .catch(console.error),
+        stateRefreshInterval
+      );
+    };
+
+    let destructorCalled = false;
+    fetchStatus();
+    return () => {
+      destructorCalled = true;
+    };
+  }, [state]);
 
   return (
     <Layout
