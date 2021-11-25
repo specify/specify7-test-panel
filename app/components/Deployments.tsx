@@ -11,36 +11,19 @@ export function Deployments({
   languageStrings,
   deployments,
   schemaVersions,
-  branches,
   databases,
-  pullRequests,
+  branchesWithPullRequests,
+  branchesWithoutPullRequests,
   dispatch,
 }: {
   readonly languageStrings: typeof localizationStrings[Language];
   readonly deployments: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
-  readonly branches: IR<string>;
   readonly databases: IR<string>;
-  readonly pullRequests: RA<PullRequest>;
   readonly dispatch: (action: Actions) => void;
+  readonly branchesWithPullRequests: RA<Readonly<[string, PullRequest]>>;
+  readonly branchesWithoutPullRequests: RA<string>;
 }): JSX.Element {
-  const pairedBranches = Object.keys(branches).map(
-    (branch) =>
-      [
-        branch,
-        pullRequests.find(({ headRefName }) => headRefName === branch),
-      ] as const
-  );
-
-  const branchesWithPullRequests = pairedBranches.filter(
-    (entry): entry is [string, PullRequest] => typeof entry[1] !== 'undefined'
-  );
-  const branchesWithoutPullRequests = pairedBranches
-    .filter(
-      (entry): entry is [string, PullRequest] => typeof entry[1] === 'undefined'
-    )
-    .map(([branch]) => branch);
-
   return (
     <ul className="gap-y-5 flex flex-col mt-4">
       {deployments.map((deployment) => (

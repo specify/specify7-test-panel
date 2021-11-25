@@ -39,27 +39,44 @@ export function Dashboard({
     deployment: initialState,
   });
 
+  const pairedBranches = Object.keys(branches).map(
+    (branch) =>
+      [
+        branch,
+        pullRequests.find(({ headRefName }) => headRefName === branch),
+      ] as const
+  );
+
+  const branchesWithPullRequests = pairedBranches.filter(
+    (entry): entry is [string, PullRequest] => typeof entry[1] !== 'undefined'
+  );
+  const branchesWithoutPullRequests = pairedBranches
+    .filter(
+      (entry): entry is [string, PullRequest] => typeof entry[1] === 'undefined'
+    )
+    .map(([branch]) => branch);
+
   const deploymentProps: Parameters<typeof Deployments>[0] = {
     languageStrings,
     deployments: state.deployment,
     schemaVersions,
-    branches,
     databases,
-    pullRequests,
     dispatch,
+    branchesWithPullRequests,
+    branchesWithoutPullRequests,
   };
 
-  const automaticDeploymentProps = {
+  const readyForTesting = {
     ...deploymentProps,
     deployments: state.deployment.filter(
-      ({ wasAutoDeployed }) => wasAutoDeployed
+      ({ branch }) => !branchesWithoutPullRequests.includes(branch)
     ),
   };
 
-  const customDeploymentProps = {
+  const customDeployments = {
     ...deploymentProps,
-    deployments: state.deployment.filter(
-      ({ wasAutoDeployed }) => !wasAutoDeployed
+    deployments: state.deployment.filter(({ branch }) =>
+      branchesWithoutPullRequests.includes(branch)
     ),
   };
 
@@ -71,18 +88,18 @@ export function Dashboard({
       <div className="flex flex-col flex-1 gap-5">
         <h1 className="text-5xl">{siteInfo[language].title}</h1>
         <form id="dashboard">
-          {automaticDeploymentProps.deployments.length > 0 && (
+          {readyForTesting.deployments.length > 0 && (
             <>
               <h2 className="text-2xl">{languageStrings.readyForTesting}</h2>
-              <Deployments {...automaticDeploymentProps} />
+              <Deployments {...readyForTesting} />
             </>
           )}
-          {customDeploymentProps.deployments.length > 0 && (
+          {customDeployments.deployments.length > 0 && (
             <>
               <h2 className="mt-8 text-2xl">
                 {languageStrings.customDeployments}
               </h2>
-              <Deployments {...customDeploymentProps} />
+              <Deployments {...customDeployments} />
             </>
           )}
         </form>
