@@ -1,5 +1,5 @@
 import { organization, repository, targetTeams } from '../const/siteConfig';
-import { RA } from './typescriptCommonTypes';
+import { R, RA } from './typescriptCommonTypes';
 import { User } from './user';
 
 export const queryGithubApi = async (token: string, query: string) =>
@@ -37,14 +37,10 @@ export type PullRequest = {
   readonly isDraft: boolean;
   readonly reviews: {
     readonly nodes: RA<{
-      readonly state:
-        | 'PENDING'
-        | 'COMMENTED'
-        | 'APPROVED'
-        | 'CHANGES_REQUESTED'
-        | 'DISMISSED';
+      readonly state: 'APPROVED' | 'CHANGES_REQUESTED';
+      readonly publishedAt: string;
       readonly author: {
-        readonly login: string;
+        readonly username: string;
       };
     }>;
   };
@@ -96,12 +92,13 @@ export const getPullRequests = async (user: User): Promise<RA<PullRequest>> =>
             mergeable
             merged
             isDraft
-            reviews(first: 100) {
+            reviews(first: 100, states: [APPROVED, CHANGES_REQUESTED]) {
               nodes {
                 state
+                publishedAt
                 author {
                   ... on User {
-                    login
+                    username: login
                   }
                 }
               }
@@ -147,20 +144,36 @@ const filterPullRequests = (
 ): RA<PullRequest> =>
   pullRequests
     .filter(
-      ({ mergeable, merged, isDraft, reviewRequests, reviews, commits }) =>
+      ({ mergeable, merged, isDraft, reviewRequests, commits }) =>
         mergeable === 'MERGEABLE' &&
         !merged &&
         !isDraft &&
         reviewRequests.nodes.length !== 0 &&
-        commits.nodes[0].commit.statusCheckRollup.state === 'SUCCESS' &&
-        reviews.nodes.filter(
-          ({ state }) => state !== 'APPROVED' && state !== 'COMMENTED'
-        ).length === 0
+        commits.nodes[0].commit.statusCheckRollup.state === 'SUCCESS'
     )
     .filter(({ reviewRequests, reviews }) => {
-      const approved = reviews.nodes
+      const mostRecentReviews = Object.entries(
+        reviews.nodes.reduce<
+          R<{
+            readonly state: 'APPROVED' | 'CHANGES_REQUESTED';
+            readonly publishedAt: string;
+          }>
+        >((reduced, { state, publishedAt, author: { username } }) => {
+          if (
+            !(username in reduced) ||
+            new Date(publishedAt).getTime() >
+              new Date(reduced[username].publishedAt).getTime()
+          )
+            reduced[username] = { state, publishedAt };
+          return reduced;
+        }, {})
+      ).map(([username, { state }]) => ({ username, state }));
+
+      const approved = mostRecentReviews
         .filter(({ state }) => state === 'APPROVED')
-        .map(({ author }) => author.login);
+        .map(({ username }) => username);
+
+      if (mostRecentReviews.length !== approved.length) return false;
 
       const pendingUserReviews = reviewRequests.nodes
         .map(
