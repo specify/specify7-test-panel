@@ -47,6 +47,7 @@ export function DeploymentLine({
 
   React.useEffect(() => {
     const fetchStatus = (deployment: ActiveDeployment & DeploymentWithInfo) => {
+      if (destructorCalled) return;
       const timeout = setTimeout(() => setStatus('fetching'), 150);
       fetch(
         `${document.location.protocol}//${deployment.hostname}.${document.location.hostname}/context/system_info.json`
@@ -83,7 +84,7 @@ export function DeploymentLine({
 
     let destructorCalled = false;
     return () => {
-      destructorCalled = false;
+      destructorCalled = true;
     };
   }, [deployment]);
 
