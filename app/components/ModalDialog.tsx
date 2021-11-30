@@ -63,7 +63,12 @@ export function ModalDialog({
               </div>
             )}
           </div>
-          <div className="p-4 text-sm text-gray-500">{children}</div>
+          <div
+            className="p-4 overflow-scroll text-sm text-gray-500"
+            style={{ maxHeight: '80vh' }}
+          >
+            {children}
+          </div>
           <div className="bg-gray-50 gap-x-2 flex justify-end p-4">
             {buttons}
           </div>
