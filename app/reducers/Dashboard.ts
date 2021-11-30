@@ -46,7 +46,10 @@ export const reducer = generateReducer<States, Actions>({
     ...state,
     deployment: [
       ...state.deployment.slice(0, action.id),
-      action.newState,
+      {
+        ...action.newState,
+        wasAutoDeployed: false,
+      },
       ...state.deployment.slice(action.id + 1),
     ],
   }),
