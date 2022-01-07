@@ -18,7 +18,7 @@ export type PullRequest = {
       [
         {
           readonly commit: {
-            readonly statusCheckRollup: {
+            readonly statusCheckRollup?: {
               readonly state:
                 | 'EXPECTED'
                 | 'ERROR'
@@ -149,7 +149,7 @@ const filterPullRequests = (
         !merged &&
         !isDraft &&
         reviewRequests.nodes.length !== 0 &&
-        commits.nodes[0].commit.statusCheckRollup.state === 'SUCCESS'
+        commits.nodes[0].commit.statusCheckRollup?.state === 'SUCCESS'
     )
     .filter(({ reviewRequests, reviews }) => {
       const mostRecentReviews = Object.entries(
