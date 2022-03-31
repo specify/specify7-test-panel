@@ -16,6 +16,7 @@
     "test": "npx tsc"
   },
   "dependencies": {
+    "check-disk-space": "^3.3.0",
     "formidable": "^2.0.1",
     "mysql2": "^2.3.3",
     "next": "^12.1.3",

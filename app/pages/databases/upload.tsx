@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import React from 'react';
+import checkDiskSpace from 'check-disk-space';
 
 import Layout from '../../components/Layout';
 import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
 import type { LocalizationStrings } from '../../lib/languages';
+import { useAsync } from '../../components/useApi';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -12,6 +14,9 @@ export const localizationStrings: LocalizationStrings<{
   readonly databaseName: string;
   readonly upload: string;
   readonly uploading: string;
+  readonly diskUsage: string;
+  readonly notEnoughSpace: string;
+  readonly mb: string;
 }> = {
   'en-US': {
     title: 'Upload new database',
@@ -19,14 +24,24 @@ export const localizationStrings: LocalizationStrings<{
     databaseName: 'Database Name',
     upload: 'Upload',
     uploading: 'Uploading',
+    diskUsage: 'Disk Usage:',
+    notEnoughSpace:
+      'Warning: there may be not enough space on the server to upload this file',
+    mb: 'MB',
   },
 };
+
+const bytesToMb = (size: number): number =>
+  Math.round((size / 1024 / 1024) * 100) / 100;
 
 export default function Index(): JSX.Element {
   const [isUploading, setIsUploading] = React.useState<boolean>(false);
   const [databaseName, setDatabaseName] = React.useState<string>('');
+  const [fileSize, setFileSize] = React.useState<number | undefined>(undefined);
 
   const formRef = React.useRef<HTMLFormElement>(null);
+
+  const [diskUsage] = useAsync(() => checkDiskSpace('/'));
 
   return (
     <Layout
@@ -40,6 +55,15 @@ export default function Index(): JSX.Element {
               {commonStrings[language].goBack}
             </a>
           </Link>
+          {`${languageStrings.diskUsage} ${
+            typeof diskUsage === 'undefined'
+              ? commonStrings[language].loading
+              : typeof diskUsage === 'string'
+              ? diskUsage
+              : `${bytesToMb(diskUsage.free)}/${bytesToMb(diskUsage.free)}${
+                  languageStrings.mb
+                }`
+          }`}
           <h1 className="text-5xl">{siteInfo[language].title}</h1>
           {isUploading ? (
             <h2 className="text-2xl">{languageStrings.uploading}</h2>
@@ -53,9 +77,7 @@ export default function Index(): JSX.Element {
                   encType="multipart/form-data"
                   ref={formRef}
                   className="gap-y-5 inline-flex flex-col"
-                  onSubmit={() => {
-                    setTimeout(() => setIsUploading(true), 200);
-                  }}
+                  onSubmit={() => setTimeout(() => setIsUploading(true), 200)}
                 >
                   <input
                     type="file"
@@ -63,11 +85,9 @@ export default function Index(): JSX.Element {
                     accept=".sql,.gz,.tgz,.zip,.bz2,.tar,.xz"
                     name="file"
                     onChange={({ target }) => {
-                      const fileName = target.files?.[0]?.name;
-                      if (
-                        typeof fileName !== 'undefined' &&
-                        databaseName === ''
-                      ) {
+                      const file = target.files?.[0];
+                      if (typeof file !== 'undefined' && databaseName === '') {
+                        const fileName = file.name;
                         const withoutExtension =
                           fileName.split('.').slice(0, -1).join('.') ||
                           fileName;
@@ -76,6 +96,7 @@ export default function Index(): JSX.Element {
                           '_'
                         );
                         setDatabaseName(stripInvalid);
+                        setFileSize(file.size);
                       }
                     }}
                   />
@@ -91,6 +112,11 @@ export default function Index(): JSX.Element {
                       onChange={({ target }) => setDatabaseName(target.value)}
                     />
                   </label>
+                  {typeof diskUsage === 'object' &&
+                  typeof fileSize === 'object' &&
+                  diskUsage.free + fileSize >= diskUsage.size * 0.99 ? (
+                    <p>{languageStrings.notEnoughSpace}</p>
+                  ) : undefined}
                   <input
                     type="submit"
                     value={languageStrings.upload}

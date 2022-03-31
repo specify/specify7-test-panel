@@ -7,6 +7,7 @@ const commonLocalizationStrings: LocalizationStrings<{
   readonly delete: string;
   readonly goBack: string;
   readonly cancel: string;
+  readonly loading: string;
 }> = {
   'en-US': {
     yes: 'Yes',
@@ -15,6 +16,7 @@ const commonLocalizationStrings: LocalizationStrings<{
     delete: 'Delete',
     goBack: 'Go Back',
     cancel: 'Cancel',
+    loading: 'Loading...',
   },
 };
 
