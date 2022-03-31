@@ -35,6 +35,8 @@ services:
 
   report-runner:
     image: specifyconsortium/report-runner
+    volumes:
+      - './report-fonts.jar:/var/lib/jetty/webapps/ROOT/WEB-INF/lib/report-fonts.jar:ro'
     networks:
       - database
 
