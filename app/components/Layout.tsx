@@ -61,7 +61,7 @@ export default function Layout<
             <link rel="icon" href="/favicon.ico" />
             <meta name="robots" content={'noindex,nofollow'} />
           </Head>
-          <main className="flex flex-col flex-1 w-full min-h-screen gap-10 p-8">
+          <main className="flex flex-col flex-1 w-full h-screen gap-10 p-8 overflow-auto">
             {children(
               /*
                * Need to cheat here a little bit if definitions were not
