@@ -25,6 +25,7 @@ export const localizationStrings: LocalizationStrings<{
   readonly deleteDialogTitle: string;
   readonly deleteDialogMessage: (database: string) => string;
   readonly corruptDatabase: string;
+  readonly makeSuperUser: string;
 }> = {
   'en-US': {
     title: 'Databases',
@@ -37,6 +38,7 @@ export const localizationStrings: LocalizationStrings<{
     deleteDialogMessage: (database) =>
       `Are you sure you want to delete ${database} database?`,
     corruptDatabase: 'corrupt database',
+    makeSuperUser: 'Make super user',
   },
 };
 
@@ -181,7 +183,7 @@ function ListUsers({
                     .catch(console.error)
                 }
               >
-                {languageStrings.listUsers}
+                {languageStrings.makeSuperUser}
               </button>
             </li>
           ))}
