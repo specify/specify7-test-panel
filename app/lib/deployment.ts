@@ -92,9 +92,17 @@ export async function autoDeployPullRequests(
     }
   );
 
-  const databases = await getDatabases();
+  const firstDatabase = Object.entries(await getDatabases()).find(
+    ([_name, version]) => typeof version === 'string'
+  )?.[0];
   const database =
-    getMostCommonElement(state.map(({ database }) => database)) ?? databases[0];
+    getMostCommonElement(state.map(({ database }) => database)) ??
+    firstDatabase;
+
+  if (typeof database === 'undefined') {
+    console.error('No databases found for auto deployment');
+    return state;
+  }
 
   const schemaVersions = await getTags('specify6-service');
   const schemaVersion =

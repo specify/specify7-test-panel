@@ -19,7 +19,7 @@ export function Deployments({
   readonly languageStrings: typeof localizationStrings[Language];
   readonly deployments: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
-  readonly databases: IR<string>;
+  readonly databases: IR<string | null>;
   readonly dispatch: (action: Actions) => void;
   readonly branchesWithPullRequests: RA<Readonly<[string, PullRequest]>>;
   readonly branchesWithoutPullRequests: RA<string>;

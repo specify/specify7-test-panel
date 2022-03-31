@@ -36,6 +36,7 @@ export const localizationStrings: LocalizationStrings<{
   readonly otherBranches: string;
   readonly serverName: (index: number) => string;
   readonly uploadDatabasesFirst: string;
+  readonly corruptDatabase: string;
 }> = {
   'en-US': {
     title: 'Dashboard',
@@ -63,6 +64,7 @@ export const localizationStrings: LocalizationStrings<{
     serverName: (index) => `Server #${index}`,
     uploadDatabasesFirst: 'Upload database first',
     schemaVersion: 'Schema Version',
+    corruptDatabase: 'corrupt database',
   },
 };
 
@@ -72,7 +74,7 @@ export default function Index(): JSX.Element {
   const schemaVersions = useApi<IR<string>>(
     '/api/dockerhub/specify6-service'
   )[0];
-  const databases = useApi<IR<string>>('/api/databases/')[0];
+  const databases = useApi<IR<string | null>>('/api/databases')[0];
   const pullRequests = useAsync(async () =>
     getPullRequests(
       await getUserInfo(getUserTokenCookie(document.cookie ?? '') ?? '')

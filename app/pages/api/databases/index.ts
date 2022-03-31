@@ -1,7 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { getUser } from '../../../lib/apiUtils';
-import { connection, connectToDatabase } from '../../../lib/database';
-import type { IR, RA } from '../../../lib/typescriptCommonTypes';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import {getUser} from '../../../lib/apiUtils';
+import {connection, connectToDatabase} from '../../../lib/database';
+import type {IR, RA} from '../../../lib/typescriptCommonTypes';
 
 const databasesToExclude = new Set([
   'information_schema',
@@ -11,7 +11,7 @@ const databasesToExclude = new Set([
 ]);
 
 // Get databases and schema versions
-export const getDatabases = async (): Promise<IR<string>> =>
+export const getDatabases = async (): Promise<IR<string | null>> =>
   connectToDatabase().then(() =>
     connection
       .execute({
@@ -33,11 +33,13 @@ export const getDatabases = async (): Promise<IR<string>> =>
                   LIMIT 1`,
                 rowsAsArray: true,
               })
-
-              .then(([rows]) => [
-                database,
-                (rows as unknown as Readonly<[Readonly<string>]>)[0][0],
-              ])
+              .then(([rows]) =>
+                (rows as unknown as Readonly<[Readonly<string>]>)[0][0]
+              )
+              .catch((error) => {
+                console.error(error);
+                return null;
+              }).then(version => [database, version])
           )
         )
       )
@@ -59,6 +61,6 @@ export default async function handler(
     )
     .catch((error) => {
       console.error(error);
-      res.status(500).send({ error: error.toString() });
+      res.status(500).send({error: error.toString()});
     });
 }

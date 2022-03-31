@@ -30,7 +30,7 @@ export function Dashboard({
   readonly initialState: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
   readonly branches: IR<string>;
-  readonly databases: IR<string>;
+  readonly databases: IR<string | null>;
   readonly pullRequests: RA<PullRequest>;
   readonly onSave: (state: RA<DeploymentWithInfo>) => void;
 }) {

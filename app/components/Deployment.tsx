@@ -38,7 +38,7 @@ export function DeploymentLine({
   readonly deployment: DeploymentWithInfo;
   readonly languageStrings: typeof localizationStrings[Language];
   readonly schemaVersions: IR<string>;
-  readonly databases: IR<string>;
+  readonly databases: IR<string | null>;
   readonly dispatch: (action: Actions) => void;
   readonly branchesWithPullRequests: RA<Readonly<[string, PullRequest]>>;
   readonly branchesWithoutPullRequests: RA<string>;
@@ -188,7 +188,9 @@ export function DeploymentLine({
         <optgroup label={languageStrings.databases}>
           {Object.entries(databases).map(([database, schemaVersion]) => (
             <option key={database} value={database}>
-              {`${database} (${schemaVersion})`}
+              {`${database} (${
+                schemaVersion ?? languageStrings.corruptDatabase
+              })`}
             </option>
           ))}
         </optgroup>

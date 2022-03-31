@@ -24,6 +24,7 @@ export const localizationStrings: LocalizationStrings<{
   readonly usersOfDatabase: (database: string) => string;
   readonly deleteDialogTitle: string;
   readonly deleteDialogMessage: (database: string) => string;
+  readonly corruptDatabase: string;
 }> = {
   'en-US': {
     title: 'Databases',
@@ -35,11 +36,12 @@ export const localizationStrings: LocalizationStrings<{
     deleteDialogTitle: 'Delete Database?',
     deleteDialogMessage: (database) =>
       `Are you sure you want to delete ${database} database?`,
+    corruptDatabase: 'corrupt database',
   },
 };
 
 export default function Index(): JSX.Element {
-  const databaseList = useApi<IR<string>>('/api/databases')[0];
+  const databaseList = useApi<IR<string | null>>('/api/databases')[0];
   const [listUsers, setListUsers] = React.useState<string | undefined>(
     undefined
   );
@@ -80,7 +82,10 @@ export default function Index(): JSX.Element {
                       >
                         <span className="flex-1">
                           {database}
-                          <b> ({schemaVersion})</b>
+                          <b>
+                            {' '}
+                            ({schemaVersion ?? languageStrings.corruptDatabase})
+                          </b>
                         </span>
                         <a
                           className="hover:underline text-green-400"
