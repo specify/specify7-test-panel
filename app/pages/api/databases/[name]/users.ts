@@ -3,13 +3,6 @@ import { getUser } from '../../../../lib/apiUtils';
 import { connection, connectToDatabase } from '../../../../lib/database';
 import { RA } from '../../../../lib/typescriptCommonTypes';
 
-// first we need to disable the default body parser
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -26,7 +19,7 @@ export default async function handler(
 
   connection
     .execute(
-      `SELECT Name, UserType
+      `SELECT SpecifyUserID, Name 
      FROM ${databaseName}.specifyuser`
     )
     .then(([users]) =>
@@ -34,8 +27,8 @@ export default async function handler(
         data: Object.fromEntries(
           (
             users as unknown as RA<{
+              readonly SpecifyUserID: string;
               readonly Name: string;
-              readonly UserType: string;
             }>
           ).map(Object.values)
         ),

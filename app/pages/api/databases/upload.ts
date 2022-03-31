@@ -25,7 +25,7 @@ export default async function handler(
 
   const data = (await new Promise((resolve, reject) => {
     const form = new IncomingForm({
-      // 4 GB
+      // 4 GB. If changing this value, don't forget to change the panel.conf too
       maxFileSize: 4 * 1024 * 1024 * 1024,
     });
 
@@ -52,20 +52,20 @@ export default async function handler(
 
   const file = data.files.file as File | undefined;
 
-  if (typeof file === 'undefined' || file.name === null)
+  if (typeof file === 'undefined' || file.newFilename === null)
     return res.status(400).json({ error: 'No file is attached' });
 
   const destructors: (() => Promise<void>)[] = [];
-  destructors.push(() => fs.promises.unlink(file.path));
+  destructors.push(() => fs.promises.unlink(file.filepath));
 
   try {
-    const nameParts = file.name.split('.').slice(1);
+    const nameParts = file.newFilename.split('.').slice(1);
     let filePath: string;
     const isTarArchive = nameParts.includes('tar') || nameParts.includes('tgz');
     const isZipArchive = nameParts.slice(-1)[0] === 'zip';
     if (isTarArchive || isZipArchive) {
       const listOfFiles = await run(
-        `${isTarArchive ? 'tar t -f' : 'unzip -l'} ${file.path}`
+        `${isTarArchive ? 'tar t -f' : 'unzip -l'} ${file.filepath}`
       )
         .then((output) => output.trim().split('\n'))
         .then((listOfFiles) =>
@@ -81,7 +81,7 @@ export default async function handler(
       if (!databaseFilePath)
         throw new Error('Unable to find a database dump in the archive');
 
-      const directoryName = `${file.path}_dir`;
+      const directoryName = `${file.filepath}_dir`;
       await fs.promises.mkdir(directoryName);
 
       const databaseFileName = isTarArchive
@@ -92,16 +92,16 @@ export default async function handler(
       const depth = databaseFilePath.split('/').length - 1;
       await run(
         isTarArchive
-          ? `tar xf ${file.path} --strip-components=${depth} \
+          ? `tar xf ${file.filepath} --strip-components=${depth} \
               -C ${directoryName} ${databaseFilePath}`
-          : `unzip -p ${file.path} ${databaseFilePath} > ${filePath}`
+          : `unzip -p ${file.filepath} ${databaseFilePath} > ${filePath}`
       );
 
       destructors.push(
         () => fs.promises.unlink(filePath),
         () => fs.promises.rmdir(directoryName)
       );
-    } else filePath = file.path;
+    } else filePath = file.filepath;
 
     await run(`sed -i -e 's/^CREATE DATABASE.*$//g' ${filePath}`);
     await run(`sed -i -e 's/^USE .*$//g' ${filePath}`);

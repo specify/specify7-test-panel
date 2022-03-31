@@ -167,10 +167,22 @@ function ListUsers({
         users
       ) : (
         <ul className="gap-y-3 flex flex-col">
-          {Object.entries(users.data).map(([user, type]) => (
-            <li key={user} className="gap-x-1 flex">
-              <span>{user}</span>
-              <span>({type})</span>
+          {Object.entries(users.data).map(([id, name]) => (
+            <li key={id} className="gap-x-1 flex">
+              <span>{name}</span>
+              <button
+                type="button"
+                className="hover:underline text-blue-400"
+                onClick={(): void =>
+                  void fetch(`/api/databases/${database}/user/${id}`, {
+                    method: 'POST',
+                  })
+                    .then(handleClose)
+                    .catch(console.error)
+                }
+              >
+                {languageStrings.listUsers}
+              </button>
             </li>
           ))}
         </ul>
