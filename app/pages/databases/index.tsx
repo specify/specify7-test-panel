@@ -176,9 +176,12 @@ function ListUsers({
                 type="button"
                 className="hover:underline text-blue-400"
                 onClick={(): void =>
-                  void fetch(`/api/databases/${database}/user/${id}`, {
-                    method: 'POST',
-                  })
+                  void fetch(
+                    `/api/databases/${database}/user/${id}/make-admin`,
+                    {
+                      method: 'POST',
+                    }
+                  )
                     .then(handleClose)
                     .catch(console.error)
                 }

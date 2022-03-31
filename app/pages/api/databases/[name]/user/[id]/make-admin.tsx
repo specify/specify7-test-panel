@@ -27,7 +27,7 @@ export default async function handler(
 
   return connection
     .execute(
-      `INSERT INTO spuserpolicy (resource, action, collection_id, specifyuser_id) VALUES (%, %, NULL, ?)`,
+      `INSERT INTO ${databaseName}.spuserpolicy (resource, action, collection_id, specifyuser_id) VALUES ("%", "%", NULL, ?)`,
       [userId]
     )
     .then(() => res.status(204).send(''))

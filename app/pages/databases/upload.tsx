@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import React from 'react';
-import checkDiskSpace from 'check-disk-space';
 
 import Layout from '../../components/Layout';
 import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
 import type { LocalizationStrings } from '../../lib/languages';
-import { useAsync } from '../../components/useApi';
+import { useApi } from '../../components/useApi';
+import type { DiskSpace } from 'check-disk-space';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -41,7 +41,7 @@ export default function Index(): JSX.Element {
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
-  const [diskUsage] = useAsync(() => checkDiskSpace('/'));
+  const [diskUsage] = useApi<DiskSpace>('/api/disk-usage');
 
   return (
     <Layout
@@ -60,9 +60,9 @@ export default function Index(): JSX.Element {
               ? commonStrings[language].loading
               : typeof diskUsage === 'string'
               ? diskUsage
-              : `${bytesToMb(diskUsage.free)}/${bytesToMb(diskUsage.free)}${
-                  languageStrings.mb
-                }`
+              : `${bytesToMb(diskUsage.data.free)}/${bytesToMb(
+                  diskUsage.data.free
+                )}${languageStrings.mb}`
           }`}
           <h1 className="text-5xl">{siteInfo[language].title}</h1>
           {isUploading ? (
@@ -114,7 +114,8 @@ export default function Index(): JSX.Element {
                   </label>
                   {typeof diskUsage === 'object' &&
                   typeof fileSize === 'object' &&
-                  diskUsage.free + fileSize >= diskUsage.size * 0.99 ? (
+                  diskUsage.data.free + fileSize >=
+                    diskUsage.data.size * 0.99 ? (
                     <p>{languageStrings.notEnoughSpace}</p>
                   ) : undefined}
                   <input
