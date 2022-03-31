@@ -3,7 +3,7 @@ import path from 'path';
 import { getUser, run } from '../../../lib/apiUtils';
 import { IncomingForm, Fields, Files, File } from 'formidable';
 import fs from 'fs';
-import { connection, connectToDatabase } from '../../../lib/database';
+import { connectToDatabase } from '../../../lib/database';
 
 // first we need to disable the default body parser
 export const config = {
@@ -21,7 +21,7 @@ export default async function handler(
   const user = await getUser(req, res);
   if (typeof user === 'undefined') return;
 
-  await connectToDatabase();
+  const connection = await connectToDatabase();
 
   const data = (await new Promise((resolve, reject) => {
     const form = new IncomingForm({

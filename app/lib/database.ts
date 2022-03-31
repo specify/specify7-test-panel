@@ -27,8 +27,9 @@ function reconnect(error: string): never {
 
 makeConnection();
 
-export let connection: mysql.Connection;
+let connection: mysql.Connection;
 
 export async function connectToDatabase() {
   if (typeof connection === 'undefined') await connectionPromise;
+  return connection;
 }

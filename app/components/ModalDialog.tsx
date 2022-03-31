@@ -64,7 +64,7 @@ export function ModalDialog({
             )}
           </div>
           <div
-            className="p-4 overflow-scroll text-sm text-gray-500"
+            className="p-4 overflow-auto text-sm text-gray-500"
             style={{ maxHeight: '80vh' }}
           >
             {children}

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getUser } from '../../../../lib/apiUtils';
-import { connection, connectToDatabase } from '../../../../lib/database';
+import { connectToDatabase } from '../../../../lib/database';
 
 // first we need to disable the default body parser
 export const config = {
@@ -16,7 +16,7 @@ export default async function handler(
   const user = await getUser(req, res);
   if (typeof user === 'undefined') return;
 
-  await connectToDatabase();
+  const connection = await connectToDatabase();
 
   const databaseName = req.query.name as string;
 

@@ -30,9 +30,6 @@ services:
       - 'nginx-conf:/etc/nginx/conf.d/servers:ro'
       - './config/panel.conf:/etc/nginx/conf.d/default.conf:ro'
 
-      - '/etc/letsencrypt/live:/etc/letsencrypt/live:ro'
-      - '/etc/letsencrypt/archive:/etc/letsencrypt/archive:ro'
-
   report-runner:
     image: specifyconsortium/report-runner
     volumes:

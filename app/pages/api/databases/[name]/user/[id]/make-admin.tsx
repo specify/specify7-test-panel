@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUser } from '../../../../../../lib/apiUtils';
-import { connection, connectToDatabase } from '../../../../../../lib/database';
+import { connectToDatabase } from '../../../../../../lib/database';
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,7 +12,7 @@ export default async function handler(
   if (req.method !== 'POST')
     return res.status(405).json({ error: 'Only POST requests are allowed' });
 
-  await connectToDatabase();
+  const connection = await connectToDatabase();
 
   const databaseName = req.query.name as string;
 

@@ -5,6 +5,8 @@ services:
   nginx:
     depends_on:
       - panel
+    volumes:
+      - './config:/etc/letsencrypt/live/test.specifysystems.org-0001:ro'
 
   panel:
     build:

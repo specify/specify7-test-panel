@@ -16,9 +16,14 @@ While in development, you can generate self-signed certificates:
 ```zsh
 openssl req \
   -x509 -sha256 -nodes -newkey rsa:2048 -days 365 \
-  -keyout /etc/letsencrypt/live/test.specifysystems.org-0001/privkey.pem \
-  -out /etc/letsencrypt/live/test.specifysystems.org-0001/fullchain.pem
+  -keyout ./config/privkey.pem \
+  -out ./config/fullchain.pem
 ```
+
+Note, production deployment expects `privkey.pem` and `fullchain.pem`
+to be in the
+`/etc/letsencrypt/live/test.specifysystems.org-0001/privkey.pem`
+directory
 
 ## Create a GitHub OAuth App
 
