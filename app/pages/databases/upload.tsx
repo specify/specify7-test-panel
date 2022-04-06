@@ -61,7 +61,7 @@ export default function Index(): JSX.Element {
               : typeof diskUsage === 'string'
               ? diskUsage
               : `${bytesToMb(diskUsage.data.free)}/${bytesToMb(
-                  diskUsage.data.free
+                  diskUsage.data.size
                 )}${languageStrings.mb}`
           }`}
           <h1 className="text-5xl">{siteInfo[language].title}</h1>
