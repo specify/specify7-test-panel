@@ -36,6 +36,7 @@ export default async function handler(
         `-p${process.env.MYSQL_PASSWORD}`,
         `-h${process.env.MYSQL_HOST}`,
         `--databases ${databaseName}`,
+        '--no-create-db',
       ],
       {
         stdio: ['ignore', 'pipe', 'pipe'],
