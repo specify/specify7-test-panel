@@ -31,6 +31,10 @@ export type DeploymentWithInfo = Deployment & {
   };
 };
 
+/**
+ * Add missing details for newly added deploymenys and update
+ * deployedAt for existing deployments that were changed
+ */
 export const formalizeState = (
   state: RA<Deployment>,
   originalState?: RA<Deployment>
