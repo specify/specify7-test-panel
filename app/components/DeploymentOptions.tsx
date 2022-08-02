@@ -3,6 +3,7 @@ import React from 'react';
 import type { Deployment } from '../lib/deployment';
 import type { Language } from '../lib/languages';
 import type { localizationStrings } from '../pages';
+import { DateElement } from './DateElement';
 import { icons } from './Icons';
 import {
   dangerButtonClassName,
@@ -10,7 +11,7 @@ import {
   infoButtonClassName,
 } from './InteractivePrimitives';
 import { ModalDialog } from './ModalDialog';
-import { DateElement } from './DateElement';
+import { useApi } from './useApi';
 
 export function DeploymentOptions({
   deployment,
@@ -70,7 +71,33 @@ export function DeploymentOptions({
             </div>
           </label>
         </div>
+        {typeof deployment.hostname === 'string' && (
+          <DeploymentBuildDate
+            hostname={deployment.hostname}
+            languageStrings={languageStrings}
+          />
+        )}
       </ModalDialog>
     </>
   );
+}
+
+function DeploymentBuildDate({
+  hostname,
+  languageStrings,
+}: {
+  readonly hostname: string;
+  readonly languageStrings: typeof localizationStrings[Language];
+}): JSX.Element | null {
+  const [state] = useApi<string>(
+    `${document.location.protocol}//${hostname}.${document.location.hostname}/static/build_date.txt`
+  );
+  return typeof state === 'object' ? (
+    <label className="flex flex-col gap-2">
+      {languageStrings.buildDate}
+      <div className="rounded-md border bg-gray-200 p-1.5">
+        <DateElement date={state.data} fallback={languageStrings.loading} />
+      </div>
+    </label>
+  ) : null;
 }

@@ -24,23 +24,30 @@ export function useAsync<TYPE>(
     return () => {
       destructorCalled = true;
     };
-  }, []);
+  }, [callback]);
 
   return [value, setValue];
 }
 
 export function useApi<TYPE>(endpoint: string) {
-  return useAsync<{ readonly data: TYPE }>(async () =>
-    fetch(endpoint).then(async (response) => {
-      if (response.status === 404) throw new Error('API endpoint not found');
-      try {
-        const state = await response.json();
-        if (response.status === 200) return state;
-        else
-          throw new Error(state.error ?? state ?? 'Unexpected Error Occurred');
-      } catch {
-        return await response.text();
-      }
-    })
+  return useAsync<{ readonly data: TYPE }>(
+    React.useCallback(
+      async () =>
+        fetch(endpoint).then(async (response) => {
+          if (response.status === 404)
+            throw new Error('API endpoint not found');
+          try {
+            const state = await response.json();
+            if (response.status === 200) return state;
+            else
+              throw new Error(
+                state.error ?? state ?? 'Unexpected Error Occurred'
+              );
+          } catch {
+            return await response.text();
+          }
+        }),
+      [endpoint]
+    )
   );
 }

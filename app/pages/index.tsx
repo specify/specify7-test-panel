@@ -11,7 +11,6 @@ import { getPullRequests } from '../lib/github';
 import type { LocalizationStrings } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
 import { getUserInfo, getUserTokenCookie } from '../lib/user';
-import { text } from 'stream/consumers';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -44,6 +43,8 @@ export const localizationStrings: LocalizationStrings<{
   readonly close: string;
   readonly remove: string;
   readonly deployedAt: string;
+  readonly buildDate: string;
+  readonly loading: string;
 }> = {
   'en-US': {
     title: 'Dashboard',
@@ -78,6 +79,8 @@ export const localizationStrings: LocalizationStrings<{
     close: 'Close',
     remove: 'Remove',
     deployedAt: 'Deployed at',
+    buildDate: 'Build Date',
+    loading: 'Loading...',
   },
 };
 
@@ -88,9 +91,13 @@ export default function Index(): JSX.Element {
     '/api/dockerhub/specify6-service'
   )[0];
   const databases = useApi<IR<string | null>>('/api/databases')[0];
-  const pullRequests = useAsync(async () =>
-    getPullRequests(
-      await getUserInfo(getUserTokenCookie(document.cookie ?? '') ?? '')
+  const pullRequests = useAsync(
+    React.useCallback(
+      async () =>
+        getPullRequests(
+          await getUserInfo(getUserTokenCookie(document.cookie ?? '') ?? '')
+        ),
+      []
     )
   )[0];
 
