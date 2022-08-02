@@ -8,6 +8,6 @@ module.exports = {
     browser: true,
     node: true,
   },
-  extends: ['@maxxxxxdlp/eslint-config'],
+  extends: ['@maxxxxxdlp/eslint-config-react'],
   rules: {},
 };
