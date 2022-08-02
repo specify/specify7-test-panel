@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import {getUser, noCaching} from '../../../lib/apiUtils';
 import { connectToDatabase } from '../../../lib/database';
 import type { IR, RA } from '../../../lib/typescriptCommonTypes';
@@ -12,7 +13,7 @@ const databasesToExclude = new Set([
 
 // Get databases and schema versions
 export const getDatabases = async (): Promise<IR<string | null>> =>
-  connectToDatabase().then((connection) =>
+  connectToDatabase().then(async (connection) =>
     connection
       .execute({
         sql: 'SHOW DATABASES',
@@ -23,9 +24,9 @@ export const getDatabases = async (): Promise<IR<string | null>> =>
           .flat()
           .filter((database) => !databasesToExclude.has(database))
       )
-      .then((databases) =>
+      .then(async (databases) =>
         Promise.all(
-          databases.map((database) =>
+          databases.map(async (database) =>
             connection
               .execute({
                 sql: `SELECT AppVersion
@@ -35,7 +36,7 @@ export const getDatabases = async (): Promise<IR<string | null>> =>
               })
               .then(
                 ([rows]) =>
-                  (rows as unknown as Readonly<[Readonly<string>]>)[0][0]
+                  (rows as unknown as Readonly<readonly [Readonly<string>]>)[0][0]
               )
               .catch((error) => {
                 console.error(error);
@@ -49,10 +50,10 @@ export const getDatabases = async (): Promise<IR<string | null>> =>
   );
 
 export default async function handler(
-  req: NextApiRequest,
+  request: NextApiRequest,
   res: NextApiResponse
 ) {
-  const user = await getUser(req, res);
+  const user = await getUser(request, res);
   if (typeof user === 'undefined') return;
 
   await getDatabases()

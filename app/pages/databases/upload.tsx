@@ -1,12 +1,12 @@
+import type { DiskSpace } from 'check-disk-space';
 import Link from 'next/link';
 import React from 'react';
 
 import Layout from '../../components/Layout';
+import { useApi } from '../../components/useApi';
 import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
 import type { LocalizationStrings } from '../../lib/languages';
-import { useApi } from '../../components/useApi';
-import type { DiskSpace } from 'check-disk-space';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -45,8 +45,8 @@ export default function Index(): JSX.Element {
 
   return (
     <Layout
-      title={localizationStrings}
       localizationStrings={localizationStrings}
+      title={localizationStrings}
     >
       {(languageStrings, language): JSX.Element => (
         <div className="flex flex-col flex-1 gap-5">
@@ -58,11 +58,11 @@ export default function Index(): JSX.Element {
           {`${languageStrings.diskUsage} ${
             typeof diskUsage === 'undefined'
               ? commonStrings[language].loading
-              : typeof diskUsage === 'string'
+              : (typeof diskUsage === 'string'
               ? diskUsage
               : `${bytesToMb(diskUsage.data.free)}/${bytesToMb(
                   diskUsage.data.size
-                )}${languageStrings.mb}`
+                )}${languageStrings.mb}`)
           }`}
           <h1 className="text-5xl">{siteInfo[language].title}</h1>
           {isUploading ? (
@@ -72,18 +72,18 @@ export default function Index(): JSX.Element {
               <h2 className="text-2xl">{languageStrings.title}</h2>
               <div>
                 <form
-                  method="post"
                   action="/api/databases/upload"
-                  encType="multipart/form-data"
-                  ref={formRef}
                   className="gap-y-5 inline-flex flex-col"
+                  encType="multipart/form-data"
+                  method="post"
+                  ref={formRef}
                   onSubmit={() => setTimeout(() => setIsUploading(true), 200)}
                 >
                   <input
-                    type="file"
-                    required
                     accept=".sql,.gz,.tgz,.zip,.bz2,.tar,.xz"
                     name="file"
+                    required
+                    type="file"
                     onChange={({ target }) => {
                       const file = target.files?.[0];
                       if (typeof file !== 'undefined' && databaseName === '') {
@@ -92,7 +92,7 @@ export default function Index(): JSX.Element {
                           fileName.split('.').slice(0, -1).join('.') ||
                           fileName;
                         const stripInvalid = withoutExtension.replaceAll(
-                          /[^a-zA-Z0-9_]+/g,
+                          /\W+/g,
                           '_'
                         );
                         setDatabaseName(stripInvalid);
@@ -103,11 +103,11 @@ export default function Index(): JSX.Element {
                   <label className="gap-y-2 flex flex-col">
                     {languageStrings.databaseName}
                     <input
-                      type="text"
-                      name="databaseName"
                       className="p-2 rounded"
+                      name="databaseName"
                       pattern="[a-zA-Z0-9_]+"
                       required
+                      type="text"
                       value={databaseName}
                       onChange={({ target }) => setDatabaseName(target.value)}
                     />
@@ -119,10 +119,10 @@ export default function Index(): JSX.Element {
                     <p>{languageStrings.notEnoughSpace}</p>
                   ) : undefined}
                   <input
-                    type="submit"
-                    value={languageStrings.upload}
                     className={`hover:bg-green-800 rounded-xl p-3 bg-green-500
                     cursor-pointer`}
+                    type="submit"
+                    value={languageStrings.upload}
                   />
                 </form>
               </div>

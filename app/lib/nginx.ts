@@ -1,5 +1,5 @@
-import { ActiveDeployment } from './deployment';
-import { RA } from './typescriptCommonTypes';
+import type { ActiveDeployment } from './deployment';
+import type { RA } from './typescriptCommonTypes';
 
 export const createNginxConfig = (
   deployments: RA<ActiveDeployment>,

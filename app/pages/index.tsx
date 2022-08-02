@@ -1,15 +1,15 @@
 import React from 'react';
+
 import { Dashboard } from '../components/Dashboard';
 import FilterUsers from '../components/FilterUsers';
-
 import Layout from '../components/Layout';
 import { Loading, ModalDialog } from '../components/ModalDialog';
 import { useApi, useAsync } from '../components/useApi';
 import { stateRefreshInterval } from '../const/siteConfig';
+import type { Deployment } from '../lib/deployment';
 import { getPullRequests } from '../lib/github';
 import type { LocalizationStrings } from '../lib/languages';
-import type { Deployment } from '../lib/deployment';
-import { IR, RA } from '../lib/typescriptCommonTypes';
+import type { IR, RA } from '../lib/typescriptCommonTypes';
 import { getUserInfo, getUserTokenCookie } from '../lib/user';
 
 export const localizationStrings: LocalizationStrings<{
@@ -87,15 +87,16 @@ export default function Index(): JSX.Element {
     const fetchStatus = () => {
       if (destructorCalled || typeof state !== 'object') return;
       setTimeout(
-        () =>
+        async () =>
           fetch('/api/state')
-            .then<{ readonly data: RA<Deployment> }>((response) =>
+            .then<{ readonly data: RA<Deployment> }>(async (response) =>
               response.json()
             )
             .then(({ data }) => {
               if (destructorCalled || typeof state !== 'object') return;
 
-              /* Remove deployedAt, accessedAt and wasAutoDeployed when
+              /*
+               * Remove deployedAt, accessedAt and wasAutoDeployed when
                * comparing the states
                */
               const oldState = JSON.stringify(
@@ -130,8 +131,8 @@ export default function Index(): JSX.Element {
 
   return (
     <Layout
-      title={localizationStrings}
       localizationStrings={localizationStrings}
+      title={localizationStrings}
     >
       {(languageStrings, language): JSX.Element => (
         <FilterUsers protected>
@@ -141,28 +142,28 @@ export default function Index(): JSX.Element {
           typeof databases === 'undefined' ||
           typeof pullRequests === 'undefined' ? (
             <Loading />
-          ) : typeof state === 'string' ||
+          ) : (typeof state === 'string' ||
             typeof schemaVersions === 'string' ||
             typeof branches === 'string' ||
             typeof databases === 'string' ||
             typeof pullRequests === 'string' ? (
-            <ModalDialog title={languageStrings['title']}>
+            <ModalDialog title={languageStrings.title}>
               {[state, schemaVersions, branches, databases, pullRequests].find(
-                (value) => typeof value === 'string'
+                (value): value is string => typeof value === 'string'
               )}
             </ModalDialog>
           ) : (
             <Dashboard
-              languageStrings={languageStrings}
-              language={language}
+              branches={branches.data}
+              databases={databases.data}
               initialState={state.data.map((deployment, id) => ({
                 ...deployment,
                 frontend: { id },
               }))}
-              schemaVersions={schemaVersions.data}
-              branches={branches.data}
-              databases={databases.data}
+              language={language}
+              languageStrings={languageStrings}
               pullRequests={pullRequests}
+              schemaVersions={schemaVersions.data}
               onSave={async (newState) => {
                 setState(undefined);
                 fetch('/api/state', {
@@ -182,7 +183,7 @@ export default function Index(): JSX.Element {
                   .catch(setState);
               }}
             />
-          )}
+          ))}
         </FilterUsers>
       )}
     </Layout>

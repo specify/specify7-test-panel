@@ -1,9 +1,10 @@
-import { spawn } from 'child_process';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { spawn } from 'node:child_process';
+
 import { getUser } from '../../../../lib/apiUtils';
 import { connectToDatabase } from '../../../../lib/database';
 
-// first we need to disable the default body parser
+// First we need to disable the default body parser
 export const config = {
   api: {
     bodyParser: false,
@@ -11,15 +12,15 @@ export const config = {
 };
 
 export default async function handler(
-  req: NextApiRequest,
+  request: NextApiRequest,
   res: NextApiResponse
 ) {
-  const user = await getUser(req, res);
+  const user = await getUser(request, res);
   if (typeof user === 'undefined') return;
 
   await connectToDatabase();
 
-  const databaseName = req.query.name;
+  const databaseName = request.query.name;
 
   try {
     res.setHeader('Content-Type', 'text/plain');

@@ -1,10 +1,11 @@
 import React from 'react';
-import { PullRequest } from '../lib/github';
-import { Language } from '../lib/languages';
-import { DeploymentWithInfo } from '../lib/deployment';
-import { IR, RA } from '../lib/typescriptCommonTypes';
-import { localizationStrings } from '../pages';
-import { Actions } from '../reducers/Dashboard';
+
+import type { DeploymentWithInfo } from '../lib/deployment';
+import type { PullRequest } from '../lib/github';
+import type { Language } from '../lib/languages';
+import type { IR, RA } from '../lib/typescriptCommonTypes';
+import type { localizationStrings } from '../pages';
+import type { Actions } from '../reducers/Dashboard';
 import { DeploymentLine } from './Deployment';
 
 export function Deployments({
@@ -21,21 +22,21 @@ export function Deployments({
   readonly schemaVersions: IR<string>;
   readonly databases: IR<string | null>;
   readonly dispatch: (action: Actions) => void;
-  readonly branchesWithPullRequests: RA<Readonly<[string, PullRequest]>>;
+  readonly branchesWithPullRequests: RA<Readonly<readonly [string, PullRequest]>>;
   readonly branchesWithoutPullRequests: RA<string>;
 }): JSX.Element {
   return (
     <ul className="gap-y-5 flex flex-col mt-4">
       {deployments.map((deployment) => (
         <DeploymentLine
-          key={deployment.frontend.id}
+          branchesWithoutPullRequests={branchesWithoutPullRequests}
+          branchesWithPullRequests={branchesWithPullRequests}
+          databases={databases}
           deployment={deployment}
+          dispatch={dispatch}
+          key={deployment.frontend.id}
           languageStrings={languageStrings}
           schemaVersions={schemaVersions}
-          databases={databases}
-          dispatch={dispatch}
-          branchesWithPullRequests={branchesWithPullRequests}
-          branchesWithoutPullRequests={branchesWithoutPullRequests}
         />
       ))}
     </ul>

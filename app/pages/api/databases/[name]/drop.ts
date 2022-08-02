@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getUser } from '../../../../lib/apiUtils';
 import { connectToDatabase } from '../../../../lib/database';
 
-// first we need to disable the default body parser
+// First we need to disable the default body parser
 export const config = {
   api: {
     bodyParser: false,
@@ -10,15 +11,15 @@ export const config = {
 };
 
 export default async function handler(
-  req: NextApiRequest,
+  request: NextApiRequest,
   res: NextApiResponse
 ) {
-  const user = await getUser(req, res);
+  const user = await getUser(request, res);
   if (typeof user === 'undefined') return;
 
   const connection = await connectToDatabase();
 
-  const databaseName = req.query.name as string;
+  const databaseName = request.query.name as string;
 
   if (databaseName.match(/^\w+$/) === null)
     return res.status(400).json({ error: 'Database name is invalid' });

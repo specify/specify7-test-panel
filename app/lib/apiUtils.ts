@@ -1,13 +1,15 @@
-import fs from 'fs';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserInfo, getUserTokenCookie, User } from './user';
-import { exec } from 'child_process';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { exec } from 'node:child_process';
+import fs from 'node:fs';
+
+import type { User } from './user';
+import { getUserInfo, getUserTokenCookie } from './user';
 
 export async function getUser(
-  req: NextApiRequest,
+  request: NextApiRequest,
   res: NextApiResponse
 ): Promise<User | undefined> {
-  const token = getUserTokenCookie(req.headers.cookie ?? '');
+  const token = getUserTokenCookie(request.headers.cookie ?? '');
 
   if (typeof token === 'undefined') {
     res.status(403).json({ error: 'User not authenticated' });
@@ -38,9 +40,9 @@ export async function fileExists(path: string) {
 }
 
 export async function run(command: string): Promise<string> {
-  return await new Promise((resolve, reject) =>
+  return new Promise((resolve, reject) =>
     exec(command, (error, stdout, stderr) =>
-      error ? reject(error) : stderr ? reject(stderr) : resolve(stdout)
+      error ? reject(error) : (stderr ? reject(stderr) : resolve(stdout))
     )
   );
 }

@@ -1,11 +1,13 @@
+import type {Fields, File, Files} from 'formidable';
+import { IncomingForm } from 'formidable';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { getUser, run } from '../../../lib/apiUtils';
-import { IncomingForm, Fields, Files, File } from 'formidable';
-import fs from 'fs';
 import { connectToDatabase } from '../../../lib/database';
 
-// first we need to disable the default body parser
+// First we need to disable the default body parser
 export const config = {
   api: {
     bodyParser: false,
@@ -15,30 +17,29 @@ export const config = {
 const testuserPassword = 'EC62DEF08F5E4FD556DAA86AEC5F3FB0390EF8A862A41ECA';
 
 export default async function handler(
-  req: NextApiRequest,
+  request: NextApiRequest,
   res: NextApiResponse
 ) {
-  const user = await getUser(req, res);
+  const user = await getUser(request, res);
   if (typeof user === 'undefined') return;
 
   const connection = await connectToDatabase();
 
-  const data = (await new Promise((resolve, reject) => {
+  const data = (await new Promise<{
+        readonly fields: Fields;
+        readonly files: Files;
+      }
+    | string>((resolve, reject) => {
     const form = new IncomingForm({
       // 4 GB. If changing this value, don't forget to change the panel.conf too
       maxFileSize: 4 * 1024 * 1024 * 1024,
     });
 
-    form.parse(req, (err, fields, files) => {
-      if (err) return reject(err.toString());
-      resolve({ fields, files });
+    form.parse(request, (error, fields, files) => {
+      if (error) reject(error.toString());
+      else resolve({ fields, files });
     });
-  })) as
-    | {
-        readonly fields: Fields;
-        readonly files: Files;
-      }
-    | string;
+  }));
 
   if (typeof data === 'string') return res.status(400).json({ error: data });
 
@@ -55,14 +56,15 @@ export default async function handler(
   if (typeof file === 'undefined' || file.newFilename === null)
     return res.status(400).json({ error: 'No file is attached' });
 
+  // eslint-disable-next-line functional/prefer-readonly-type
   const destructors: (() => Promise<void>)[] = [];
-  destructors.push(() => fs.promises.unlink(file.filepath));
+  destructors.push(async () => fs.promises.unlink(file.filepath));
 
   try {
     const nameParts = file.newFilename.split('.').slice(1);
     let filePath: string;
     const isTarArchive = nameParts.includes('tar') || nameParts.includes('tgz');
-    const isZipArchive = nameParts.slice(-1)[0] === 'zip';
+    const isZipArchive = nameParts.at(-1) === 'zip';
     if (isTarArchive || isZipArchive) {
       const listOfFiles = await run(
         `${isTarArchive ? 'tar t -f' : 'unzip -l'} ${file.filepath}`
@@ -73,7 +75,7 @@ export default async function handler(
             ? listOfFiles
             : listOfFiles
                 .slice(3, -2)
-                .map((line) => line.split('   ').slice(-1)[0])
+                .map((line) => line.split('   ').at(-1)!)
         );
       const databaseFilePath = listOfFiles.find((filePath) =>
         filePath.endsWith('.sql')
@@ -98,8 +100,8 @@ export default async function handler(
       );
 
       destructors.push(
-        () => fs.promises.unlink(filePath),
-        () => fs.promises.rmdir(directoryName)
+        async () => fs.promises.unlink(filePath),
+        async () => fs.promises.rmdir(directoryName)
       );
     } else filePath = file.filepath;
 
@@ -127,6 +129,6 @@ export default async function handler(
   } catch (error: any) {
     res.status(500).json({ error: error.toString() });
   } finally {
-    for await (let destructor of destructors) destructor();
+    for await (const destructor of destructors) destructor();
   }
 }

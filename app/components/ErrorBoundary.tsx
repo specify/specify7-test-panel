@@ -21,8 +21,8 @@ type ErrorBoundaryState =
     }
   | {
       readonly hasError: true;
-      readonly error: { toString: () => string };
-      readonly errorInfo: { componentStack: string };
+      readonly error: { readonly toString: () => string };
+      readonly errorInfo: { readonly componentStack: string };
     };
 
 const localizationStrings: LocalizationStrings<{
@@ -40,7 +40,7 @@ const localizationStrings: LocalizationStrings<{
 };
 
 export default class ErrorBoundary extends React.Component<
-  { children: JSX.Element },
+  { readonly children: JSX.Element },
   ErrorBoundaryState
 > {
   public readonly state: ErrorBoundaryState = {
@@ -57,7 +57,7 @@ export default class ErrorBoundary extends React.Component<
     error: { readonly toString: () => string },
     errorInfo: { readonly componentStack: string }
   ): void {
-    // eslint-disable-next-line no-console
+     
     console.error(error, errorInfo);
     this.setState({
       hasError: true,
@@ -73,25 +73,25 @@ export default class ErrorBoundary extends React.Component<
           languageStrings: Readonly<typeof localizationStrings[Language]>
         ): JSX.Element => (
           <ModalDialog
-            title={'Unexpected Error'}
             buttons={
               <>
                 <button
-                  type="button"
                   className={dangerButtonClassName}
+                  type="button"
                   onClick={this.handleReload}
                 >
                   {languageStrings.reload}
                 </button>
                 <button
-                  type="button"
                   className={dangerButtonClassName}
+                  type="button"
                   onClick={this.handleHistoryBack}
                 >
                   {languageStrings.previousPage}
                 </button>
               </>
             }
+            title="Unexpected Error"
           >
             <p>{languageStrings.unexpectedErrorHasOccurred}</p>
             <details style={{ whiteSpace: 'pre-wrap' }}>

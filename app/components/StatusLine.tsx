@@ -23,11 +23,12 @@ export function StatusLineProvider({
   const [configuration, setConfiguration] =
     React.useState<StatusLineStatus | undefined>(undefined);
 
+  // eslint-disable-next-line functional/prefer-readonly-type
   const updateStack = React.useRef<StatusLineStatus[]>([]);
   const lastMessage =
     React.useRef<StatusLineStatus['message'] | undefined>(undefined);
   const timeOutId =
-    React.useRef<undefined | ReturnType<typeof setTimeout>>(undefined);
+    React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   if (typeof configuration?.message !== 'undefined')
     lastMessage.current = configuration.message;

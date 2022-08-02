@@ -9,20 +9,18 @@ import { GetUserLanguage } from './LanguageContext';
 function extractTitle(
   language: Language,
   title:
-    | string
-    | LocalizationStrings<{
-        title: string;
-      }>
-    | ((string: Language) => string)
+    LocalizationStrings<{
+        readonly title: string;
+      }> | string | ((string: Language) => string)
 ): string {
   if (title === '') return siteInfo[language].title;
 
   const titleString =
     typeof title === 'object'
       ? title[language].title
-      : typeof title === 'function'
+      : (typeof title === 'function'
       ? title(language)
-      : title;
+      : title);
 
   return titleString.endsWith(' ')
     ? `${titleString}- ${siteInfo[language].title}`
@@ -40,11 +38,9 @@ export default function Layout<
   localizationStrings,
 }: {
   readonly title:
-    | string
-    | LocalizationStrings<{
-        title: string;
-      }>
-    | ((string: Language) => string);
+    LocalizationStrings<{
+        readonly title: string;
+      }> | string | ((string: Language) => string);
   readonly children: (
     languageStrings: DEFINITIONS,
     language: Language,
@@ -58,8 +54,8 @@ export default function Layout<
         <>
           <Head>
             <title>{extractTitle(language, title)}</title>
-            <link rel="icon" href="/favicon.ico" />
-            <meta name="robots" content={'noindex,nofollow'} />
+            <link href="/favicon.ico" rel="icon" />
+            <meta content="noindex,nofollow" name="robots" />
           </Head>
           <main className="flex flex-col flex-1 w-full h-screen gap-10 p-8 overflow-auto">
             {children(

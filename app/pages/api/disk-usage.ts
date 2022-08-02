@@ -1,12 +1,13 @@
 import checkDistUsage from 'check-disk-space';
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 import {getUser, noCaching} from '../../lib/apiUtils';
 
 export default async function handler(
-  req: NextApiRequest,
+  request: NextApiRequest,
   res: NextApiResponse
 ) {
-  const user = await getUser(req, res);
+  const user = await getUser(request, res);
   if (typeof user === 'undefined') return;
 
   return checkDistUsage('/')

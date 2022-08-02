@@ -6,7 +6,7 @@ export const DEFAULT_STATUS_LINE_TIMEOUT = 2000;
  */
 export const STATUS_LINE_ANIMATION_DURATION = 100;
 
-export interface StatusLineStatus {
+export type StatusLineStatus = {
   // The element to be displayed
   readonly message: JSX.Element | string;
   /*

@@ -7,7 +7,7 @@ export type IR<V> = Readonly<Record<string, V>>;
 
 // Generic Immutable record
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export type RR<K extends string | number | symbol, V> = Readonly<Record<K, V>>;
+export type RR<K extends number | string | symbol, V> = Readonly<Record<K, V>>;
 
 // Immutable Array
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -21,5 +21,5 @@ export function safe<T>(value: T | undefined): T {
 
 // Convert all nullable types to undefined
 export const nullSafe = <T>(
-  value: T | undefined | null | false | '' | typeof Number.NaN
+  value: T | typeof Number.NaN | '' | false | null | undefined
 ): T | undefined => (Boolean(value) ? (value as T) : undefined);

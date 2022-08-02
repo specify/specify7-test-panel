@@ -3,9 +3,9 @@ import React from 'react';
 export function useAsync<Type>(
   callback: () => Promise<Type>
 ): Readonly<
-  [Type | undefined | string, (value: Type | undefined | string) => void]
+  readonly [Type | string | undefined, (value: Type | string | undefined) => void]
 > {
-  const [value, setValue] = React.useState<undefined | string | Type>(
+  const [value, setValue] = React.useState<Type | string | undefined>(
     undefined
   );
 
@@ -30,7 +30,7 @@ export function useAsync<Type>(
 }
 
 export const useApi = <Type,>(endpoint: string) =>
-  useAsync<{ readonly data: Type }>(() =>
+  useAsync<{ readonly data: Type }>(async () =>
     fetch(endpoint).then(async (response) => {
       if (response.status === 404) throw new Error('API endpoint not found');
       const state = await response.json();

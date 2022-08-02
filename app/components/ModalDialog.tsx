@@ -22,15 +22,15 @@ export function ModalDialog({
   return (
     <div className="modal-root contents">
       <Modal
-        isOpen={isOpen}
+        className="w-full outline-none"
         closeTimeoutMS={100}
         contentLabel={title}
-        portalClassName={`${className}`}
+        isOpen={isOpen}
         overlayClassName={
           'w-screen h-screen absolute inset-0 flex items-center ' +
           'justify-center bg-shadow transition-opacity'
         }
-        className={'w-full outline-none'}
+        portalClassName={`${className}`}
         shouldCloseOnEsc={typeof handleClose === 'function'}
       >
         <div className="w-auto w-1/2 m-auto bg-white shadow-xl">
@@ -54,10 +54,10 @@ export function ModalDialog({
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
+                    d="M6 18L18 6M6 6l12 12"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
               </div>
@@ -74,7 +74,7 @@ export function ModalDialog({
           </div>
         </div>
       </Modal>
-      <style jsx global>{`
+      <style global jsx>{`
         .${className} > :global(.ReactModal__Overlay--after-open) {
           opacity: 1 !important;
         }

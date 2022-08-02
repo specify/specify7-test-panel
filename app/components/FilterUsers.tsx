@@ -35,7 +35,7 @@ export default function FilterUsers<
 
   if (typeof isSignedIn === 'undefined') return null;
   else if (isSignedIn === isProtected)
-    return typeof children === 'undefined' ? <React.Fragment /> : children;
+    return typeof children === 'undefined' ? <></> : children;
   else {
     void router.push(resolvedRedirectPath);
     return null;

@@ -1,6 +1,6 @@
 import { organization, repository, targetTeams } from '../const/siteConfig';
-import { R, RA } from './typescriptCommonTypes';
-import { User } from './user';
+import type { R, RA } from './typescriptCommonTypes';
+import type { User } from './user';
 
 export const queryGithubApi = async (token: string, query: string) =>
   fetch('https://api.github.com/graphql', {
@@ -9,22 +9,18 @@ export const queryGithubApi = async (token: string, query: string) =>
       Authorization: `bearer ${token}`,
     },
     body: JSON.stringify({ query }),
-  }).then((response) => response.json());
+  }).then(async (response) => response.json());
 
 export type PullRequest = {
   readonly title: string;
   readonly commits: {
     readonly nodes: Readonly<
-      [
+      readonly [
         {
           readonly commit: {
             readonly statusCheckRollup?: {
               readonly state:
-                | 'EXPECTED'
-                | 'ERROR'
-                | 'FAILURE'
-                | 'PENDING'
-                | 'SUCCESS';
+                'ERROR' | 'EXPECTED' | 'FAILURE' | 'PENDING' | 'SUCCESS';
             };
           };
         }
@@ -32,7 +28,7 @@ export type PullRequest = {
     >;
   };
   readonly number: number;
-  readonly mergeable: 'MERGEABLE' | 'CONFLICTING' | 'UNKNOWN';
+  readonly mergeable: 'CONFLICTING' | 'MERGEABLE' | 'UNKNOWN';
   readonly merged: boolean;
   readonly isDraft: boolean;
   readonly reviews: {
@@ -148,7 +144,7 @@ const filterPullRequests = (
         mergeable === 'MERGEABLE' &&
         !merged &&
         !isDraft &&
-        reviewRequests.nodes.length !== 0 &&
+        reviewRequests.nodes.length > 0 &&
         commits.nodes[0].commit.statusCheckRollup?.state === 'SUCCESS'
     )
     .filter(({ reviewRequests, reviews }) => {
@@ -192,9 +188,7 @@ const filterPullRequests = (
           )
       );
 
-      const isAssignedToTargetTeamMember = !!(
-        pendingUserReviews.length - pendingNonTargetTeamMemberReviews.length
-      );
+      const isAssignedToTargetTeamMember = Boolean(pendingUserReviews.length - pendingNonTargetTeamMemberReviews.length);
 
       const pendingTeamReviews = reviewRequests.nodes
         .map(
@@ -204,7 +198,8 @@ const filterPullRequests = (
         )
         .filter(
           (teamName): teamName is string =>
-            !!teamName &&
+            teamName !== false &&
+            teamName.length > 0 &&
             approved.every(
               (username) =>
                 !user.organization.teams[teamName].includes(username)
@@ -215,9 +210,7 @@ const filterPullRequests = (
         (teamName) => !targetTeams.includes(teamName)
       );
 
-      const isAssignedToTargetTeam = !!(
-        pendingTeamReviews.length - pendingNonTargetTeamReviews.length
-      );
+      const isAssignedToTargetTeam = Boolean(pendingTeamReviews.length - pendingNonTargetTeamReviews.length);
 
       return (
         (isAssignedToTargetTeam || isAssignedToTargetTeamMember) &&

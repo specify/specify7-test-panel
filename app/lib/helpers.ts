@@ -1,7 +1,7 @@
-import { IR, RA } from './typescriptCommonTypes';
+import type { IR, RA } from './typescriptCommonTypes';
 
 export const getMostCommonElement = <T>(array: RA<T>): T | undefined =>
-  array.reduce<[number, T | undefined]>(
+  array.reduce<readonly [number, T | undefined]>(
     ([count, commonValue], value, _index, array) => {
       const occurrenceCount = array.filter(
         (searchValue) => searchValue === value
@@ -21,4 +21,4 @@ export const getMostRecentTag = (tags: IR<string>) =>
 export const trimString = (string: string, maxLength: number): string =>
   string.length <= maxLength
     ? string
-    : `${string.substr(0, maxLength - 3).trim()}...`;
+    : `${string.slice(0, Math.max(0, maxLength - 3)).trim()}...`;

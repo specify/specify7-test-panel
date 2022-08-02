@@ -1,18 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import {getUser, noCaching} from '../../../../lib/apiUtils';
 import { connectToDatabase } from '../../../../lib/database';
-import { RA } from '../../../../lib/typescriptCommonTypes';
+import type { RA } from '../../../../lib/typescriptCommonTypes';
 
 export default async function handler(
-  req: NextApiRequest,
+  request: NextApiRequest,
   res: NextApiResponse
 ) {
-  const user = await getUser(req, res);
+  const user = await getUser(request, res);
   if (typeof user === 'undefined') return;
 
   const connection = await connectToDatabase();
 
-  const databaseName = req.query.name as string;
+  const databaseName = request.query.name as string;
 
   if (databaseName.match(/^\w+$/) === null)
     return res.status(400).json({ error: 'Database name is invalid' });

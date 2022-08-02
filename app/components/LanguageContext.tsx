@@ -30,11 +30,11 @@ export function GetUserLanguage<
   );
 }
 
-export const LanguageProvider = ({
+export function LanguageProvider({
   children,
 }: {
   readonly children: React.ReactNode;
-}): JSX.Element => {
+}): JSX.Element {
   const { defaultLocale = 'en-US', locale = defaultLocale } = useRouter();
 
   return (
@@ -42,4 +42,4 @@ export const LanguageProvider = ({
       {children}
     </LanguageContext.Provider>
   );
-};
+}

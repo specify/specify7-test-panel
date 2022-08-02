@@ -1,14 +1,14 @@
-import { GetServerSideProps } from 'next';
+import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import React from 'react';
 
 import FilterUsers from '../components/FilterUsers';
 import { LanguageContext } from '../components/LanguageContext';
 import Layout from '../components/Layout';
+import { StatusLineContext } from '../components/StatusLine';
 import { Centered } from '../components/UI';
 import siteInfo from '../const/siteInfo';
 import type { LocalizationStrings } from '../lib/languages';
-import { StatusLineContext } from '../components/StatusLine';
 import { statusLineContentClassName } from '../lib/statusLineConfig';
 
 const localizationStrings: LocalizationStrings<{
@@ -54,7 +54,7 @@ export default function SignIn({
     });
 
     fetch(`/api/login?code=${code}`)
-      .then((response) => response.json())
+      .then(async (response) => response.json())
       .then((response) => {
         if (response.error.length > 0) throw new Error(response.error);
 
@@ -94,8 +94,8 @@ export default function SignIn({
               <h1 className="text-5xl">{siteInfo[language].title}</h1>
               <div className="flex-column gap-y-1 flex pt-4">
                 <a
-                  href={signInUrl}
                   className="hover:bg-white box-content w-full p-4 bg-gray-300 border border-gray-400"
+                  href={signInUrl}
                 >
                   {languageStrings.signInWithGitHub}
                 </a>

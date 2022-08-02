@@ -1,14 +1,15 @@
+import Link from 'next/link';
 import React from 'react';
+
 import { maxDeployments } from '../const/siteConfig';
 import siteInfo from '../const/siteInfo';
-import { PullRequest } from '../lib/github';
+import type { DeploymentWithInfo } from '../lib/deployment';
+import type { PullRequest } from '../lib/github';
 import { getMostCommonElement, getMostRecentTag } from '../lib/helpers';
-import { Language } from '../lib/languages';
-import { DeploymentWithInfo } from '../lib/deployment';
-import { IR, RA } from '../lib/typescriptCommonTypes';
-import { localizationStrings } from '../pages';
+import type { Language } from '../lib/languages';
+import type { IR, RA } from '../lib/typescriptCommonTypes';
+import type { localizationStrings } from '../pages';
 import { reducer } from '../reducers/Dashboard';
-import Link from 'next/link';
 import { Deployments } from './Deployments';
 import {
   extraButtonClassName,
@@ -48,11 +49,11 @@ export function Dashboard({
   );
 
   const branchesWithPullRequests = pairedBranches.filter(
-    (entry): entry is [string, PullRequest] => typeof entry[1] !== 'undefined'
+    (entry): entry is readonly [string, PullRequest] => typeof entry[1] !== 'undefined'
   );
   const branchesWithoutPullRequests = pairedBranches
     .filter(
-      (entry): entry is [string, PullRequest] => typeof entry[1] === 'undefined'
+      (entry): entry is readonly [string, PullRequest] => typeof entry[1] === 'undefined'
     )
     .map(([branch]) => branch);
 
@@ -110,7 +111,6 @@ export function Dashboard({
         </Link>
         {state.deployment.length < maxDeployments && (
           <button
-            type="button"
             className={`${successButtonClassName} ${
               Object.keys(databases).length === 0
                 ? 'bg-green-900 cursor-not-allowed hover:bg-green-900'
@@ -122,6 +122,7 @@ export function Dashboard({
                 ? languageStrings.uploadDatabasesFirst
                 : undefined
             }
+            type="button"
             onClick={() =>
               dispatch({
                 type: 'AddInstanceAction',
@@ -144,19 +145,17 @@ export function Dashboard({
           </button>
         )}
         <span className="flex-1" />
-        {
-          <button
-            type="submit"
-            form="dashboard"
+        <button
             className={`${successButtonClassName} ${
               hasChanges ? '' : 'sr-only'
             }`}
             disabled={!hasChanges}
+            form="dashboard"
+            type="submit"
             onClick={() => handleSave(state.deployment)}
           >
             {languageStrings.saveChanges}
           </button>
-        }
       </div>
     </>
   );

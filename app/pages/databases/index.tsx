@@ -1,19 +1,19 @@
 import Link from 'next/link';
 import React from 'react';
+
 import FilterUsers from '../../components/FilterUsers';
 import {
   dangerButtonClassName,
   primaryButtonClassName,
   successButtonClassName,
 } from '../../components/InteractivePrimitives';
-
 import Layout from '../../components/Layout';
 import { Loading, ModalDialog } from '../../components/ModalDialog';
 import { useApi } from '../../components/useApi';
 import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
 import type { Language, LocalizationStrings } from '../../lib/languages';
-import { IR } from '../../lib/typescriptCommonTypes';
+import type { IR } from '../../lib/typescriptCommonTypes';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -54,15 +54,15 @@ export default function Index(): JSX.Element {
 
   return (
     <Layout
-      title={localizationStrings}
       localizationStrings={localizationStrings}
+      title={localizationStrings}
     >
       {(languageStrings, language): JSX.Element => (
         <FilterUsers protected>
           {typeof databaseList === 'undefined' ? (
             <Loading />
-          ) : typeof databaseList === 'string' ? (
-            <ModalDialog title={languageStrings['title']}>
+          ) : (typeof databaseList === 'string' ? (
+            <ModalDialog title={languageStrings.title}>
               {databaseList}
             </ModalDialog>
           ) : (
@@ -79,8 +79,8 @@ export default function Index(): JSX.Element {
                   {Object.entries(databaseList.data).map(
                     ([database, schemaVersion]) => (
                       <li
-                        key={database}
                         className="gap-x-5 flex flex-row p-5 bg-gray-300 rounded"
+                        key={database}
                       >
                         <span className="flex-1">
                           {database}
@@ -96,8 +96,8 @@ export default function Index(): JSX.Element {
                           {languageStrings.download}
                         </a>
                         <button
-                          type="button"
                           className="hover:underline text-blue-400"
+                          type="button"
                           onClick={() => setListUsers(database)}
                         >
                           {languageStrings.listUsers}
@@ -139,7 +139,7 @@ export default function Index(): JSX.Element {
                 />
               )}
             </>
-          )}
+          ))}
         </FilterUsers>
       )}
     </Layout>
@@ -170,11 +170,11 @@ function ListUsers({
       ) : (
         <ul className="gap-y-3 flex flex-col">
           {Object.entries(users.data).map(([id, name]) => (
-            <li key={id} className="gap-x-1 flex">
+            <li className="gap-x-1 flex" key={id}>
               <span>{name}</span>
               <button
-                type="button"
                 className="hover:underline text-blue-400"
+                type="button"
                 onClick={(): void =>
                   void fetch(
                     `/api/databases/${database}/user/${id}/make-admin`,
@@ -209,25 +209,25 @@ function DeleteDatabase({
 
   return (
     <ModalDialog
-      title={languageStrings.deleteDialogTitle}
-      onClose={handleClose}
       buttons={
         <>
           <button
-            type="button"
             className={primaryButtonClassName}
+            type="button"
             onClick={handleClose}
           >
             {commonStrings[language].cancel}
           </button>
           <a
-            href={`/api/databases/${database}/drop`}
             className={dangerButtonClassName}
+            href={`/api/databases/${database}/drop`}
           >
             {commonStrings[language].delete}
           </a>
         </>
       }
+      title={languageStrings.deleteDialogTitle}
+      onClose={handleClose}
     >
       {languageStrings.deleteDialogMessage(database)}
     </ModalDialog>

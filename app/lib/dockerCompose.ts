@@ -1,5 +1,5 @@
-import { ActiveDeployment } from './deployment';
-import { RA } from './typescriptCommonTypes';
+import type { ActiveDeployment } from './deployment';
+import type { RA } from './typescriptCommonTypes';
 
 export const createDockerConfig = (
   deployments: RA<ActiveDeployment>,
@@ -72,9 +72,7 @@ ${deployments
   )
   .join('\n\n')}
 
-${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)))
-  .map(
-    (specifyVersion) => `
+${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)), (specifyVersion) => `
   specify${specifyVersion}:
     image: specifyconsortium/specify6-service:${specifyVersion}
     volumes:
@@ -92,9 +90,7 @@ ${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)))
       - "${hostname}-static-files:/volumes/${hostname}-static-files:ro"`
       )
       .join('')}
-    ${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)))
-      .map(
-        (specifyVersion) => `
+    ${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)), (specifyVersion) => `
       - "specify${specifyVersion}:/volumes/specify${specifyVersion}:ro"`
       )
       .join('')}
@@ -106,9 +102,7 @@ ${deployments
   ${hostname}-static-files:`
   )
   .join('')}
-    ${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)))
-      .map(
-        (specifyVersion) => `
+    ${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)), (specifyVersion) => `
   specify${specifyVersion}:`
       )
       .join('')}`;

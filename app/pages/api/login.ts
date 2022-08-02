@@ -1,10 +1,10 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
-  req: NextApiRequest,
+  request: NextApiRequest,
   res: NextApiResponse
 ) {
-  const code = req.query.code as string | undefined;
+  const code = request.query.code as string | undefined;
 
   if (typeof code === 'undefined')
     return res.status(400).json({
@@ -25,7 +25,7 @@ export default async function handler(
     },
     method: 'POST',
   })
-    .then((response) => response.json())
+    .then(async (response) => response.json())
     .then((response) => {
       if (response.error !== undefined) throw new Error(response.error);
       res.status(200).json({ error: false, data: response.access_token });

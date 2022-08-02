@@ -25,8 +25,8 @@ export default function ErrorPage({
 }): JSX.Element {
   return (
     <Layout
-      title={errorCode.toString()}
       localizationStrings={localizationStrings}
+      title={errorCode.toString()}
     >
       {(
         languageStrings: Readonly<typeof localizationStrings[Language]>

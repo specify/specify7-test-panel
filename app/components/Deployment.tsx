@@ -1,12 +1,13 @@
 import React from 'react';
+
 import { stateRefreshInterval } from '../const/siteConfig';
-import { PullRequest } from '../lib/github';
+import type { ActiveDeployment, DeploymentWithInfo } from '../lib/deployment';
+import type { PullRequest } from '../lib/github';
 import { trimString } from '../lib/helpers';
-import { Language } from '../lib/languages';
-import { ActiveDeployment, DeploymentWithInfo } from '../lib/deployment';
-import { IR, RA } from '../lib/typescriptCommonTypes';
-import { localizationStrings } from '../pages';
-import { Actions } from '../reducers/Dashboard';
+import type { Language } from '../lib/languages';
+import type { IR, RA } from '../lib/typescriptCommonTypes';
+import type { localizationStrings } from '../pages';
+import type { Actions } from '../reducers/Dashboard';
 import {
   disabledButtonClassName,
   infoButtonClassName,
@@ -15,16 +16,13 @@ import {
 import { ModalDialog } from './ModalDialog';
 
 type Status =
-  | undefined
-  | 'fetching'
-  | 'unreachable'
-  | {
+  'fetching' | 'unreachable' | {
       readonly collection: string;
       readonly discipline: string;
       readonly institution: string;
       readonly schemaVersion: string;
       readonly specifyVersion: string;
-    };
+    } | undefined;
 
 export function DeploymentLine({
   deployment,
@@ -40,7 +38,7 @@ export function DeploymentLine({
   readonly schemaVersions: IR<string>;
   readonly databases: IR<string | null>;
   readonly dispatch: (action: Actions) => void;
-  readonly branchesWithPullRequests: RA<Readonly<[string, PullRequest]>>;
+  readonly branchesWithPullRequests: RA<Readonly<readonly [string, PullRequest]>>;
   readonly branchesWithoutPullRequests: RA<string>;
 }): JSX.Element {
   const [status, setStatus] = React.useState<Status>(undefined);
@@ -90,26 +88,26 @@ export function DeploymentLine({
 
   return (
     <li
-      key={deployment.frontend.id}
       className="gap-x-5 flex flex-row p-4 bg-gray-300 rounded"
+      key={deployment.frontend.id}
     >
       <a
-        href={
-          'hostname' in deployment && typeof deployment.hostname !== 'undefined'
-            ? `${document.location.protocol}//${deployment.hostname}.${document.location.hostname}/`
-            : undefined
-        }
         className={
           'hostname' in deployment && typeof deployment.hostname !== 'undefined'
             ? infoButtonClassName
             : disabledButtonClassName
         }
-        onClick={() =>
+        href={
+          'hostname' in deployment && typeof deployment.hostname !== 'undefined'
+            ? `${document.location.protocol}//${deployment.hostname}.${document.location.hostname}/`
+            : undefined
+        }
+        onClick={async () =>
           fetch(`/api/state/${deployment.frontend.id}/ping`).catch(
             console.error
           )
         }
-        onContextMenu={() =>
+        onContextMenu={async () =>
           fetch(`/api/state/${deployment.frontend.id}/ping`).catch(
             console.error
           )
@@ -119,9 +117,9 @@ export function DeploymentLine({
       </a>
       <select
         className="p-2 bg-gray-200 rounded-md"
-        value={deployment.branch}
         required
         style={{ maxWidth: '20vw' }}
+        value={deployment.branch}
         onChange={({ target }) =>
           dispatch({
             type: 'ChangeConfigurationAction',
@@ -157,8 +155,8 @@ export function DeploymentLine({
                 )![1],
               ].map((pullRequest, index) => (
                 <JsxPullRequestFormatter
-                  pullRequest={pullRequest}
                   key={index}
+                  pullRequest={pullRequest}
                 />
               ))[0]}
         </p>
@@ -166,14 +164,14 @@ export function DeploymentLine({
       <span className="flex-1" />
       <StatusIndicator
         deployment={deployment}
-        status={status}
         languageStrings={languageStrings}
+        status={status}
       />
       <select
         className="p-2 bg-gray-200 rounded-md"
-        value={deployment.database}
         required
         style={{ maxWidth: '10vw' }}
+        value={deployment.database}
         onChange={({ target }) =>
           dispatch({
             type: 'ChangeConfigurationAction',
@@ -197,9 +195,9 @@ export function DeploymentLine({
       </select>
       <select
         className="p-2 bg-gray-200 rounded-md"
-        value={deployment.schemaVersion}
         required
         style={{ maxWidth: '10vw' }}
+        value={deployment.schemaVersion}
         onChange={({ target }) =>
           dispatch({
             type: 'ChangeConfigurationAction',
@@ -229,7 +227,7 @@ const pullRequestFormatter = (pullRequest: PullRequest): string =>
 function JsxPullRequestFormatter({
   pullRequest,
 }: {
-  pullRequest: PullRequest;
+  readonly pullRequest: PullRequest;
 }): JSX.Element {
   return (
     <>
@@ -251,16 +249,16 @@ function JsxPullRequestFormatter({
             .flatMap(({ number, title }) => [
               <a
                 className={link}
+                href={`https://github.com/specify/specify7/issues/${number}`}
                 key={number}
                 title={title}
-                href={`https://github.com/specify/specify7/issues/${number}`}
               >
                 {`#${number}`}
               </a>,
               `, `,
             ])
             .slice(0, -1)}
-          {`)`}
+          )
         </span>
       ) : undefined}
     </>
@@ -276,9 +274,9 @@ function StatusIndicator({
   readonly status: Status;
   readonly languageStrings: typeof localizationStrings[Language];
 }): JSX.Element {
-  let state: string = '';
+  let state = '';
   let stateDescription: string | undefined;
-  let color: string = '';
+  let color = '';
 
   const isReady = typeof status === 'object';
 
@@ -302,12 +300,12 @@ function StatusIndicator({
     <>
       {typeof status !== 'undefined' && (
         <button
-          type="button"
           className={`flex items-center ${color} ${
             isReady ? '' : 'cursor-default'
           }`}
           disabled={!isReady}
           title={stateDescription}
+          type="button"
           onClick={isReady ? () => setIsOpen(true) : undefined}
         >
           {state}

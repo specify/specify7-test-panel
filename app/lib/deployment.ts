@@ -7,22 +7,22 @@ import { getDatabases } from '../pages/api/databases';
 import { getTags } from '../pages/api/dockerhub/[image]';
 import { getPullRequests } from './github';
 import { getMostCommonElement } from './helpers';
-import { RA } from './typescriptCommonTypes';
-import { User } from './user';
+import type { RA } from './typescriptCommonTypes';
+import type { User } from './user';
 
 type DeploymentDetails = {
-  hostname: string;
-  deployedAt: number;
-  accessedAt: number;
+  readonly hostname: string;
+  readonly deployedAt: number;
+  readonly accessedAt: number;
 };
 
 export type ActiveDeployment = Deployment & DeploymentDetails;
 
 export type Deployment = Partial<DeploymentDetails> & {
-  branch: string;
-  database: string;
-  schemaVersion: string;
-  wasAutoDeployed: boolean;
+  readonly branch: string;
+  readonly database: string;
+  readonly schemaVersion: string;
+  readonly wasAutoDeployed: boolean;
 };
 
 export type DeploymentWithInfo = Deployment & {
@@ -46,7 +46,7 @@ export const formalizeState = (
       accessedAt: Date.now(),
       hostname: state.branch
         .toLowerCase()
-        .replaceAll(/^[^a-z]+|[^a-z\d]+$|[^a-z\d-]+/g, ''),
+        .replaceAll(/^[^a-z]+|[^\da-z]+$|[^\d\-a-z]+/g, ''),
       ...state,
     }))
     .map((state, index) => ({

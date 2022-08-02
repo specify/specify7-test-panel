@@ -7,7 +7,7 @@ const error = ({ statusCode }: InitialProps): JSX.Element => (
   <ErrorPage errorCode={statusCode} />
 );
 
-interface InitialProps {
+type InitialProps = {
   readonly statusCode: number;
 }
 

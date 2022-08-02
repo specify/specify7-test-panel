@@ -1,6 +1,6 @@
 import { organization } from '../const/siteConfig';
 import { queryGithubApi } from './github';
-import { IR, RA } from './typescriptCommonTypes';
+import type { IR, RA } from './typescriptCommonTypes';
 
 // FIXME: rename this file to .ts
 
