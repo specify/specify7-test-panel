@@ -10,6 +10,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
+      - './config/mariadb.cnf:/etc/mysql/conf.d/mariadb.cnf'
       - 'database:/var/lib/mysql'
       - './seed-database/:/docker-entrypoint-initdb.d/:ro'
 
