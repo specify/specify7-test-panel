@@ -20,6 +20,7 @@ import {
   link,
 } from './InteractivePrimitives';
 import { ModalDialog } from './ModalDialog';
+import { DeploymentOptions } from './DeploymentOptions';
 
 type Status =
   | 'fetching'
@@ -236,6 +237,10 @@ export function DeploymentLine({
           ))}
         </optgroup>
       </select>
+      <DeploymentOptions
+        deployment={deployment}
+        languageStrings={languageStrings}
+      />
     </li>
   );
 }
@@ -256,8 +261,13 @@ function TextBox({
   return (
     <AutoGrowTextArea
       className="w-80"
+      containerClassName="w-80"
       disabled
-      placeholder={`${languageStrings.lastAccessed} ${relativeDate}`}
+      placeholder={
+        relativeDate === ''
+          ? languageStrings.notes
+          : `${languageStrings.lastAccessed} ${relativeDate}`
+      }
       rows={1}
     />
   );

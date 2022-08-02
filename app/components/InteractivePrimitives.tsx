@@ -1,5 +1,3 @@
-import React from 'react';
-
 const baseButtonStyle = `inline-flex px-4 py-2 rounded-md sm:text-sm
   justify-center text-white items-center`;
 export const primaryButtonClassName = `${baseButtonStyle} bg-black
@@ -18,20 +16,3 @@ export const disabledButtonClassName = `${baseButtonStyle} bg-gray-600
   border-gray-700 cursor-not-allowed`;
 
 export const link = `text-blue-400 active:text-blue-700 hover:underline`;
-
-export const fieldClassName = 'border p-1.5 rounded-md bg-gray-200';
-
-export function LabeledField({
-  label,
-  children,
-}: {
-  readonly label: string;
-  readonly children: React.ReactNode;
-}): JSX.Element {
-  return (
-    <label className="flex flex-col first:border-none">
-      <span className="pb-1 text-sm">{label}</span>
-      <span className={fieldClassName}>{children}</span>
-    </label>
-  );
-}

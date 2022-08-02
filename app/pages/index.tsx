@@ -38,6 +38,11 @@ export const localizationStrings: LocalizationStrings<{
   readonly uploadDatabasesFirst: string;
   readonly corruptDatabase: string;
   readonly lastAccessed: string;
+  readonly notes: string;
+  readonly newDeployment: string;
+  readonly close: string;
+  readonly remove: string;
+  readonly deployedAt: string;
 }> = {
   'en-US': {
     title: 'Dashboard',
@@ -67,6 +72,11 @@ export const localizationStrings: LocalizationStrings<{
     schemaVersion: 'Schema Version',
     corruptDatabase: 'corrupt database',
     lastAccessed: 'Last accessed',
+    notes: 'Notes',
+    newDeployment: 'New Deployment',
+    close: 'Close',
+    remove: 'Remove',
+    deployedAt: 'Deployed at',
   },
 };
 

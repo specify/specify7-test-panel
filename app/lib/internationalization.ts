@@ -42,3 +42,8 @@ export function getRelativeDate(date: Readonly<Date>): string {
     return relativeDate.format(-Math.round(timePassed / MONTH), 'month');
   else return relativeDate.format(-Math.round(timePassed / YEAR), 'year');
 }
+
+export const longDateFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: 'full',
+  timeStyle: 'long',
+});
