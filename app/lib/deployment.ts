@@ -6,7 +6,7 @@ import {
 import { getDatabases } from '../pages/api/databases';
 import { getTags } from '../pages/api/dockerhub/[image]';
 import { getPullRequests } from './github';
-import { getMostCommonElement } from './helpers';
+import { getMostCommonElement, getUniqueName } from './helpers';
 import type { RA } from './typescriptCommonTypes';
 import type { User } from './user';
 
@@ -41,17 +41,14 @@ export const formalizeState = (
 ): RA<ActiveDeployment> =>
   state
     .slice(0, maxDeployments)
-    .map<ActiveDeployment>((state) => ({
+    .map<ActiveDeployment>((deployment) => ({
       deployedAt: Date.now(),
       accessedAt: Date.now(),
-      hostname: state.branch
-        .toLowerCase()
-        .replaceAll(/^[^a-z]+|[^\da-z]+$|[^\d\-a-z]+/g, ''),
-      ...state,
+      hostname: generateHostname(deployment),
+      ...deployment,
     }))
     .map((state, index) => ({
       ...state,
-      hostname: state.hostname.length > 0 ? state.hostname : `server-${index}`,
       deployedAt:
         typeof originalState?.[index] === 'undefined' ||
         (['branch', 'database', 'schemaVersion'] as const).every(
@@ -65,19 +62,22 @@ export const formalizeState = (
         ...deployments,
         {
           ...deployment,
-          hostname: deployments.some(
-            ({ hostname }) => hostname === deployment.hostname
-          )
-            ? `${deployment.hostname}-${
-                deployments.filter(
-                  ({ hostname }) => hostname === deployment.hostname
-                ).length + 1
-              }`
-            : deployment.hostname,
+          hostname: getUniqueName(
+            deployment.hostname,
+            deployments.map(({ hostname }) => hostname)
+          ),
         },
       ],
       []
     );
+
+const generateHostname = ({ branch, database }: Deployment): string =>
+  `${canonicalizeToken(branch) || 'branch'}.${
+    canonicalizeToken(database) || 'database'
+  }}`;
+
+const canonicalizeToken = (string: string): string =>
+  string.toLowerCase().replaceAll(/^[^a-z]+|[^\da-z]+$|[^\da-z\-]+/gu, '');
 
 export async function autoDeployPullRequests(
   state: RA<ActiveDeployment>,

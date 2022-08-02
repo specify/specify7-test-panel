@@ -2,8 +2,6 @@ import { organization } from '../const/siteConfig';
 import { queryGithubApi } from './github';
 import type { IR, RA } from './typescriptCommonTypes';
 
-// FIXME: rename this file to .ts
-
 export type User = {
   readonly token: string;
   readonly name: string;
