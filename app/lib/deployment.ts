@@ -73,7 +73,7 @@ export const formalizeState = (
     );
 
 const generateHostname = ({ branch, database }: Deployment): string =>
-  `${canonicalizeToken(database) || 'database'}.${
+  `${canonicalizeToken(database) || 'database'}-${
     canonicalizeToken(branch) || 'branch'
   }`;
 
