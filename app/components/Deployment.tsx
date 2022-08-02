@@ -1,11 +1,7 @@
 import React from 'react';
 
 import { stateRefreshInterval } from '../const/siteConfig';
-import type {
-  ActiveDeployment,
-  Deployment,
-  DeploymentWithInfo,
-} from '../lib/deployment';
+import type { Deployment, DeploymentWithInfo } from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
 import { trimString } from '../lib/helpers';
 import { getRelativeDate } from '../lib/internationalization';
