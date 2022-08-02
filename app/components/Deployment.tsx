@@ -13,6 +13,7 @@ import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
 import type { localizationStrings } from '../pages';
 import type { Actions } from '../reducers/Dashboard';
+import { AutoGrowTextArea } from './AutoGrowTextArea';
 import {
   disabledButtonClassName,
   infoButtonClassName,
@@ -54,8 +55,14 @@ export function DeploymentLine({
   const [status, setStatus] = React.useState<Status>(undefined);
 
   React.useEffect(() => {
-    if (new URL(window.location.href).searchParams.has('no-fetch')) return;
-    const fetchStatus = (deployment: ActiveDeployment & DeploymentWithInfo) => {
+    // Allow disabling fetching. Useful in development
+    if (new URL(window.location.href).searchParams.has('no-fetch')) {
+      setStatus('fetching');
+      return;
+    }
+    const fetchStatus = (
+      deployment: ActiveDeployment & DeploymentWithInfo
+    ): void => {
       if (destructorCalled) return;
       const timeout = setTimeout(() => setStatus('fetching'), 150);
       fetch(
@@ -172,12 +179,12 @@ export function DeploymentLine({
               ))[0]}
         </p>
       </div>
-      <TextBox deployment={deployment} languageStrings={languageStrings} />
       <StatusIndicator
         deployment={deployment}
         languageStrings={languageStrings}
         status={status}
       />
+      <TextBox deployment={deployment} languageStrings={languageStrings} />
       <select
         className="rounded-md bg-gray-200 p-2"
         required
@@ -247,10 +254,11 @@ function TextBox({
   const [relativeDate] = React.useState(retrieveRelativeDate);
 
   return (
-    <textarea
-      className="w-80 resize-none rounded-md bg-gray-200 p-2"
-      placeholder={`${languageStrings.lastAccessed} ${relativeDate}`}
+    <AutoGrowTextArea
+      className="w-80"
       disabled
+      placeholder={`${languageStrings.lastAccessed} ${relativeDate}`}
+      rows={1}
     />
   );
 }
