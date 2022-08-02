@@ -72,9 +72,9 @@ export const formalizeState = (
     );
 
 const generateHostname = ({ branch, database }: Deployment): string =>
-  `${canonicalizeToken(branch) || 'branch'}.${
-    canonicalizeToken(database) || 'database'
-  }}`;
+  `${canonicalizeToken(database) || 'database'}.${
+    canonicalizeToken(branch) || 'branch'
+  }`;
 
 const canonicalizeToken = (string: string): string =>
   string.toLowerCase().replaceAll(/^[^a-z]+|[^\da-z]+$|[^\da-z\-]+/gu, '');
@@ -96,12 +96,9 @@ export async function autoDeployPullRequests(
     }
   );
 
-  const firstDatabase = Object.entries(await getDatabases()).find(
-    ([_name, version]) => typeof version === 'string'
-  )?.[0];
   const database =
     getMostCommonElement(state.map(({ database }) => database)) ??
-    firstDatabase;
+    (await getFirstDatabase());
 
   if (typeof database === 'undefined') {
     console.error('No databases found for auto deployment');
@@ -128,3 +125,8 @@ export async function autoDeployPullRequests(
       })),
   ]);
 }
+
+const getFirstDatabase = async (): Promise<string | undefined> =>
+  Object.entries(await getDatabases()).find(
+    ([_name, version]) => typeof version === 'string'
+  )?.[0];

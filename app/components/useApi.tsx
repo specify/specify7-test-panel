@@ -1,39 +1,36 @@
 import React from 'react';
 
-export function useAsync<Type>(
-  callback: () => Promise<Type>
-): Readonly<
-  readonly [
-    Type | string | undefined,
-    (value: Type | string | undefined) => void
-  ]
-> {
-  const [value, setValue] = React.useState<Type | string | undefined>(
+export function useAsync<TYPE>(
+  callback: () => Promise<TYPE>
+): readonly [
+  TYPE | string | undefined,
+  (value: TYPE | string | undefined) => void
+] {
+  const [value, setValue] = React.useState<TYPE | string | undefined>(
     undefined
   );
 
-  const destructorCalled = React.useRef<boolean>(false);
-
-  const saveStateUpdate = (newValue: typeof value) =>
-    destructorCalled.current ? undefined : setValue(newValue);
-
   React.useEffect(() => {
+    let destructorCalled = false;
     callback()
-      .then(saveStateUpdate)
+      .then((newValue) => {
+        if (destructorCalled) return;
+        setValue(newValue);
+      })
       .catch((error) => {
         console.error(error);
-        saveStateUpdate(error.toString());
+        setValue(error.toString());
       });
     return () => {
-      destructorCalled.current = true;
+      destructorCalled = true;
     };
   }, []);
 
   return [value, setValue];
 }
 
-export const useApi = <Type,>(endpoint: string) =>
-  useAsync<{ readonly data: Type }>(async () =>
+export function useApi<TYPE>(endpoint: string) {
+  return useAsync<{ readonly data: TYPE }>(async () =>
     fetch(endpoint).then(async (response) => {
       if (response.status === 404) throw new Error('API endpoint not found');
       const state = await response.json();
@@ -41,3 +38,4 @@ export const useApi = <Type,>(endpoint: string) =>
       else throw new Error(state.error ?? state ?? 'Unexpected Error Occurred');
     })
   );
+}

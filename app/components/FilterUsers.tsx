@@ -29,15 +29,17 @@ export default function FilterUsers<
 
   const [isSignedIn, setIsSignedIn] = React.useState<boolean | undefined>();
 
-  React.useEffect(() => {
-    setIsSignedIn(typeof getUserTokenCookie(document.cookie) !== 'undefined');
-  }, [typeof document]);
+  React.useEffect(
+    () =>
+      setIsSignedIn(typeof getUserTokenCookie(document.cookie) !== 'undefined'),
+    []
+  );
 
   if (typeof isSignedIn === 'undefined') return null;
   else if (isSignedIn === isProtected)
     return typeof children === 'undefined' ? <></> : children;
   else {
-    void router.push(resolvedRedirectPath);
+    router.push(resolvedRedirectPath).catch(console.error);
     return null;
   }
 }

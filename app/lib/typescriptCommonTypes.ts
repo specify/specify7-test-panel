@@ -23,3 +23,6 @@ export function safe<T>(value: T | undefined): T {
 export const nullSafe = <T>(
   value: T | typeof Number.NaN | '' | false | null | undefined
 ): T | undefined => (Boolean(value) ? (value as T) : undefined);
+
+export const filterArray = <T>(array: RA<T | undefined>): RA<T> =>
+  array.filter((item): item is T => item !== undefined);

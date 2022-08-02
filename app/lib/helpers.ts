@@ -1,5 +1,5 @@
 import { f } from './functools';
-import { filterArray } from './types';
+import { filterArray } from './typescriptCommonTypes';
 import type { IR, RA } from './typescriptCommonTypes';
 
 export const getMostCommonElement = <T>(array: RA<T>): T | undefined =>
@@ -30,7 +30,7 @@ export function getUniqueName(name: string, usedNames: RA<string>): string {
   const suffix = / \((\d+)\)$/u.exec(name);
   const [{ length }, indexString] = suffix ?? ([[], '0'] as const);
   const strippedName = length > 0 ? name.slice(0, -1 * length) : name;
-  const indexRegex = new RegExp(`^${escapeRegExp(strippedName)} \\((\\d+)\\)$`);
+  const indexRegex = new RegExp(`^${escapeRegExp(strippedName)}-(\\d+)$`);
   const newIndex =
     Math.max(
       ...filterArray([
@@ -38,7 +38,7 @@ export function getUniqueName(name: string, usedNames: RA<string>): string {
         ...usedNames.map((name) => f.parseInt(indexRegex.exec(name)?.[1]) ?? 1),
       ])
     ) + 1;
-  const uniquePart = ` (${newIndex})`;
+  const uniquePart = `-${newIndex}`;
   return newIndex === 1 && length === 0
     ? strippedName
     : `${strippedName}${uniquePart}`;

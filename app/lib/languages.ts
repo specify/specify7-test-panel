@@ -6,9 +6,7 @@ export const AVAILABLE_LANGUAGES: RA<string> = ['en-US'] as const;
 export type Language = typeof AVAILABLE_LANGUAGES[number];
 
 export type LocalizationStrings<
-  DEFINITIONS extends IR<
-    string | ((...arguments_: readonly never[]) => unknown)
-  >
+  DEFINITIONS extends IR<string | ((...arguments_: RA<never>) => unknown)>
 > = {
   readonly [language in Language]: DEFINITIONS;
 };
@@ -18,7 +16,7 @@ export const extractString =
     KEY extends string,
     DEFINITIONS extends RR<
       KEY,
-      string | ((...arguments_: readonly never[]) => unknown)
+      string | ((...arguments_: RA<never>) => unknown)
     >
   >(
     localizationStrings: LocalizationStrings<DEFINITIONS>,

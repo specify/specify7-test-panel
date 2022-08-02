@@ -26,24 +26,23 @@ export function ModalDialog({
         closeTimeoutMS={100}
         contentLabel={title}
         isOpen={isOpen}
-        overlayClassName={
-          'w-screen h-screen absolute inset-0 flex items-center ' +
-          'justify-center bg-shadow transition-opacity'
-        }
+        overlayClassName={`
+          w-screen h-screen absolute inset-0 flex items-center
+          justify-center bg-shadow transition-opacity
+        `}
         portalClassName={`${className}`}
         shouldCloseOnEsc={typeof handleClose === 'function'}
       >
         <div className="m-auto w-auto w-1/2 bg-white shadow-xl">
-          <div
-            className={`flex items-center justify-between bg-gray-50
-          p-4`}
-          >
+          <div className="flex items-center justify-between bg-gray-50 p-4">
             <h3 className="text-lg text-gray-900">{title}</h3>
             {handleClose && (
               <div
-                className={`flex cursor-pointer items-center
-                justify-center rounded-full bg-red-100 sm:h-10
-                sm:w-10`}
+                className={`
+                  flex cursor-pointer items-center
+                  justify-center rounded-full bg-red-100 sm:h-10
+                  sm:w-10
+                `}
                 onClick={handleClose}
               >
                 <svg

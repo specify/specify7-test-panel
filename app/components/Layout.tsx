@@ -5,6 +5,7 @@ import commonLocalizationStrings from '../const/commonStrings';
 import siteInfo from '../const/siteInfo';
 import type { Language, LocalizationStrings } from '../lib/languages';
 import { GetUserLanguage } from './LanguageContext';
+import { RA } from '../lib/typescriptCommonTypes';
 
 function extractTitle(
   language: Language,
@@ -32,8 +33,8 @@ function extractTitle(
 export default function Layout<
   DEFINITIONS extends Record<
     string,
-    string | ((...arguments_: readonly never[]) => unknown)
-  > = Record<never, string | ((...arguments_: readonly never[]) => unknown)>
+    string | ((...arguments_: RA<never>) => unknown)
+  > = Record<never, string | ((...arguments_: RA<never>) => unknown)>
 >({
   title,
   children,

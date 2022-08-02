@@ -177,7 +177,7 @@ export function DeploymentLine({
         required
         style={{ maxWidth: '10vw' }}
         value={deployment.database}
-        onChange={({ target }) =>
+        onChange={({ target }): void =>
           dispatch({
             type: 'ChangeConfigurationAction',
             id: deployment.frontend.id,
@@ -189,6 +189,7 @@ export function DeploymentLine({
         }
       >
         <optgroup label={languageStrings.databases}>
+          <option />
           {Object.entries(databases).map(([database, schemaVersion]) => (
             <option key={database} value={database}>
               {`${database} (${
