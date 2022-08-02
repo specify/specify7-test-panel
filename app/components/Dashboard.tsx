@@ -130,6 +130,7 @@ export function Dashboard({
                 type: 'AddInstanceAction',
                 deployment: {
                   branch: getMostRecentTag(branches),
+                  notes: '',
                   database:
                     getMostCommonElement(
                       state.deployment.map(({ database }) => database)
