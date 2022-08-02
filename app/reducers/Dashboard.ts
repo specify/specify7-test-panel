@@ -25,6 +25,13 @@ type AddInstanceAction = Action<
   }
 >;
 
+type RemoveInstanceAction = Action<
+  'RemoveInstanceAction',
+  {
+    readonly id: number;
+  }
+>;
+
 type ChangeConfigurationAction = Action<
   'ChangeConfigurationAction',
   {
@@ -35,6 +42,7 @@ type ChangeConfigurationAction = Action<
 
 export type Actions =
   | AddInstanceAction
+  | RemoveInstanceAction
   | ChangeConfigurationAction
   | DestroyInstanceAction;
 
@@ -46,6 +54,13 @@ export const reducer = generateReducer<States, Actions>({
   AddInstanceAction: ({ state, action }) => ({
     ...state,
     deployment: [...state.deployment, action.deployment],
+  }),
+  RemoveInstanceAction: ({ state, action }) => ({
+    ...state,
+    deployment: [
+      ...state.deployment.slice(0, action.id),
+      ...state.deployment.slice(action.id + 1),
+    ],
   }),
   ChangeConfigurationAction: ({ state, action }) => ({
     ...state,

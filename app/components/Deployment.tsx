@@ -105,6 +105,16 @@ export function DeploymentLine({
     };
   }, [deployment]);
 
+  const handleChange = (newDeployment: Partial<Deployment>): void =>
+    dispatch({
+      type: 'ChangeConfigurationAction',
+      id: deployment.frontend.id,
+      newState: {
+        ...deployment,
+        ...newDeployment,
+      },
+    });
+
   return (
     <li
       className="flex flex-row gap-x-5 rounded bg-gray-300 p-4"
@@ -139,15 +149,10 @@ export function DeploymentLine({
         required
         style={{ maxWidth: '20vw' }}
         value={deployment.branch}
-        onChange={({ target }) =>
-          dispatch({
-            type: 'ChangeConfigurationAction',
-            id: deployment.frontend.id,
-            newState: {
-              ...deployment,
-              branch: target.value,
-              hostname: undefined,
-            },
+        onChange={({ target }): void =>
+          handleChange({
+            branch: target.value,
+            hostname: undefined,
           })
         }
       >
@@ -185,20 +190,19 @@ export function DeploymentLine({
         languageStrings={languageStrings}
         status={status}
       />
-      <TextBox deployment={deployment} languageStrings={languageStrings} />
+      <TextBox
+        deployment={deployment}
+        languageStrings={languageStrings}
+        onChange={handleChange}
+      />
       <select
         className="rounded-md bg-gray-200 p-2"
         required
         style={{ maxWidth: '10vw' }}
         value={deployment.database}
         onChange={({ target }): void =>
-          dispatch({
-            type: 'ChangeConfigurationAction',
-            id: deployment.frontend.id,
-            newState: {
-              ...deployment,
-              database: target.value,
-            },
+          handleChange({
+            database: target.value,
           })
         }
       >
@@ -218,14 +222,9 @@ export function DeploymentLine({
         required
         style={{ maxWidth: '10vw' }}
         value={deployment.schemaVersion}
-        onChange={({ target }) =>
-          dispatch({
-            type: 'ChangeConfigurationAction',
-            id: deployment.frontend.id,
-            newState: {
-              ...deployment,
-              schemaVersion: target.value,
-            },
+        onChange={({ target }): void =>
+          handleChange({
+            schemaVersion: target.value,
           })
         }
       >
@@ -240,6 +239,12 @@ export function DeploymentLine({
       <DeploymentOptions
         deployment={deployment}
         languageStrings={languageStrings}
+        onDelete={(): void =>
+          dispatch({
+            type: 'RemoveInstanceAction',
+            id: deployment.frontend.id,
+          })
+        }
       />
     </li>
   );
@@ -248,9 +253,11 @@ export function DeploymentLine({
 function TextBox({
   deployment,
   languageStrings,
+  onChange: handleChange,
 }: {
   readonly deployment: Deployment;
   readonly languageStrings: typeof localizationStrings[Language];
+  readonly onChange: (deployment: Partial<Deployment>) => void;
 }): JSX.Element {
   const retrieveRelativeDate = (): string =>
     deployment.accessedAt === undefined
@@ -262,13 +269,14 @@ function TextBox({
     <AutoGrowTextArea
       className="w-80"
       containerClassName="w-80"
-      disabled
       placeholder={
         relativeDate === ''
           ? languageStrings.notes
           : `${languageStrings.lastAccessed} ${relativeDate}`
       }
       rows={1}
+      value={deployment.notes}
+      onChange={({ target }): void => handleChange({ notes: target.value })}
     />
   );
 }

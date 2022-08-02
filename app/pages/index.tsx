@@ -11,6 +11,7 @@ import { getPullRequests } from '../lib/github';
 import type { LocalizationStrings } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
 import { getUserInfo, getUserTokenCookie } from '../lib/user';
+import { text } from 'stream/consumers';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -185,14 +186,21 @@ export default function Index(): JSX.Element {
                   ),
                 })
                   .then(async (response) => {
-                    const data = await response.json();
-                    if (response.status === 200) setState(data);
-                    else
-                      setState(
-                        data.error ?? data ?? 'Unexpected Error Occurred'
-                      );
+                    const textResponse = await response.text();
+                    try {
+                      const jsonResponse = JSON.parse(textResponse);
+                      if (response.status === 200) setState(jsonResponse);
+                      else
+                        setState(
+                          jsonResponse.error ??
+                            jsonResponse ??
+                            'Unexpected Error Occurred'
+                        );
+                    } catch {
+                      setState(textResponse);
+                    }
                   })
-                  .catch(setState);
+                  .catch((error) => setState(error.toString()));
               }}
             />
           )}

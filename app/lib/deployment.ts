@@ -23,6 +23,7 @@ export type Deployment = Partial<DeploymentDetails> & {
   readonly database: string;
   readonly schemaVersion: string;
   readonly wasAutoDeployed: boolean;
+  readonly notes: string;
 };
 
 export type DeploymentWithInfo = Deployment & {
@@ -32,7 +33,7 @@ export type DeploymentWithInfo = Deployment & {
 };
 
 /**
- * Add missing details for newly added deploymenys and update
+ * Add missing details for newly added deployments and update
  * deployedAt for existing deployments that were changed
  */
 export const formalizeState = (
@@ -87,13 +88,15 @@ export async function autoDeployPullRequests(
   const pullRequests = autoDeploy ? await getPullRequests(user) : [];
 
   const trimmedState = autoDeploy
-    ? state.filter(({ branch, accessedAt, wasAutoDeployed }) => {
+    ? state.filter(({ branch, accessedAt, wasAutoDeployed, notes = '' }) => {
         const readyForTesting = pullRequests.some(
           ({ headRefName }) => headRefName === branch
         );
+        // Deployments with notes are exempt from cleanup
+        const hasNotes = notes.length > 0;
         const staleLimit = wasAutoDeployed ? staleAfter : customStaleAfter;
         const isStale = Date.now() - accessedAt > staleLimit * 1000;
-        return !isStale && (!wasAutoDeployed || readyForTesting);
+        return hasNotes || (!isStale && (!wasAutoDeployed || readyForTesting));
       })
     : state;
 
@@ -123,6 +126,7 @@ export async function autoDeployPullRequests(
         database,
         schemaVersion,
         wasAutoDeployed: true,
+        notes: '',
       })),
   ]);
 }

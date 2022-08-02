@@ -33,9 +33,14 @@ export function useApi<TYPE>(endpoint: string) {
   return useAsync<{ readonly data: TYPE }>(async () =>
     fetch(endpoint).then(async (response) => {
       if (response.status === 404) throw new Error('API endpoint not found');
-      const state = await response.json();
-      if (response.status === 200) return state;
-      else throw new Error(state.error ?? state ?? 'Unexpected Error Occurred');
+      try {
+        const state = await response.json();
+        if (response.status === 200) return state;
+        else
+          throw new Error(state.error ?? state ?? 'Unexpected Error Occurred');
+      } catch {
+        return await response.text();
+      }
     })
   );
 }
