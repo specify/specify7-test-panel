@@ -61,13 +61,11 @@ export function DeploymentLine({
       setStatus('fetching');
       return;
     }
-    const fetchStatus = (
-      deployment: ActiveDeployment & DeploymentWithInfo
-    ): void => {
+    const fetchStatus = (hostname: string): void => {
       if (destructorCalled) return;
       const timeout = setTimeout(() => setStatus('fetching'), 150);
       fetch(
-        `${document.location.protocol}//${deployment.hostname}.${document.location.hostname}/context/system_info.json`
+        `${document.location.protocol}//${hostname}.${document.location.hostname}/context/system_info.json`
       )
         .then<Status>(async (response) => {
           if (response.status !== 200) return 'unreachable';
@@ -91,19 +89,19 @@ export function DeploymentLine({
           clearTimeout(timeout);
           if (destructorCalled) return;
           setStatus(status);
-          setTimeout(() => fetchStatus(deployment), stateRefreshInterval);
+          setTimeout(() => fetchStatus(hostname), stateRefreshInterval);
         })
         .catch(console.error);
     };
 
-    if (typeof deployment.hostname !== 'undefined')
-      fetchStatus(deployment as ActiveDeployment & DeploymentWithInfo);
+    if (typeof deployment.hostname === 'string')
+      fetchStatus(deployment.hostname);
 
     let destructorCalled = false;
     return () => {
       destructorCalled = true;
     };
-  }, [deployment]);
+  }, [deployment.hostname]);
 
   const handleChange = (newDeployment: Partial<Deployment>): void =>
     dispatch({
