@@ -54,6 +54,7 @@ export function DeploymentLine({
   const [status, setStatus] = React.useState<Status>(undefined);
 
   React.useEffect(() => {
+    if (new URL(window.location.href).searchParams.has('no-fetch')) return;
     const fetchStatus = (deployment: ActiveDeployment & DeploymentWithInfo) => {
       if (destructorCalled) return;
       const timeout = setTimeout(() => setStatus('fetching'), 150);
