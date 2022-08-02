@@ -57,7 +57,6 @@ export default class ErrorBoundary extends React.Component<
     error: { readonly toString: () => string },
     errorInfo: { readonly componentStack: string }
   ): void {
-     
     console.error(error, errorInfo);
     this.setState({
       hasError: true,

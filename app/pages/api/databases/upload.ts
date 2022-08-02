@@ -1,4 +1,4 @@
-import type {Fields, File, Files} from 'formidable';
+import type { Fields, File, Files } from 'formidable';
 import { IncomingForm } from 'formidable';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'node:fs';
@@ -25,11 +25,13 @@ export default async function handler(
 
   const connection = await connectToDatabase();
 
-  const data = (await new Promise<{
+  const data = await new Promise<
+    | {
         readonly fields: Fields;
         readonly files: Files;
       }
-    | string>((resolve, reject) => {
+    | string
+  >((resolve, reject) => {
     const form = new IncomingForm({
       // 4 GB. If changing this value, don't forget to change the panel.conf too
       maxFileSize: 4 * 1024 * 1024 * 1024,
@@ -39,7 +41,7 @@ export default async function handler(
       if (error) reject(error.toString());
       else resolve({ fields, files });
     });
-  }));
+  });
 
   if (typeof data === 'string') return res.status(400).json({ error: data });
 
@@ -73,9 +75,7 @@ export default async function handler(
         .then((listOfFiles) =>
           isTarArchive
             ? listOfFiles
-            : listOfFiles
-                .slice(3, -2)
-                .map((line) => line.split('   ').at(-1)!)
+            : listOfFiles.slice(3, -2).map((line) => line.split('   ').at(-1)!)
         );
       const databaseFilePath = listOfFiles.find((filePath) =>
         filePath.endsWith('.sql')

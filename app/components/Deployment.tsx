@@ -16,13 +16,16 @@ import {
 import { ModalDialog } from './ModalDialog';
 
 type Status =
-  'fetching' | 'unreachable' | {
+  | 'fetching'
+  | 'unreachable'
+  | {
       readonly collection: string;
       readonly discipline: string;
       readonly institution: string;
       readonly schemaVersion: string;
       readonly specifyVersion: string;
-    } | undefined;
+    }
+  | undefined;
 
 export function DeploymentLine({
   deployment,
@@ -38,7 +41,9 @@ export function DeploymentLine({
   readonly schemaVersions: IR<string>;
   readonly databases: IR<string | null>;
   readonly dispatch: (action: Actions) => void;
-  readonly branchesWithPullRequests: RA<Readonly<readonly [string, PullRequest]>>;
+  readonly branchesWithPullRequests: RA<
+    Readonly<readonly [string, PullRequest]>
+  >;
   readonly branchesWithoutPullRequests: RA<string>;
 }): JSX.Element {
   const [status, setStatus] = React.useState<Status>(undefined);
@@ -88,7 +93,7 @@ export function DeploymentLine({
 
   return (
     <li
-      className="gap-x-5 flex flex-row p-4 bg-gray-300 rounded"
+      className="flex flex-row gap-x-5 rounded bg-gray-300 p-4"
       key={deployment.frontend.id}
     >
       <a
@@ -116,7 +121,7 @@ export function DeploymentLine({
         {languageStrings.launch}
       </a>
       <select
-        className="p-2 bg-gray-200 rounded-md"
+        className="rounded-md bg-gray-200 p-2"
         required
         style={{ maxWidth: '20vw' }}
         value={deployment.branch}
@@ -168,7 +173,7 @@ export function DeploymentLine({
         status={status}
       />
       <select
-        className="p-2 bg-gray-200 rounded-md"
+        className="rounded-md bg-gray-200 p-2"
         required
         style={{ maxWidth: '10vw' }}
         value={deployment.database}
@@ -194,7 +199,7 @@ export function DeploymentLine({
         </optgroup>
       </select>
       <select
-        className="p-2 bg-gray-200 rounded-md"
+        className="rounded-md bg-gray-200 p-2"
         required
         style={{ maxWidth: '10vw' }}
         value={deployment.schemaVersion}

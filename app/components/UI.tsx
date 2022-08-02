@@ -5,9 +5,11 @@ export function Centered({
 }: {
   readonly children: React.ReactNode;
 }): JSX.Element {
-  return <div className="flex items-center justify-center flex-grow mb-10">
-    <div className="sm:flex gap-x-5 max-w-2xl mx-5">{children}</div>
-  </div>
+  return (
+    <div className="mb-10 flex flex-grow items-center justify-center">
+      <div className="mx-5 max-w-2xl gap-x-5 sm:flex">{children}</div>
+    </div>
+  );
 }
 
 export const unpaddedContentClassName =

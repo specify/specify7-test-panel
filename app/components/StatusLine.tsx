@@ -20,15 +20,18 @@ export function StatusLineProvider({
   readonly durationOfVisibility?: number;
   readonly children: Readonly<JSX.Element>;
 }): JSX.Element {
-  const [configuration, setConfiguration] =
-    React.useState<StatusLineStatus | undefined>(undefined);
+  const [configuration, setConfiguration] = React.useState<
+    StatusLineStatus | undefined
+  >(undefined);
 
   // eslint-disable-next-line functional/prefer-readonly-type
   const updateStack = React.useRef<StatusLineStatus[]>([]);
-  const lastMessage =
-    React.useRef<StatusLineStatus['message'] | undefined>(undefined);
-  const timeOutId =
-    React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const lastMessage = React.useRef<StatusLineStatus['message'] | undefined>(
+    undefined
+  );
+  const timeOutId = React.useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
 
   if (typeof configuration?.message !== 'undefined')
     lastMessage.current = configuration.message;
@@ -61,15 +64,15 @@ export function StatusLineProvider({
     <StatusLineContext.Provider value={addStatus}>
       {children}
       <div
-        className={`absolute inset-0 w-screen h-screen pointer-events-none
+        className={`pointer-events-none absolute inset-0 h-screen w-screen
         overflow-hidden ${
           typeof lastMessage.current === 'undefined' ? 'hidden' : ''
         }`}
       >
         <div
-          className={`transform absolute bottom-0 left-0
-          motion-safe:transition-transform transition-none duration-100 w-screen
-          pointer-events-auto text-xl ${
+          className={`pointer-events-auto absolute bottom-0 left-0
+          w-screen transform text-xl transition-none
+          duration-100 motion-safe:transition-transform ${
             typeof configuration === 'undefined'
               ? 'translate-y-full'
               : 'translate-y-0'

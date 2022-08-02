@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import {getUser, noCaching} from '../../../../lib/apiUtils';
+import { getUser, noCaching } from '../../../../lib/apiUtils';
 import { connectToDatabase } from '../../../../lib/database';
 import type { RA } from '../../../../lib/typescriptCommonTypes';
 
@@ -24,16 +24,18 @@ export default async function handler(
      FROM ${databaseName}.specifyuser`
     )
     .then(([users]) =>
-      noCaching(res).status(200).send({
-        data: Object.fromEntries(
-          (
-            users as unknown as RA<{
-              readonly SpecifyUserID: string;
-              readonly Name: string;
-            }>
-          ).map(Object.values)
-        ),
-      })
+      noCaching(res)
+        .status(200)
+        .send({
+          data: Object.fromEntries(
+            (
+              users as unknown as RA<{
+                readonly SpecifyUserID: string;
+                readonly Name: string;
+              }>
+            ).map(Object.values)
+          ),
+        })
     )
     .catch((error) => res.status(500).json({ error: error.toString() }));
 }

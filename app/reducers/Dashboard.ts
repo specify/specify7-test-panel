@@ -4,7 +4,10 @@ import { generateReducer } from 'typesafe-reducer';
 import type { DeploymentWithInfo } from '../lib/deployment';
 import type { RA } from '../lib/typescriptCommonTypes';
 
-type MainState = State<'MainState', { readonly deployment: RA<DeploymentWithInfo> }>;
+type MainState = State<
+  'MainState',
+  { readonly deployment: RA<DeploymentWithInfo> }
+>;
 
 export type States = MainState;
 
@@ -31,7 +34,9 @@ type ChangeConfigurationAction = Action<
 >;
 
 export type Actions =
-  AddInstanceAction | ChangeConfigurationAction | DestroyInstanceAction;
+  | AddInstanceAction
+  | ChangeConfigurationAction
+  | DestroyInstanceAction;
 
 export const reducer = generateReducer<States, Actions>({
   DestroyInstanceAction: ({ state, action }) => ({

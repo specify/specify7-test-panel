@@ -11,7 +11,9 @@ export default async function handler(
   if (typeof user === 'undefined') return;
 
   if (request.method !== 'POST')
-    return void res.status(405).json({ error: 'Only POST requests are allowed' });
+    return void res
+      .status(405)
+      .json({ error: 'Only POST requests are allowed' });
 
   const connection = await connectToDatabase();
 

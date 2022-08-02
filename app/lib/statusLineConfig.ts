@@ -15,6 +15,6 @@ export type StatusLineStatus = {
    * message to the stack multiple times
    */
   readonly id: string;
-}
+};
 
 export const statusLineContentClassName = 'block p-5';

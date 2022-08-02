@@ -49,20 +49,20 @@ export default function Index(): JSX.Element {
       title={localizationStrings}
     >
       {(languageStrings, language): JSX.Element => (
-        <div className="flex flex-col flex-1 gap-5">
+        <div className="flex flex-1 flex-col gap-5">
           <Link href="/databases/">
-            <a className="hover:underline text-blue-500">
+            <a className="text-blue-500 hover:underline">
               {commonStrings[language].goBack}
             </a>
           </Link>
           {`${languageStrings.diskUsage} ${
             typeof diskUsage === 'undefined'
               ? commonStrings[language].loading
-              : (typeof diskUsage === 'string'
+              : typeof diskUsage === 'string'
               ? diskUsage
               : `${bytesToMb(diskUsage.data.free)}/${bytesToMb(
                   diskUsage.data.size
-                )}${languageStrings.mb}`)
+                )}${languageStrings.mb}`
           }`}
           <h1 className="text-5xl">{siteInfo[language].title}</h1>
           {isUploading ? (
@@ -73,7 +73,7 @@ export default function Index(): JSX.Element {
               <div>
                 <form
                   action="/api/databases/upload"
-                  className="gap-y-5 inline-flex flex-col"
+                  className="inline-flex flex-col gap-y-5"
                   encType="multipart/form-data"
                   method="post"
                   ref={formRef}
@@ -100,10 +100,10 @@ export default function Index(): JSX.Element {
                       }
                     }}
                   />
-                  <label className="gap-y-2 flex flex-col">
+                  <label className="flex flex-col gap-y-2">
                     {languageStrings.databaseName}
                     <input
-                      className="p-2 rounded"
+                      className="rounded p-2"
                       name="databaseName"
                       pattern="[a-zA-Z0-9_]+"
                       required
@@ -119,8 +119,8 @@ export default function Index(): JSX.Element {
                     <p>{languageStrings.notEnoughSpace}</p>
                   ) : undefined}
                   <input
-                    className={`hover:bg-green-800 rounded-xl p-3 bg-green-500
-                    cursor-pointer`}
+                    className={`cursor-pointer rounded-xl bg-green-500 p-3
+                    hover:bg-green-800`}
                     type="submit"
                     value={languageStrings.upload}
                   />

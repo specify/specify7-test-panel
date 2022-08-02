@@ -9,18 +9,20 @@ import { GetUserLanguage } from './LanguageContext';
 function extractTitle(
   language: Language,
   title:
-    LocalizationStrings<{
+    | LocalizationStrings<{
         readonly title: string;
-      }> | string | ((string: Language) => string)
+      }>
+    | string
+    | ((string: Language) => string)
 ): string {
   if (title === '') return siteInfo[language].title;
 
   const titleString =
     typeof title === 'object'
       ? title[language].title
-      : (typeof title === 'function'
+      : typeof title === 'function'
       ? title(language)
-      : title);
+      : title;
 
   return titleString.endsWith(' ')
     ? `${titleString}- ${siteInfo[language].title}`
@@ -38,9 +40,11 @@ export default function Layout<
   localizationStrings,
 }: {
   readonly title:
-    LocalizationStrings<{
+    | LocalizationStrings<{
         readonly title: string;
-      }> | string | ((string: Language) => string);
+      }>
+    | string
+    | ((string: Language) => string);
   readonly children: (
     languageStrings: DEFINITIONS,
     language: Language,
@@ -57,7 +61,7 @@ export default function Layout<
             <link href="/favicon.ico" rel="icon" />
             <meta content="noindex,nofollow" name="robots" />
           </Head>
-          <main className="flex flex-col flex-1 w-full h-screen gap-10 p-8 overflow-auto">
+          <main className="flex h-screen w-full flex-1 flex-col gap-10 overflow-auto p-8">
             {children(
               /*
                * Need to cheat here a little bit if definitions were not

@@ -29,7 +29,7 @@ export function LabeledField({
   readonly children: React.ReactNode;
 }): JSX.Element {
   return (
-    <label className="first:border-none flex flex-col">
+    <label className="flex flex-col first:border-none">
       <span className="pb-1 text-sm">{label}</span>
       <span className={fieldClassName}>{children}</span>
     </label>

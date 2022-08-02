@@ -3,7 +3,10 @@ import React from 'react';
 export function useAsync<Type>(
   callback: () => Promise<Type>
 ): Readonly<
-  readonly [Type | string | undefined, (value: Type | string | undefined) => void]
+  readonly [
+    Type | string | undefined,
+    (value: Type | string | undefined) => void
+  ]
 > {
   const [value, setValue] = React.useState<Type | string | undefined>(
     undefined

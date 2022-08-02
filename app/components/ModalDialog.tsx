@@ -33,21 +33,21 @@ export function ModalDialog({
         portalClassName={`${className}`}
         shouldCloseOnEsc={typeof handleClose === 'function'}
       >
-        <div className="w-auto w-1/2 m-auto bg-white shadow-xl">
+        <div className="m-auto w-auto w-1/2 bg-white shadow-xl">
           <div
-            className={`bg-gray-50 p-4 flex justify-between
-          items-center`}
+            className={`flex items-center justify-between bg-gray-50
+          p-4`}
           >
             <h3 className="text-lg text-gray-900">{title}</h3>
             {handleClose && (
               <div
-                className={`flex items-center justify-center
-                rounded-full bg-red-100 sm:h-10 sm:w-10
-                cursor-pointer`}
+                className={`flex cursor-pointer items-center
+                justify-center rounded-full bg-red-100 sm:h-10
+                sm:w-10`}
                 onClick={handleClose}
               >
                 <svg
-                  className="w-6 h-6 text-red-600"
+                  className="h-6 w-6 text-red-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -64,12 +64,12 @@ export function ModalDialog({
             )}
           </div>
           <div
-            className="p-4 overflow-auto text-sm text-gray-500"
+            className="overflow-auto p-4 text-sm text-gray-500"
             style={{ maxHeight: '80vh' }}
           >
             {children}
           </div>
-          <div className="bg-gray-50 gap-x-2 flex justify-end p-4">
+          <div className="flex justify-end gap-x-2 bg-gray-50 p-4">
             {buttons}
           </div>
         </div>

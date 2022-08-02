@@ -33,12 +33,12 @@ export default function ErrorPage({
       ): JSX.Element => (
         <Centered>
           <div className="text-center">
-            <h1 className="text-9xl py-2 text-indigo-300">{errorCode}</h1>
+            <h1 className="py-2 text-9xl text-indigo-300">{errorCode}</h1>
             <h2>{languageStrings.header}</h2>
             <p>
               {languageStrings.message}
               <Link href="/">
-                <a className="hover:text-black block pt-10 text-red-400 transition">
+                <a className="block pt-10 text-red-400 transition hover:text-black">
                   {languageStrings.returnToHomePage}
                 </a>
               </Link>

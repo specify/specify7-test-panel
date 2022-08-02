@@ -49,11 +49,13 @@ export function Dashboard({
   );
 
   const branchesWithPullRequests = pairedBranches.filter(
-    (entry): entry is readonly [string, PullRequest] => typeof entry[1] !== 'undefined'
+    (entry): entry is readonly [string, PullRequest] =>
+      typeof entry[1] !== 'undefined'
   );
   const branchesWithoutPullRequests = pairedBranches
     .filter(
-      (entry): entry is readonly [string, PullRequest] => typeof entry[1] === 'undefined'
+      (entry): entry is readonly [string, PullRequest] =>
+        typeof entry[1] === 'undefined'
     )
     .map(([branch]) => branch);
 
@@ -86,7 +88,7 @@ export function Dashboard({
 
   return (
     <>
-      <div className="flex flex-col flex-1 gap-5">
+      <div className="flex flex-1 flex-col gap-5">
         <h1 className="text-5xl">{siteInfo[language].title}</h1>
         <form id="dashboard">
           {readyForTesting.deployments.length > 0 && (
@@ -113,7 +115,7 @@ export function Dashboard({
           <button
             className={`${successButtonClassName} ${
               Object.keys(databases).length === 0
-                ? 'bg-green-900 cursor-not-allowed hover:bg-green-900'
+                ? 'cursor-not-allowed bg-green-900 hover:bg-green-900'
                 : ''
             }`}
             disabled={Object.keys(databases).length === 0}
@@ -146,16 +148,14 @@ export function Dashboard({
         )}
         <span className="flex-1" />
         <button
-            className={`${successButtonClassName} ${
-              hasChanges ? '' : 'sr-only'
-            }`}
-            disabled={!hasChanges}
-            form="dashboard"
-            type="submit"
-            onClick={() => handleSave(state.deployment)}
-          >
-            {languageStrings.saveChanges}
-          </button>
+          className={`${successButtonClassName} ${hasChanges ? '' : 'sr-only'}`}
+          disabled={!hasChanges}
+          form="dashboard"
+          type="submit"
+          onClick={() => handleSave(state.deployment)}
+        >
+          {languageStrings.saveChanges}
+        </button>
       </div>
     </>
   );

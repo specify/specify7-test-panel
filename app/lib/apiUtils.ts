@@ -42,10 +42,10 @@ export async function fileExists(path: string) {
 export async function run(command: string): Promise<string> {
   return new Promise((resolve, reject) =>
     exec(command, (error, stdout, stderr) =>
-      error ? reject(error) : (stderr ? reject(stderr) : resolve(stdout))
+      error ? reject(error) : stderr ? reject(stderr) : resolve(stdout)
     )
   );
 }
 
-export const noCaching = (res:NextApiResponse): NextApiResponse =>
+export const noCaching = (res: NextApiResponse): NextApiResponse =>
   res.setHeader('Cache-Control', 'no-store');

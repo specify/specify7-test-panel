@@ -72,13 +72,14 @@ ${deployments
   )
   .join('\n\n')}
 
-${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)), (specifyVersion) => `
+${Array.from(
+  new Set(deployments.map(({ schemaVersion }) => schemaVersion)),
+  (specifyVersion) => `
   specify${specifyVersion}:
     image: specifyconsortium/specify6-service:${specifyVersion}
     volumes:
       - "specify${specifyVersion}:/volumes/Specify"`
-  )
-  .join('\n\n')}
+).join('\n\n')}
 
   nginx:
     environment:
@@ -90,10 +91,11 @@ ${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)), (sp
       - "${hostname}-static-files:/volumes/${hostname}-static-files:ro"`
       )
       .join('')}
-    ${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)), (specifyVersion) => `
+    ${Array.from(
+      new Set(deployments.map(({ schemaVersion }) => schemaVersion)),
+      (specifyVersion) => `
       - "specify${specifyVersion}:/volumes/specify${specifyVersion}:ro"`
-      )
-      .join('')}
+    ).join('')}
 
 volumes:
 ${deployments
@@ -102,7 +104,8 @@ ${deployments
   ${hostname}-static-files:`
   )
   .join('')}
-    ${Array.from(new Set(deployments.map(({ schemaVersion }) => schemaVersion)), (specifyVersion) => `
+    ${Array.from(
+      new Set(deployments.map(({ schemaVersion }) => schemaVersion)),
+      (specifyVersion) => `
   specify${specifyVersion}:`
-      )
-      .join('')}`;
+    ).join('')}`;

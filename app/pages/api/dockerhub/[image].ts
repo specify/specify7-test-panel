@@ -19,7 +19,7 @@ export const getTags = async (image: string): Promise<IR<string>> =>
             .filter(({ name }) => !name.startsWith('sha-'))
             .map(({ name, last_updated }) => [name, last_updated])
             .sort(([nameLeft], [nameRight]) =>
-              nameLeft < nameRight ? -1 : (nameLeft === nameRight ? 0 : 1)
+              nameLeft < nameRight ? -1 : nameLeft === nameRight ? 0 : 1
             )
         )
     );

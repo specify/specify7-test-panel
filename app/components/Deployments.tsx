@@ -22,11 +22,13 @@ export function Deployments({
   readonly schemaVersions: IR<string>;
   readonly databases: IR<string | null>;
   readonly dispatch: (action: Actions) => void;
-  readonly branchesWithPullRequests: RA<Readonly<readonly [string, PullRequest]>>;
+  readonly branchesWithPullRequests: RA<
+    Readonly<readonly [string, PullRequest]>
+  >;
   readonly branchesWithoutPullRequests: RA<string>;
 }): JSX.Element {
   return (
-    <ul className="gap-y-5 flex flex-col mt-4">
+    <ul className="mt-4 flex flex-col gap-y-5">
       {deployments.map((deployment) => (
         <DeploymentLine
           branchesWithoutPullRequests={branchesWithoutPullRequests}

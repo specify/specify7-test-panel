@@ -20,7 +20,11 @@ export type PullRequest = {
           readonly commit: {
             readonly statusCheckRollup?: {
               readonly state:
-                'ERROR' | 'EXPECTED' | 'FAILURE' | 'PENDING' | 'SUCCESS';
+                | 'ERROR'
+                | 'EXPECTED'
+                | 'FAILURE'
+                | 'PENDING'
+                | 'SUCCESS';
             };
           };
         }
@@ -188,7 +192,9 @@ const filterPullRequests = (
           )
       );
 
-      const isAssignedToTargetTeamMember = Boolean(pendingUserReviews.length - pendingNonTargetTeamMemberReviews.length);
+      const isAssignedToTargetTeamMember = Boolean(
+        pendingUserReviews.length - pendingNonTargetTeamMemberReviews.length
+      );
 
       const pendingTeamReviews = reviewRequests.nodes
         .map(
@@ -210,7 +216,9 @@ const filterPullRequests = (
         (teamName) => !targetTeams.includes(teamName)
       );
 
-      const isAssignedToTargetTeam = Boolean(pendingTeamReviews.length - pendingNonTargetTeamReviews.length);
+      const isAssignedToTargetTeam = Boolean(
+        pendingTeamReviews.length - pendingNonTargetTeamReviews.length
+      );
 
       return (
         (isAssignedToTargetTeam || isAssignedToTargetTeamMember) &&

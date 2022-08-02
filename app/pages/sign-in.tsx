@@ -92,9 +92,9 @@ export default function SignIn({
           <Centered>
             <div>
               <h1 className="text-5xl">{siteInfo[language].title}</h1>
-              <div className="flex-column gap-y-1 flex pt-4">
+              <div className="flex-column flex gap-y-1 pt-4">
                 <a
-                  className="hover:bg-white box-content w-full p-4 bg-gray-300 border border-gray-400"
+                  className="box-content w-full border border-gray-400 bg-gray-300 p-4 hover:bg-white"
                   href={signInUrl}
                 >
                   {languageStrings.signInWithGitHub}

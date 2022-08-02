@@ -142,7 +142,7 @@ export default function Index(): JSX.Element {
           typeof databases === 'undefined' ||
           typeof pullRequests === 'undefined' ? (
             <Loading />
-          ) : (typeof state === 'string' ||
+          ) : typeof state === 'string' ||
             typeof schemaVersions === 'string' ||
             typeof branches === 'string' ||
             typeof databases === 'string' ||
@@ -183,7 +183,7 @@ export default function Index(): JSX.Element {
                   .catch(setState);
               }}
             />
-          ))}
+          )}
         </FilterUsers>
       )}
     </Layout>

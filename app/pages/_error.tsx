@@ -9,7 +9,7 @@ const error = ({ statusCode }: InitialProps): JSX.Element => (
 
 type InitialProps = {
   readonly statusCode: number;
-}
+};
 
 const DEFAULT_ERROR_CODE = 404;
 

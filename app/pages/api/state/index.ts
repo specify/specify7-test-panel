@@ -2,11 +2,12 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { nginxConfDirectory as nginxConfigDirectory,stateDirectory } from '../../../const/siteConfig';
-import {fileExists, getUser, noCaching} from '../../../lib/apiUtils';
-import type {
-  ActiveDeployment,
-  Deployment} from '../../../lib/deployment';
+import {
+  nginxConfDirectory as nginxConfigDirectory,
+  stateDirectory,
+} from '../../../const/siteConfig';
+import { fileExists, getUser, noCaching } from '../../../lib/apiUtils';
+import type { ActiveDeployment, Deployment } from '../../../lib/deployment';
 import {
   autoDeployPullRequests,
   formalizeState,
@@ -38,7 +39,8 @@ const getHash = (string: string): number =>
   string
     .split('')
     .reduce(
-      (previousHash, currentValue) => (previousHash << 5) - previousHash + currentValue.charCodeAt(0),
+      (previousHash, currentValue) =>
+        (previousHash << 5) - previousHash + currentValue.charCodeAt(0),
       0
     );
 
