@@ -37,6 +37,7 @@ export const localizationStrings: LocalizationStrings<{
   readonly serverName: (index: number) => string;
   readonly uploadDatabasesFirst: string;
   readonly corruptDatabase: string;
+  readonly lastAccessed: string;
 }> = {
   'en-US': {
     title: 'Dashboard',
@@ -65,6 +66,7 @@ export const localizationStrings: LocalizationStrings<{
     uploadDatabasesFirst: 'Upload database first',
     schemaVersion: 'Schema Version',
     corruptDatabase: 'corrupt database',
+    lastAccessed: 'Last accessed',
   },
 };
 

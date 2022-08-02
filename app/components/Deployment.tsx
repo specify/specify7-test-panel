@@ -1,9 +1,14 @@
 import React from 'react';
 
 import { stateRefreshInterval } from '../const/siteConfig';
-import type { ActiveDeployment, DeploymentWithInfo } from '../lib/deployment';
+import type {
+  ActiveDeployment,
+  Deployment,
+  DeploymentWithInfo,
+} from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
 import { trimString } from '../lib/helpers';
+import { getRelativeDate } from '../lib/internationalization';
 import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
 import type { localizationStrings } from '../pages';
@@ -150,7 +155,7 @@ export function DeploymentLine({
           ))}
         </optgroup>
       </select>
-      <div className="flex items-center">
+      <div className="flex flex-1 items-center">
         <p>
           {branchesWithoutPullRequests.includes(deployment.branch)
             ? languageStrings.serverName(deployment.frontend.id + 1)
@@ -166,7 +171,7 @@ export function DeploymentLine({
               ))[0]}
         </p>
       </div>
-      <span className="flex-1" />
+      <TextBox deployment={deployment} languageStrings={languageStrings} />
       <StatusIndicator
         deployment={deployment}
         languageStrings={languageStrings}
@@ -224,6 +229,28 @@ export function DeploymentLine({
         </optgroup>
       </select>
     </li>
+  );
+}
+
+function TextBox({
+  deployment,
+  languageStrings,
+}: {
+  readonly deployment: Deployment;
+  readonly languageStrings: typeof localizationStrings[Language];
+}): JSX.Element {
+  const retrieveRelativeDate = (): string =>
+    deployment.accessedAt === undefined
+      ? ''
+      : getRelativeDate(new Date(deployment.accessedAt));
+  const [relativeDate] = React.useState(retrieveRelativeDate);
+
+  return (
+    <textarea
+      className="w-80 resize-none rounded-md bg-gray-200 p-2"
+      placeholder={`${languageStrings.lastAccessed} ${relativeDate}`}
+      disabled
+    />
   );
 }
 

@@ -81,20 +81,21 @@ const canonicalizeToken = (string: string): string =>
 
 export async function autoDeployPullRequests(
   state: RA<ActiveDeployment>,
-  user: User
+  user: User,
+  autoDeploy: boolean
 ): Promise<RA<ActiveDeployment>> {
-  const pullRequests = await getPullRequests(user);
+  const pullRequests = autoDeploy ? await getPullRequests(user) : [];
 
-  const trimmedState = state.filter(
-    ({ branch, accessedAt, wasAutoDeployed }) => {
-      const readyForTesting = pullRequests.some(
-        ({ headRefName }) => headRefName === branch
-      );
-      const staleLimit = wasAutoDeployed ? staleAfter : customStaleAfter;
-      const isStale = Date.now() - accessedAt > staleLimit * 1000;
-      return !isStale && (!wasAutoDeployed || readyForTesting);
-    }
-  );
+  const trimmedState = autoDeploy
+    ? state.filter(({ branch, accessedAt, wasAutoDeployed }) => {
+        const readyForTesting = pullRequests.some(
+          ({ headRefName }) => headRefName === branch
+        );
+        const staleLimit = wasAutoDeployed ? staleAfter : customStaleAfter;
+        const isStale = Date.now() - accessedAt > staleLimit * 1000;
+        return !isStale && (!wasAutoDeployed || readyForTesting);
+      })
+    : state;
 
   const database =
     getMostCommonElement(state.map(({ database }) => database)) ??

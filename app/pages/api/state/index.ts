@@ -47,11 +47,13 @@ const getHash = (string: string): number =>
 export async function setState(
   deployments: RA<Deployment>,
   user: User,
-  origin: string
+  origin: string,
+  autoDeploy = true
 ): Promise<RA<ActiveDeployment>> {
   const state = await autoDeployPullRequests(
     formalizeState(deployments, await getState()),
-    user
+    user,
+    autoDeploy
   );
 
   await fs.promises.writeFile(configurationFile, JSON.stringify(state));
