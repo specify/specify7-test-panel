@@ -5,7 +5,7 @@ export const repository = 'specify7';
 export const targetTeams = ['UX Testing'];
 
 // Don't allow more than 6 simultaneous instances
-export const maxDeployments = 6;
+export const maxDeployments = 9;
 
 // Auto deployed instances may be garbage collected after 2 days
 export const staleAfter = 60 * 60 * 24 * 2;

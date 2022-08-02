@@ -17,8 +17,6 @@ export function ModalDialog({
 }): JSX.Element {
   const { className } = css.resolve``;
 
-  Modal.setAppElement('#__next');
-
   return (
     <div className="modal-root contents">
       <Modal
@@ -31,6 +29,7 @@ export function ModalDialog({
           justify-center bg-shadow transition-opacity
         `}
         portalClassName={`${className}`}
+        shouldCloseOnOverlayClick={typeof handleClose === 'function'}
         shouldCloseOnEsc={typeof handleClose === 'function'}
       >
         <div className="m-auto w-auto w-1/2 bg-white shadow-xl">
