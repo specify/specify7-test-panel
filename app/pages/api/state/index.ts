@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { stateDirectory, nginxConfDirectory } from '../../../const/siteConfig';
-import { fileExists, getUser } from '../../../lib/apiUtils';
+import {fileExists, getUser, noCaching} from '../../../lib/apiUtils';
 import path from 'path';
 import fs from 'fs';
 import {
@@ -90,10 +90,10 @@ export default async function handler(
 
     const state = await setState(request, user, origin);
 
-    res.status(200).json({ data: state });
+    noCaching(res).status(200).json({ data: state });
   } else if (req.method === 'GET')
     await getState()
-      .then((data) => res.status(200).json({ data }))
+      .then((data) => noCaching(res).status(200).json({ data }))
       .catch((error) => res.status(500).json({ error: error.toString() }));
   else
     return res.status(400).json({

@@ -44,3 +44,6 @@ export async function run(command: string): Promise<string> {
     )
   );
 }
+
+export const noCaching = (res:NextApiResponse): NextApiResponse =>
+  res.setHeader('Cache-Control', 'no-store');

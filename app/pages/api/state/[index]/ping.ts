@@ -2,10 +2,10 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getUser } from '../../../../lib/apiUtils';
 import { getState, setState } from '../index';
 
-/*
+/**
  * Update the accessedAt time for an instance when clicking the "Launch" button
  * to prevent it from getting garbage collected
- * */
+ */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse

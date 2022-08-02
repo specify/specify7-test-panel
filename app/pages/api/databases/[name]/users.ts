@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getUser } from '../../../../lib/apiUtils';
+import {getUser, noCaching} from '../../../../lib/apiUtils';
 import { connectToDatabase } from '../../../../lib/database';
 import { RA } from '../../../../lib/typescriptCommonTypes';
 
@@ -23,7 +23,7 @@ export default async function handler(
      FROM ${databaseName}.specifyuser`
     )
     .then(([users]) =>
-      res.status(200).send({
+      noCaching(res).status(200).send({
         data: Object.fromEntries(
           (
             users as unknown as RA<{

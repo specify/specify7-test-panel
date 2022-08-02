@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getUser } from '../../../lib/apiUtils';
+import {getUser, noCaching} from '../../../lib/apiUtils';
 import { connectToDatabase } from '../../../lib/database';
 import type { IR, RA } from '../../../lib/typescriptCommonTypes';
 
@@ -57,7 +57,7 @@ export default async function handler(
 
   await getDatabases()
     .then((databases) =>
-      res.status(200).send({
+      noCaching(res).status(200).send({
         data: databases,
       })
     )
