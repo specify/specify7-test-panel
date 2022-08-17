@@ -87,10 +87,10 @@ export function Dashboard({
     JSON.stringify(initialState) !== JSON.stringify(state.deployment);
 
   return (
-    <>
+    <div className="flex h-screen w-full flex-col gap-10 overflow-hidden">
       <div className="flex flex-1 flex-col gap-5">
         <h1 className="text-5xl">{siteInfo[language].title}</h1>
-        <form id="dashboard">
+        <form id="dashboard" className="flex-1 overflow-y-auto">
           {readyForTesting.deployments.length > 0 && (
             <>
               <h2 className="text-2xl">{languageStrings.readyForTesting}</h2>
@@ -158,6 +158,6 @@ export function Dashboard({
           {languageStrings.saveChanges}
         </button>
       </div>
-    </>
+    </div>
   );
 }
