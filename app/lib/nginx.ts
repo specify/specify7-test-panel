@@ -18,7 +18,8 @@ server {
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 5m;
     ssl_prefer_server_ciphers on;
-    client_max_body_size 128M;
+    proxy_read_timeout 300s;
+    client_max_body_size 0;
 
 
     location /static/ {
