@@ -177,6 +177,14 @@ docker-compose \
   up --remove-orphans
 ```
 
+> This will deploy the development server and the deployments configured
+> in the test panel. If there is no need to start the configured
+> deployments, omit the `-f state/docker-compose.yml \ ` line from above.
+> 
+> If deployments, are not started, there would be a lot of errors in the dev
+> console in the test panel. You can silence those by disabling deployment
+> status fetching by adding "?no-fetch" to the url (https://localhost/?no-fetch)
+
 Test Panel is now available at [https://localhost/](https://localhost/)
 
 Next.JS has hot-reload enabled, so code changes are reflected in realtime.
