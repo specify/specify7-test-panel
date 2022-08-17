@@ -25,6 +25,31 @@ export const trimString = (string: string, maxLength: number): string =>
     ? string
     : `${string.slice(0, Math.max(0, maxLength - 3)).trim()}...`;
 
+/** Split array in half according to a discriminator function */
+export const split = <LEFT_ITEM, RIGHT_ITEM = LEFT_ITEM>(
+  array: RA<LEFT_ITEM | RIGHT_ITEM>,
+  // If returns true, item would go to the right array
+  discriminator: (
+    item: LEFT_ITEM | RIGHT_ITEM,
+    index: number,
+    array: RA<LEFT_ITEM | RIGHT_ITEM>
+  ) => boolean
+): readonly [left: RA<LEFT_ITEM>, right: RA<RIGHT_ITEM>] =>
+  array
+    .map((item, index) => [item, discriminator(item, index, array)] as const)
+    .reduce<
+      readonly [
+        left: RA<LEFT_ITEM | RIGHT_ITEM>,
+        right: RA<LEFT_ITEM | RIGHT_ITEM>
+      ]
+    >(
+      ([left, right], [item, isRight]) => [
+        [...left, ...(isRight ? [] : [item])],
+        [...right, ...(isRight ? [item] : [])],
+      ],
+      [[], []]
+    ) as readonly [left: RA<LEFT_ITEM>, right: RA<RIGHT_ITEM>];
+
 export function getUniqueName(name: string, usedNames: RA<string>): string {
   if (!usedNames.includes(name)) return name;
   const suffix = / \((\d+)\)$/u.exec(name);

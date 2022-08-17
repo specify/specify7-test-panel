@@ -1,12 +1,12 @@
 import {
   customStaleAfter,
-  maxDeployments,
+  maxAutoDeployments,
   staleAfter,
 } from '../const/siteConfig';
 import { getDatabases } from '../pages/api/databases';
 import { getTags } from '../pages/api/dockerhub/[image]';
 import { getPullRequests } from './github';
-import { getMostCommonElement, getUniqueName } from './helpers';
+import { getMostCommonElement, getUniqueName, split } from './helpers';
 import type { RA } from './typescriptCommonTypes';
 import type { User } from './user';
 
@@ -40,8 +40,7 @@ export const formalizeState = (
   state: RA<Deployment>,
   originalState?: RA<Deployment>
 ): RA<ActiveDeployment> =>
-  state
-    .slice(0, maxDeployments)
+  limitAutoDeployments(state)
     .map<ActiveDeployment>((deployment) => ({
       deployedAt: Date.now(),
       accessedAt: Date.now(),
@@ -71,6 +70,14 @@ export const formalizeState = (
       ],
       []
     );
+
+function limitAutoDeployments(deployments: RA<Deployment>): RA<Deployment> {
+  const [manual, automatic] = split(
+    deployments,
+    ({ wasAutoDeployed }) => wasAutoDeployed
+  );
+  return [...manual, ...automatic.slice(0, maxAutoDeployments)];
+}
 
 const generateHostname = ({ branch, database }: Deployment): string =>
   `${canonicalizeToken(database) || 'database'}-${
@@ -120,7 +127,6 @@ export async function autoDeployPullRequests(
       .filter(({ headRefName }) =>
         trimmedState.every(({ branch }) => branch !== headRefName)
       )
-      .slice(0, maxDeployments - trimmedState.length)
       .map(({ headRefName }) => ({
         branch: headRefName,
         database,

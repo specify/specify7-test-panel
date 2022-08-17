@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
 
-import { maxDeployments } from '../const/siteConfig';
 import siteInfo from '../const/siteInfo';
 import type { DeploymentWithInfo } from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
@@ -111,42 +110,40 @@ export function Dashboard({
         <Link href="/databases/">
           <a className={extraButtonClassName}>{languageStrings.databases}</a>
         </Link>
-        {state.deployment.length < maxDeployments && (
-          <button
-            className={`${successButtonClassName} ${
-              Object.keys(databases).length === 0
-                ? 'cursor-not-allowed bg-green-900 hover:bg-green-900'
-                : ''
-            }`}
-            disabled={Object.keys(databases).length === 0}
-            title={
-              Object.keys(databases).length === 0
-                ? languageStrings.uploadDatabasesFirst
-                : undefined
-            }
-            type="button"
-            onClick={() =>
-              dispatch({
-                type: 'AddInstanceAction',
-                deployment: {
-                  branch: getMostRecentTag(branches),
-                  notes: '',
-                  database:
-                    getMostCommonElement(
-                      state.deployment.map(({ database }) => database)
-                    ) ?? '',
-                  schemaVersion: getMostRecentTag(schemaVersions),
-                  wasAutoDeployed: false,
-                  frontend: {
-                    id: state.deployment.length,
-                  },
+        <button
+          className={`${successButtonClassName} ${
+            Object.keys(databases).length === 0
+              ? 'cursor-not-allowed bg-green-900 hover:bg-green-900'
+              : ''
+          }`}
+          disabled={Object.keys(databases).length === 0}
+          title={
+            Object.keys(databases).length === 0
+              ? languageStrings.uploadDatabasesFirst
+              : undefined
+          }
+          type="button"
+          onClick={(): void =>
+            dispatch({
+              type: 'AddInstanceAction',
+              deployment: {
+                branch: getMostRecentTag(branches),
+                notes: '',
+                database:
+                  getMostCommonElement(
+                    state.deployment.map(({ database }) => database)
+                  ) ?? '',
+                schemaVersion: getMostRecentTag(schemaVersions),
+                wasAutoDeployed: false,
+                frontend: {
+                  id: state.deployment.length,
                 },
-              })
-            }
-          >
-            {languageStrings.addInstance}
-          </button>
-        )}
+              },
+            })
+          }
+        >
+          {languageStrings.addInstance}
+        </button>
         <span className="flex-1" />
         <button
           className={`${successButtonClassName} ${hasChanges ? '' : 'sr-only'}`}

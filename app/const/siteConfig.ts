@@ -4,8 +4,14 @@ export const repository = 'specify7';
 // Auto deploy pull requests assigned for review for these teams
 export const targetTeams = ['UX Testing'];
 
-// Don't allow more than 6 simultaneous instances
-export const maxDeployments = 9;
+/*
+ * Don't allow more than 3 automatic deployments
+ * This prevents overloading the hardware if there are a lot of pending
+ * pull requests
+ * The limit on the number of manual deployments has been removed, thus users
+ * have to exercise caution when creating a lot of deployments.
+ */
+export const maxAutoDeployments = 3;
 
 // Auto deployed instances may be garbage collected after 2 days
 export const staleAfter = 60 * 60 * 24 * 2;
