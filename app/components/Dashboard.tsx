@@ -87,7 +87,7 @@ export function Dashboard({
 
   return (
     <div className="flex h-screen w-full flex-col gap-10 overflow-hidden">
-      <div className="flex flex-1 flex-col gap-5">
+      <div className="flex flex-1 flex-col gap-5 overflow-hidden">
         <h1 className="text-5xl">{siteInfo[language].title}</h1>
         <form id="dashboard" className="flex-1 overflow-y-auto">
           {readyForTesting.deployments.length > 0 && (
