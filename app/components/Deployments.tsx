@@ -7,6 +7,7 @@ import type { IR, RA } from '../lib/typescriptCommonTypes';
 import type { localizationStrings } from '../pages';
 import type { Actions } from '../reducers/Dashboard';
 import { DeploymentLine } from './Deployment';
+import { group } from '../lib/helpers';
 
 export function Deployments({
   languageStrings,
@@ -27,19 +28,29 @@ export function Deployments({
   >;
   readonly branchesWithoutPullRequests: RA<string>;
 }): JSX.Element {
+  const grouped = Array.from(
+    group(deployments.map((deployment) => [deployment.group ?? '', deployment]))
+  ).sort(([leftGroup], [rightGroup]) => leftGroup.localeCompare(rightGroup));
   return (
     <ul className="mt-4 flex flex-col gap-y-5">
-      {deployments.map((deployment) => (
-        <DeploymentLine
-          branchesWithoutPullRequests={branchesWithoutPullRequests}
-          branchesWithPullRequests={branchesWithPullRequests}
-          databases={databases}
-          deployment={deployment}
-          dispatch={dispatch}
-          key={deployment.frontend.id}
-          languageStrings={languageStrings}
-          schemaVersions={schemaVersions}
-        />
+      {grouped.map(([group, deployments]) => (
+        <li>
+          {group}
+          <ul className="mt-4 flex flex-col gap-y-5">
+            {deployments.map((deployment) => (
+              <DeploymentLine
+                branchesWithoutPullRequests={branchesWithoutPullRequests}
+                branchesWithPullRequests={branchesWithPullRequests}
+                databases={databases}
+                deployment={deployment}
+                dispatch={dispatch}
+                key={deployment.frontend.id}
+                languageStrings={languageStrings}
+                schemaVersions={schemaVersions}
+              />
+            ))}
+          </ul>
+        </li>
       ))}
     </ul>
   );

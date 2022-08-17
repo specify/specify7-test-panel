@@ -20,6 +20,14 @@ export const getMostRecentTag = (tags: IR<string>) =>
     new Date(dateLeft).getTime() > new Date(dateRight).getTime() ? -1 : 1
   )[0][0];
 
+/**
+ * In no-fetch more, the deployment status requests are not sent.
+ * Can be enabled by adding '?no-fetch' to the URL
+ * Useful in development to avaoid console errors.
+ */
+export const isNoFetchMode = (): boolean =>
+  new URL(window.location.href).searchParams.has('no-fetch');
+
 export const trimString = (string: string, maxLength: number): string =>
   string.length <= maxLength
     ? string
@@ -71,3 +79,23 @@ export function getUniqueName(name: string, usedNames: RA<string>): string {
 
 export const escapeRegExp = (string: string): string =>
   string.replace(/[$()*+.?[\\\]^{|}]/gu, '\\$&');
+
+/**
+ * Convert an array of [key,value] tuples to a RA<[key, RA<value>]>
+ *
+ * @remarks
+ * KEY doesn't have to be a string. It can be of any time
+ */
+export const group = <KEY, VALUE>(
+  entries: RA<readonly [key: KEY, value: VALUE]>
+): RA<readonly [key: KEY, values: RA<VALUE>]> =>
+  Array.from(
+    entries
+      // eslint-disable-next-line functional/prefer-readonly-type
+      .reduce<Map<KEY, RA<VALUE>>>(
+        (grouped, [key, value]) =>
+          grouped.set(key, [...(grouped.get(key) ?? []), value]),
+        new Map()
+      )
+      .entries()
+  );

@@ -46,6 +46,8 @@ export const localizationStrings: LocalizationStrings<{
   readonly buildDate: string;
   readonly loading: string;
   readonly frozenDeploymentDescription: string;
+  readonly groupName: string;
+  readonly never: string;
 }> = {
   'en-US': {
     title: 'Dashboard',
@@ -85,6 +87,8 @@ export const localizationStrings: LocalizationStrings<{
     frozenDeploymentDescription:
       'This deployment is frozen to prevent accidental changes.\n' +
       'You can unfreeze it by clearing the deployment notes field',
+    groupName: 'Group Name',
+    never: 'never',
   },
 };
 
@@ -201,7 +205,7 @@ function Wrapper({
       languageStrings={languageStrings}
       pullRequests={pullRequests}
       schemaVersions={schemaVersions.data}
-      onSave={async (newState) => {
+      onSave={(newState): void => {
         setState(undefined);
         fetch('/api/state', {
           method: 'POST',

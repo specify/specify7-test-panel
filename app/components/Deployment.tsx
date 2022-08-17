@@ -3,7 +3,7 @@ import React from 'react';
 import { stateRefreshInterval } from '../const/siteConfig';
 import type { Deployment, DeploymentWithInfo } from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
-import { trimString } from '../lib/helpers';
+import { isNoFetchMode, trimString } from '../lib/helpers';
 import { getRelativeDate } from '../lib/internationalization';
 import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
@@ -52,8 +52,7 @@ export function DeploymentLine({
   const [status, setStatus] = React.useState<Status>(undefined);
 
   React.useEffect(() => {
-    // Allow disabling fetching. Useful in development
-    if (new URL(window.location.href).searchParams.has('no-fetch')) {
+    if (isNoFetchMode()) {
       setStatus('fetching');
       return;
     }
@@ -244,6 +243,7 @@ export function DeploymentLine({
       <DeploymentOptions
         deployment={deployment}
         languageStrings={languageStrings}
+        onChange={handleChange}
         onDelete={(): void =>
           dispatch({
             type: 'RemoveInstanceAction',

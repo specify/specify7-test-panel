@@ -24,6 +24,7 @@ export type Deployment = Partial<DeploymentDetails> & {
   readonly schemaVersion: string;
   readonly wasAutoDeployed: boolean;
   readonly notes: string;
+  readonly group?: string;
 };
 
 export type DeploymentWithInfo = Deployment & {

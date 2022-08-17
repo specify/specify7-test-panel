@@ -7,34 +7,43 @@ import { DateElement } from './DateElement';
 import { icons } from './Icons';
 import {
   dangerButtonClassName,
-  disabledButtonClassName,
   infoButtonClassName,
 } from './InteractivePrimitives';
 import { ModalDialog } from './ModalDialog';
 import { useApi } from './useApi';
+import { isNoFetchMode } from '../lib/helpers';
 
 export function DeploymentOptions({
   deployment,
   languageStrings,
+  onChange: handleChange,
   onDelete: handleDelete,
 }: {
   readonly deployment: Deployment;
   readonly languageStrings: typeof localizationStrings[Language];
+  readonly onChange: (deployment: Partial<Deployment>) => void;
   readonly onDelete: () => void;
 }): JSX.Element {
   const [isOpen, setIsOpen] = React.useState(false);
-  const isDisabled = deployment.deployedAt === undefined;
 
   const isFrozen = deployment.notes.length > 0;
   const frozenDescription = isFrozen
     ? languageStrings.frozenDeploymentDescription
     : undefined;
 
+  const [group, setGroup] = React.useState<string | undefined>(
+    deployment.group
+  );
+
+  function handleClose(): void {
+    setIsOpen(false);
+    if (group !== deployment.group) handleChange({ group });
+  }
+
   return (
     <>
       <button
-        className={isDisabled ? disabledButtonClassName : infoButtonClassName}
-        disabled={isDisabled}
+        className={infoButtonClassName}
         type="button"
         onClick={(): void => setIsOpen(true)}
       >
@@ -55,7 +64,7 @@ export function DeploymentOptions({
             <button
               className={infoButtonClassName}
               type="button"
-              onClick={(): void => setIsOpen(false)}
+              onClick={handleClose}
             >
               {languageStrings.close}
             </button>
@@ -63,23 +72,38 @@ export function DeploymentOptions({
         }
         isOpen={isOpen}
         title={deployment.hostname ?? languageStrings.newDeployment}
-        onClose={(): void => setIsOpen(false)}
+        onClose={handleClose}
       >
         <div className="flex flex-col gap-4">
           <label className="flex flex-col gap-2">
             {languageStrings.lastAccessed}
             <div className="rounded-md border bg-gray-200 p-1.5">
-              <DateElement date={deployment.accessedAt} />
+              <DateElement
+                date={deployment.accessedAt}
+                fallback={languageStrings.never}
+              />
             </div>
           </label>
           <label className="flex flex-col gap-2">
             {languageStrings.deployedAt}
             <div className="rounded-md border bg-gray-200 p-1.5">
-              <DateElement date={deployment.deployedAt} />
+              <DateElement
+                date={deployment.deployedAt}
+                fallback={languageStrings.never}
+              />
             </div>
           </label>
+          <label className="flex flex-col gap-2">
+            {languageStrings.groupName}
+            <input
+              type="text"
+              className="rounded-md border bg-gray-200 p-1.5"
+              value={group ?? ''}
+              onChange={({ target }): void => setGroup(target.value)}
+            />
+          </label>
         </div>
-        {typeof deployment.hostname === 'string' && (
+        {typeof deployment.hostname === 'string' && !isNoFetchMode() && (
           <DeploymentBuildDate
             hostname={deployment.hostname}
             languageStrings={languageStrings}
