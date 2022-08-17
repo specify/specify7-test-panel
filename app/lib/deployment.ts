@@ -45,8 +45,8 @@ export const formalizeState = (
     .map<ActiveDeployment>((deployment) => ({
       deployedAt: Date.now(),
       accessedAt: Date.now(),
-      hostname: generateHostname(deployment),
       ...deployment,
+      hostname: generateHostname(deployment),
     }))
     .map((state, index) => ({
       ...state,
