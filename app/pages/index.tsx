@@ -45,6 +45,7 @@ export const localizationStrings: LocalizationStrings<{
   readonly deployedAt: string;
   readonly buildDate: string;
   readonly loading: string;
+  readonly frozenDeploymentDescription: string;
 }> = {
   'en-US': {
     title: 'Dashboard',
@@ -81,6 +82,9 @@ export const localizationStrings: LocalizationStrings<{
     deployedAt: 'Deployed at',
     buildDate: 'Build Date',
     loading: 'Loading...',
+    frozenDeploymentDescription:
+      'This deployment is frozen to prevent accidental changes.\n' +
+      'You can unfreeze it by clearing the deployment notes field',
   },
 };
 

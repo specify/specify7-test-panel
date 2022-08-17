@@ -24,6 +24,12 @@ export function DeploymentOptions({
 }): JSX.Element {
   const [isOpen, setIsOpen] = React.useState(false);
   const isDisabled = deployment.deployedAt === undefined;
+
+  const isFrozen = deployment.notes.length > 0;
+  const frozenDescription = isFrozen
+    ? languageStrings.frozenDeploymentDescription
+    : undefined;
+
   return (
     <>
       <button
@@ -41,6 +47,8 @@ export function DeploymentOptions({
               className={dangerButtonClassName}
               type="button"
               onClick={handleDelete}
+              disabled={isFrozen}
+              title={frozenDescription}
             >
               {languageStrings.remove}
             </button>

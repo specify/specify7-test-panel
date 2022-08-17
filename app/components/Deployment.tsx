@@ -10,13 +10,13 @@ import type { IR, RA } from '../lib/typescriptCommonTypes';
 import type { localizationStrings } from '../pages';
 import type { Actions } from '../reducers/Dashboard';
 import { AutoGrowTextArea } from './AutoGrowTextArea';
+import { DeploymentOptions } from './DeploymentOptions';
 import {
   disabledButtonClassName,
   infoButtonClassName,
   link,
 } from './InteractivePrimitives';
 import { ModalDialog } from './ModalDialog';
-import { DeploymentOptions } from './DeploymentOptions';
 
 type Status =
   | 'fetching'
@@ -109,6 +109,11 @@ export function DeploymentLine({
       },
     });
 
+  const isFrozen = deployment.notes.length > 0;
+  const frozenDescription = isFrozen
+    ? languageStrings.frozenDeploymentDescription
+    : undefined;
+
   return (
     <li
       className="flex flex-row gap-x-5 rounded bg-gray-300 p-4"
@@ -140,6 +145,8 @@ export function DeploymentLine({
       </a>
       <select
         className="rounded-md bg-gray-200 p-2"
+        disabled={isFrozen}
+        title={frozenDescription}
         required
         style={{ maxWidth: '20vw' }}
         value={deployment.branch}
@@ -191,6 +198,8 @@ export function DeploymentLine({
       />
       <select
         className="rounded-md bg-gray-200 p-2"
+        disabled={isFrozen}
+        title={frozenDescription}
         required
         style={{ maxWidth: '10vw' }}
         value={deployment.database}
@@ -213,6 +222,8 @@ export function DeploymentLine({
       </select>
       <select
         className="rounded-md bg-gray-200 p-2"
+        disabled={isFrozen}
+        title={frozenDescription}
         required
         style={{ maxWidth: '10vw' }}
         value={deployment.schemaVersion}
