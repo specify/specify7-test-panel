@@ -8,7 +8,7 @@ import { useApi, useAsync } from '../components/useApi';
 import { stateRefreshInterval } from '../const/siteConfig';
 import type { Deployment } from '../lib/deployment';
 import { getPullRequests } from '../lib/github';
-import type { LocalizationStrings } from '../lib/languages';
+import type { Language, LocalizationStrings } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
 import { getUserInfo, getUserTokenCookie } from '../lib/user';
 
@@ -89,6 +89,27 @@ export const localizationStrings: LocalizationStrings<{
 };
 
 export default function Index(): JSX.Element {
+  return (
+    <Layout
+      localizationStrings={localizationStrings}
+      title={localizationStrings}
+    >
+      {(languageStrings, language): JSX.Element => (
+        <FilterUsers protected>
+          <Wrapper language={language} languageStrings={languageStrings} />
+        </FilterUsers>
+      )}
+    </Layout>
+  );
+}
+
+function Wrapper({
+  languageStrings,
+  language,
+}: {
+  readonly languageStrings: typeof localizationStrings[Language];
+  readonly language: Language;
+}): JSX.Element {
   const [state, setState] = useApi<RA<Deployment>>('/api/state');
   const branches = useApi<IR<string>>('/api/dockerhub/specify7-service')[0];
   const schemaVersions = useApi<IR<string>>(
@@ -152,71 +173,59 @@ export default function Index(): JSX.Element {
       destructorCalled = true;
     };
   }, [state]);
-
-  return (
-    <Layout
-      localizationStrings={localizationStrings}
-      title={localizationStrings}
-    >
-      {(languageStrings, language): JSX.Element => (
-        <FilterUsers protected>
-          {typeof state === 'undefined' ||
-          typeof schemaVersions === 'undefined' ||
-          typeof branches === 'undefined' ||
-          typeof databases === 'undefined' ||
-          typeof pullRequests === 'undefined' ? (
-            <Loading />
-          ) : typeof state === 'string' ||
-            typeof schemaVersions === 'string' ||
-            typeof branches === 'string' ||
-            typeof databases === 'string' ||
-            typeof pullRequests === 'string' ? (
-            <ModalDialog title={languageStrings.title}>
-              {[state, schemaVersions, branches, databases, pullRequests].find(
-                (value): value is string => typeof value === 'string'
-              )}
-            </ModalDialog>
-          ) : (
-            <Dashboard
-              branches={branches.data}
-              databases={databases.data}
-              initialState={state.data.map((deployment, id) => ({
-                ...deployment,
-                frontend: { id },
-              }))}
-              language={language}
-              languageStrings={languageStrings}
-              pullRequests={pullRequests}
-              schemaVersions={schemaVersions.data}
-              onSave={async (newState) => {
-                setState(undefined);
-                fetch('/api/state', {
-                  method: 'POST',
-                  body: JSON.stringify(
-                    newState.map(({ frontend: _, ...rest }) => rest)
-                  ),
-                })
-                  .then(async (response) => {
-                    const textResponse = await response.text();
-                    try {
-                      const jsonResponse = JSON.parse(textResponse);
-                      if (response.status === 200) setState(jsonResponse);
-                      else
-                        setState(
-                          jsonResponse.error ??
-                            jsonResponse ??
-                            'Unexpected Error Occurred'
-                        );
-                    } catch {
-                      setState(textResponse);
-                    }
-                  })
-                  .catch((error) => setState(error.toString()));
-              }}
-            />
-          )}
-        </FilterUsers>
+  return typeof state === 'undefined' ||
+    typeof schemaVersions === 'undefined' ||
+    typeof branches === 'undefined' ||
+    typeof databases === 'undefined' ||
+    typeof pullRequests === 'undefined' ? (
+    <Loading />
+  ) : typeof state === 'string' ||
+    typeof schemaVersions === 'string' ||
+    typeof branches === 'string' ||
+    typeof databases === 'string' ||
+    typeof pullRequests === 'string' ? (
+    <ModalDialog title={languageStrings.title}>
+      {[state, schemaVersions, branches, databases, pullRequests].find(
+        (value): value is string => typeof value === 'string'
       )}
-    </Layout>
+    </ModalDialog>
+  ) : (
+    <Dashboard
+      branches={branches.data}
+      databases={databases.data}
+      initialState={state.data.map((deployment, id) => ({
+        ...deployment,
+        frontend: { id },
+      }))}
+      language={language}
+      languageStrings={languageStrings}
+      pullRequests={pullRequests}
+      schemaVersions={schemaVersions.data}
+      onSave={async (newState) => {
+        setState(undefined);
+        fetch('/api/state', {
+          method: 'POST',
+          body: JSON.stringify(
+            newState.map(({ frontend: _, ...rest }) => rest)
+          ),
+        })
+          .then(async (response) => {
+            const textResponse = await response.text();
+            try {
+              const jsonResponse = JSON.parse(textResponse);
+              if (response.status === 200) setState(jsonResponse);
+              else
+                setState(
+                  jsonResponse.error ??
+                    jsonResponse ??
+                    'Unexpected Error Occurred'
+                );
+            } catch {
+              setState(textResponse);
+            }
+          })
+          .catch((error) => setState(error.toString()));
+      }}
+    />
   );
 }
