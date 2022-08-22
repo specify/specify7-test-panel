@@ -4,7 +4,7 @@ import {
   staleAfter,
 } from '../const/siteConfig';
 import { getDatabases } from '../pages/api/databases';
-import { getTags } from '../pages/api/dockerhub/[image]';
+import { fetchTagsForImage } from '../pages/api/dockerhub/[image]';
 import { getPullRequests } from './github';
 import { getMostCommonElement, getUniqueName, split } from './helpers';
 import type { RA } from './typescriptCommonTypes';
@@ -117,7 +117,7 @@ export async function autoDeployPullRequests(
     return state;
   }
 
-  const schemaVersions = await getTags('specify6-service');
+  const schemaVersions = await fetchTagsForImage('specify6-service');
   const schemaVersion =
     getMostCommonElement(state.map(({ schemaVersion }) => schemaVersion)) ??
     schemaVersions[0];
