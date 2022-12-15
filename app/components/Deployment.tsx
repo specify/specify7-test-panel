@@ -3,7 +3,7 @@ import React from 'react';
 import { stateRefreshInterval } from '../const/siteConfig';
 import type { Deployment, DeploymentWithInfo } from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
-import { isNoFetchMode, trimString } from '../lib/helpers';
+import { isNoFetchMode, split, trimString } from '../lib/helpers';
 import { getRelativeDate } from '../lib/internationalization';
 import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
@@ -17,6 +17,7 @@ import {
   link,
 } from './InteractivePrimitives';
 import { ModalDialog } from './ModalDialog';
+import { Branch, isStale } from './Deployments';
 
 type Status =
   | 'fetching'
@@ -36,18 +37,14 @@ export function DeploymentLine({
   schemaVersions,
   databases,
   dispatch,
-  branchesWithPullRequests,
-  branchesWithoutPullRequests,
+  branches,
 }: {
   readonly deployment: DeploymentWithInfo;
   readonly languageStrings: typeof localizationStrings[Language];
   readonly schemaVersions: IR<string>;
   readonly databases: RA<Database>;
   readonly dispatch: (action: Actions) => void;
-  readonly branchesWithPullRequests: RA<
-    Readonly<readonly [string, PullRequest]>
-  >;
-  readonly branchesWithoutPullRequests: RA<string>;
+  readonly branches: RA<Branch>;
 }): JSX.Element {
   const [status, setStatus] = React.useState<Status>(undefined);
 
@@ -113,9 +110,20 @@ export function DeploymentLine({
     ? languageStrings.frozenDeploymentDescription
     : undefined;
 
+  const branchesWithPullRequests = branches.filter(
+    ({ pullRequest }) => typeof pullRequest === 'object'
+  );
+  const branchesWithoutPullRequests = branches
+    .filter(({ pullRequest }) => pullRequest === undefined)
+    .map((branch) => branch);
+  const [freshBranches, slateBranches] = split(
+    branchesWithoutPullRequests,
+    ({ modifiedDate }) => isStale(modifiedDate)
+  );
+
   return (
     <li
-      className="gap-x-5 flex flex-row p-4 bg-gray-300 rounded"
+      className="flex flex-row gap-x-5 rounded bg-gray-300 p-4"
       key={deployment.frontend.id}
     >
       <a
@@ -143,7 +151,7 @@ export function DeploymentLine({
         {languageStrings.launch}
       </a>
       <select
-        className="p-2 bg-gray-200 rounded-md"
+        className="rounded-md bg-gray-200 p-2"
         disabled={isFrozen}
         title={frozenDescription}
         required
@@ -156,33 +164,44 @@ export function DeploymentLine({
           })
         }
       >
-        {branchesWithPullRequests.map(([branch, pullRequest]) => (
-          <optgroup key={branch} label={pullRequestFormatter(pullRequest)}>
+        {branchesWithPullRequests.map(({ branch, pullRequest }) => (
+          <optgroup key={branch} label={pullRequestFormatter(pullRequest!)}>
             <option value={branch}>{branch}</option>
           </optgroup>
         ))}
         <optgroup label={languageStrings.otherBranches}>
-          {branchesWithoutPullRequests.map((branch) => (
+          {freshBranches.map(({ branch }) => (
+            <option key={branch} value={branch}>
+              {branch}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label={languageStrings.staleBranches}>
+          {slateBranches.map(({ branch }) => (
             <option key={branch} value={branch}>
               {branch}
             </option>
           ))}
         </optgroup>
       </select>
-      <div className="flex items-center flex-1">
+      <div className="flex flex-1 items-center">
         <p>
-          {branchesWithoutPullRequests.includes(deployment.branch)
+          {branchesWithoutPullRequests.some(
+            ({ branch }) => branch === deployment.branch
+          )
             ? languageStrings.serverName(deployment.frontend.id + 1)
             : [
                 branchesWithPullRequests.find(
-                  ([branch]) => branch === deployment.branch
-                )![1],
-              ].map((pullRequest, index) => (
-                <JsxPullRequestFormatter
-                  key={index}
-                  pullRequest={pullRequest}
-                />
-              ))[0]}
+                  ({ branch }) => branch === deployment.branch
+                )?.pullRequest!,
+              ]
+                .filter(Boolean)
+                .map((pullRequest, index) => (
+                  <JsxPullRequestFormatter
+                    key={index}
+                    pullRequest={pullRequest}
+                  />
+                ))[0]}
         </p>
       </div>
       <StatusIndicator
@@ -196,7 +215,7 @@ export function DeploymentLine({
         onChange={handleChange}
       />
       <select
-        className="p-2 bg-gray-200 rounded-md"
+        className="rounded-md bg-gray-200 p-2"
         disabled={isFrozen}
         title={frozenDescription}
         required
@@ -218,7 +237,7 @@ export function DeploymentLine({
         </optgroup>
       </select>
       <select
-        className="p-2 bg-gray-200 rounded-md"
+        className="rounded-md bg-gray-200 p-2"
         disabled={isFrozen}
         title={frozenDescription}
         required

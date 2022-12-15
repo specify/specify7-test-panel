@@ -34,6 +34,7 @@ export const localizationStrings: LocalizationStrings<{
   readonly destroy: string;
   readonly addInstance: string;
   readonly otherBranches: string;
+  readonly staleBranches: string;
   readonly serverName: (index: number) => string;
   readonly uploadDatabasesFirst: string;
   readonly corruptDatabase: string;
@@ -72,6 +73,7 @@ export const localizationStrings: LocalizationStrings<{
     destroy: 'Destroy',
     addInstance: 'Add Instance',
     otherBranches: 'Other Branches:',
+    staleBranches: 'Stale Branches:',
     serverName: (index) => `Server #${index}`,
     uploadDatabasesFirst: 'Upload database first',
     schemaVersion: 'Schema Version',

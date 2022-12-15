@@ -14,6 +14,7 @@ import {
   extraButtonClassName,
   successButtonClassName,
 } from './InteractivePrimitives';
+import { filterArray } from '../lib/typescriptCommonTypes';
 
 export function Dashboard({
   languageStrings,
@@ -39,24 +40,21 @@ export function Dashboard({
     deployment: initialState,
   });
 
-  const pairedBranches = Object.keys(branches).map(
-    (branch) =>
-      [
-        branch,
-        pullRequests.find(({ headRefName }) => headRefName === branch),
-      ] as const
+  const pairedBranches = Object.entries(branches).map(
+    ([branch, modifiedDate]) => ({
+      branch,
+      modifiedDate: new Date(modifiedDate),
+      pullRequest: pullRequests.find(
+        ({ headRefName }) => headRefName === branch
+      ),
+    })
   );
 
-  const branchesWithPullRequests = pairedBranches.filter(
-    (entry): entry is readonly [string, PullRequest] =>
-      typeof entry[1] !== 'undefined'
-  );
-  const branchesWithoutPullRequests = pairedBranches
-    .filter(
-      (entry): entry is readonly [string, PullRequest] =>
-        typeof entry[1] === 'undefined'
+  const branchesWithoutPullRequests = filterArray(
+    pairedBranches.map(({ branch, pullRequest }) =>
+      pullRequest === undefined ? undefined : branch
     )
-    .map(([branch]) => branch);
+  );
 
   const deploymentProps: Parameters<typeof Deployments>[0] = {
     languageStrings,
@@ -64,8 +62,7 @@ export function Dashboard({
     schemaVersions,
     databases,
     dispatch,
-    branchesWithPullRequests,
-    branchesWithoutPullRequests,
+    branches: pairedBranches,
   };
 
   const readyForTesting = {
@@ -86,8 +83,8 @@ export function Dashboard({
     JSON.stringify(initialState) !== JSON.stringify(state.deployment);
 
   return (
-    <div className="flex flex-col w-full h-screen gap-10 overflow-hidden">
-      <div className="flex flex-col flex-1 gap-5 overflow-hidden">
+    <div className="flex h-screen w-full flex-col gap-10 overflow-hidden">
+      <div className="flex flex-1 flex-col gap-5 overflow-hidden">
         <h1 className="text-5xl">{siteInfo[language].title}</h1>
         <form id="dashboard" className="flex-1 overflow-y-auto">
           {readyForTesting.deployments.length > 0 && (
