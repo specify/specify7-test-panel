@@ -76,8 +76,13 @@ export default function Index(): JSX.Element {
                 <h1 className="text-5xl">{siteInfo[language].title}</h1>
                 <h2 className="text-2xl">{languageStrings.title}</h2>
                 <ul className="flex w-8/12 flex-col gap-y-5">
-                  {Object.entries(databaseList.data).map(
-                    ([database, schemaVersion]) => (
+                  {Object.entries(databaseList.data)
+                    .sort(([leftName], [rightName]) =>
+                      leftName
+                        .toLowerCase()
+                        .localeCompare(rightName.toLowerCase())
+                    )
+                    .map(([database, schemaVersion]) => (
                       <li
                         className="flex flex-row gap-x-5 rounded bg-gray-300 p-5"
                         key={database}
@@ -113,8 +118,7 @@ export default function Index(): JSX.Element {
                           {commonStrings[language].delete}
                         </a>
                       </li>
-                    )
-                  )}
+                    ))}
                 </ul>
               </div>
               <div className="flex gap-2">
