@@ -7,13 +7,14 @@ import type { PullRequest } from '../lib/github';
 import { getMostCommonElement, getMostRecentTag } from '../lib/helpers';
 import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
-import type { localizationStrings } from '../pages';
+import type { Database, localizationStrings } from '../pages';
 import { reducer } from '../reducers/Dashboard';
 import { Deployments } from './Deployments';
 import {
   extraButtonClassName,
   successButtonClassName,
 } from './InteractivePrimitives';
+import { filterArray } from '../lib/typescriptCommonTypes';
 
 export function Dashboard({
   languageStrings,
@@ -30,7 +31,7 @@ export function Dashboard({
   readonly initialState: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
   readonly branches: IR<string>;
-  readonly databases: IR<string | null>;
+  readonly databases: RA<Database>;
   readonly pullRequests: RA<PullRequest>;
   readonly onSave: (state: RA<DeploymentWithInfo>) => void;
 }) {
@@ -39,24 +40,21 @@ export function Dashboard({
     deployment: initialState,
   });
 
-  const pairedBranches = Object.keys(branches).map(
-    (branch) =>
-      [
-        branch,
-        pullRequests.find(({ headRefName }) => headRefName === branch),
-      ] as const
+  const pairedBranches = Object.entries(branches).map(
+    ([branch, modifiedDate]) => ({
+      branch,
+      modifiedDate: new Date(modifiedDate),
+      pullRequest: pullRequests.find(
+        ({ headRefName }) => headRefName === branch
+      ),
+    })
   );
 
-  const branchesWithPullRequests = pairedBranches.filter(
-    (entry): entry is readonly [string, PullRequest] =>
-      typeof entry[1] !== 'undefined'
-  );
-  const branchesWithoutPullRequests = pairedBranches
-    .filter(
-      (entry): entry is readonly [string, PullRequest] =>
-        typeof entry[1] === 'undefined'
+  const branchesWithoutPullRequests = filterArray(
+    pairedBranches.map(({ branch, pullRequest }) =>
+      pullRequest === undefined ? undefined : branch
     )
-    .map(([branch]) => branch);
+  );
 
   const deploymentProps: Parameters<typeof Deployments>[0] = {
     languageStrings,
@@ -64,8 +62,7 @@ export function Dashboard({
     schemaVersions,
     databases,
     dispatch,
-    branchesWithPullRequests,
-    branchesWithoutPullRequests,
+    branches: pairedBranches,
   };
 
   const readyForTesting = {
@@ -112,13 +109,13 @@ export function Dashboard({
         </Link>
         <button
           className={`${successButtonClassName} ${
-            Object.keys(databases).length === 0
+            databases.length === 0
               ? 'cursor-not-allowed bg-green-900 hover:bg-green-900'
               : ''
           }`}
-          disabled={Object.keys(databases).length === 0}
+          disabled={databases.length === 0}
           title={
-            Object.keys(databases).length === 0
+            databases.length === 0
               ? languageStrings.uploadDatabasesFirst
               : undefined
           }

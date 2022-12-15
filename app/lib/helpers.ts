@@ -20,6 +20,42 @@ export const getMostRecentTag = (tags: IR<string>) =>
     new Date(dateLeft).getTime() > new Date(dateRight).getTime() ? -1 : 1
   )[0][0];
 
+/** Like sortFunction, but can sort based on multiple fields */
+export const multiSortFunction =
+  <ORIGINAL_TYPE>(
+    ...payload: readonly (
+      | boolean
+      | ((value: ORIGINAL_TYPE) => Date | boolean | number | string)
+    )[]
+  ): ((left: ORIGINAL_TYPE, right: ORIGINAL_TYPE) => -1 | 0 | 1) =>
+  (left: ORIGINAL_TYPE, right: ORIGINAL_TYPE): -1 | 0 | 1 => {
+    const mappers = filterArray(
+      payload.map((value, index) =>
+        typeof value === 'function'
+          ? ([
+              value,
+              typeof payload[index + 1] === 'boolean'
+                ? (payload[index + 1] as boolean)
+                : false,
+            ] as const)
+          : undefined
+      )
+    );
+
+    for (const [mapper, isReverse] of mappers) {
+      const [leftValue, rightValue] = isReverse
+        ? [mapper(right), mapper(left)]
+        : [mapper(left), mapper(right)];
+      if (leftValue === rightValue) continue;
+      return typeof leftValue === 'string' && typeof rightValue === 'string'
+        ? (leftValue.localeCompare(rightValue) as -1 | 0 | 1)
+        : leftValue > rightValue
+        ? 1
+        : -1;
+    }
+    return 0;
+  };
+
 /**
  * In no-fetch more, the deployment status requests are not sent.
  * Can be enabled by adding '?no-fetch' to the URL

@@ -14,6 +14,7 @@ import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
 import type { Language, LocalizationStrings } from '../../lib/languages';
 import type { IR } from '../../lib/typescriptCommonTypes';
+import { useDatabases } from '../index';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -43,7 +44,7 @@ export const localizationStrings: LocalizationStrings<{
 };
 
 export default function Index(): JSX.Element {
-  const databaseList = useApi<IR<string | null>>('/api/databases')[0];
+  const databases = useDatabases();
   const [listUsers, setListUsers] = React.useState<string | undefined>(
     undefined
   );
@@ -59,62 +60,55 @@ export default function Index(): JSX.Element {
     >
       {(languageStrings, language): JSX.Element => (
         <FilterUsers protected>
-          {typeof databaseList === 'undefined' ? (
+          {typeof databases === 'undefined' ? (
             <Loading />
-          ) : typeof databaseList === 'string' ? (
-            <ModalDialog title={languageStrings.title}>
-              {databaseList}
-            </ModalDialog>
+          ) : typeof databases === 'string' ? (
+            <ModalDialog title={languageStrings.title}>{databases}</ModalDialog>
           ) : (
             <>
-              <div className="flex flex-1 flex-col gap-5">
+              <div className="flex flex-col flex-1 gap-5">
                 <Link href="/">
-                  <a className="text-blue-500 hover:underline">
+                  <a className="hover:underline text-blue-500">
                     {commonStrings[language].goBack}
                   </a>
                 </Link>
                 <h1 className="text-5xl">{siteInfo[language].title}</h1>
                 <h2 className="text-2xl">{languageStrings.title}</h2>
-                <ul className="flex w-8/12 flex-col gap-y-5">
-                  {Object.entries(databaseList.data).map(
-                    ([database, schemaVersion]) => (
-                      <li
-                        className="flex flex-row gap-x-5 rounded bg-gray-300 p-5"
-                        key={database}
+                <ul className="gap-y-5 flex flex-col w-8/12">
+                  {databases.map(({ name, version }) => (
+                    <li
+                      className="gap-x-5 flex flex-row p-5 bg-gray-300 rounded"
+                      key={name}
+                    >
+                      <span className="flex-1">
+                        {name}
+                        <b> ({version ?? languageStrings.corruptDatabase})</b>
+                      </span>
+                      <a
+                        className="hover:underline text-green-400"
+                        href={`/api/databases/${name}/export`}
                       >
-                        <span className="flex-1">
-                          {database}
-                          <b>
-                            {' '}
-                            ({schemaVersion ?? languageStrings.corruptDatabase})
-                          </b>
-                        </span>
-                        <a
-                          className="text-green-400 hover:underline"
-                          href={`/api/databases/${database}/export`}
-                        >
-                          {languageStrings.download}
-                        </a>
-                        <button
-                          className="text-blue-400 hover:underline"
-                          type="button"
-                          onClick={() => setListUsers(database)}
-                        >
-                          {languageStrings.listUsers}
-                        </button>
-                        <a
-                          className="text-red-400 hover:underline"
-                          href={`/api/databases/${database}/drop`}
-                          onClick={(event) => {
-                            event.preventDefault();
-                            setDeleteDatabase(database);
-                          }}
-                        >
-                          {commonStrings[language].delete}
-                        </a>
-                      </li>
-                    )
-                  )}
+                        {languageStrings.download}
+                      </a>
+                      <button
+                        className="hover:underline text-blue-400"
+                        type="button"
+                        onClick={() => setListUsers(name)}
+                      >
+                        {languageStrings.listUsers}
+                      </button>
+                      <a
+                        className="hover:underline text-red-400"
+                        href={`/api/databases/${name}/drop`}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setDeleteDatabase(name);
+                        }}
+                      >
+                        {commonStrings[language].delete}
+                      </a>
+                    </li>
+                  ))}
                 </ul>
               </div>
               <div className="flex gap-2">
@@ -168,12 +162,12 @@ function ListUsers({
       {typeof users === 'string' ? (
         users
       ) : (
-        <ul className="flex flex-col gap-y-3">
+        <ul className="gap-y-3 flex flex-col">
           {Object.entries(users.data).map(([id, name]) => (
-            <li className="flex gap-x-1" key={id}>
+            <li className="gap-x-1 flex" key={id}>
               <span>{name}</span>
               <button
-                className="text-blue-400 hover:underline"
+                className="hover:underline text-blue-400"
                 type="button"
                 onClick={(): void =>
                   void fetch(
