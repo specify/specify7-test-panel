@@ -115,7 +115,7 @@ export function DeploymentLine({
 
   return (
     <li
-      className="flex flex-row gap-x-5 rounded bg-gray-300 p-4"
+      className="gap-x-5 flex flex-row p-4 bg-gray-300 rounded"
       key={deployment.frontend.id}
     >
       <a
@@ -143,7 +143,7 @@ export function DeploymentLine({
         {languageStrings.launch}
       </a>
       <select
-        className="rounded-md bg-gray-200 p-2"
+        className="p-2 bg-gray-200 rounded-md"
         disabled={isFrozen}
         title={frozenDescription}
         required
@@ -169,7 +169,7 @@ export function DeploymentLine({
           ))}
         </optgroup>
       </select>
-      <div className="flex flex-1 items-center">
+      <div className="flex items-center flex-1">
         <p>
           {branchesWithoutPullRequests.includes(deployment.branch)
             ? languageStrings.serverName(deployment.frontend.id + 1)
@@ -196,7 +196,7 @@ export function DeploymentLine({
         onChange={handleChange}
       />
       <select
-        className="rounded-md bg-gray-200 p-2"
+        className="p-2 bg-gray-200 rounded-md"
         disabled={isFrozen}
         title={frozenDescription}
         required
@@ -218,7 +218,7 @@ export function DeploymentLine({
         </optgroup>
       </select>
       <select
-        className="rounded-md bg-gray-200 p-2"
+        className="p-2 bg-gray-200 rounded-md"
         disabled={isFrozen}
         title={frozenDescription}
         required

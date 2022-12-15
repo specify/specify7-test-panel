@@ -66,18 +66,18 @@ export default function Index(): JSX.Element {
             <ModalDialog title={languageStrings.title}>{databases}</ModalDialog>
           ) : (
             <>
-              <div className="flex flex-1 flex-col gap-5">
+              <div className="flex flex-col flex-1 gap-5">
                 <Link href="/">
-                  <a className="text-blue-500 hover:underline">
+                  <a className="hover:underline text-blue-500">
                     {commonStrings[language].goBack}
                   </a>
                 </Link>
                 <h1 className="text-5xl">{siteInfo[language].title}</h1>
                 <h2 className="text-2xl">{languageStrings.title}</h2>
-                <ul className="flex w-8/12 flex-col gap-y-5">
+                <ul className="gap-y-5 flex flex-col w-8/12">
                   {databases.map(({ name, version }) => (
                     <li
-                      className="flex flex-row gap-x-5 rounded bg-gray-300 p-5"
+                      className="gap-x-5 flex flex-row p-5 bg-gray-300 rounded"
                       key={name}
                     >
                       <span className="flex-1">
@@ -85,20 +85,20 @@ export default function Index(): JSX.Element {
                         <b> ({version ?? languageStrings.corruptDatabase})</b>
                       </span>
                       <a
-                        className="text-green-400 hover:underline"
+                        className="hover:underline text-green-400"
                         href={`/api/databases/${name}/export`}
                       >
                         {languageStrings.download}
                       </a>
                       <button
-                        className="text-blue-400 hover:underline"
+                        className="hover:underline text-blue-400"
                         type="button"
                         onClick={() => setListUsers(name)}
                       >
                         {languageStrings.listUsers}
                       </button>
                       <a
-                        className="text-red-400 hover:underline"
+                        className="hover:underline text-red-400"
                         href={`/api/databases/${name}/drop`}
                         onClick={(event) => {
                           event.preventDefault();
@@ -162,12 +162,12 @@ function ListUsers({
       {typeof users === 'string' ? (
         users
       ) : (
-        <ul className="flex flex-col gap-y-3">
+        <ul className="gap-y-3 flex flex-col">
           {Object.entries(users.data).map(([id, name]) => (
-            <li className="flex gap-x-1" key={id}>
+            <li className="gap-x-1 flex" key={id}>
               <span>{name}</span>
               <button
-                className="text-blue-400 hover:underline"
+                className="hover:underline text-blue-400"
                 type="button"
                 onClick={(): void =>
                   void fetch(

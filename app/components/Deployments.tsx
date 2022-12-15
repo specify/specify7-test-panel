@@ -32,11 +32,11 @@ export function Deployments({
     group(deployments.map((deployment) => [deployment.group ?? '', deployment]))
   ).sort(([leftGroup], [rightGroup]) => leftGroup.localeCompare(rightGroup));
   return (
-    <ul className="mt-4 flex flex-col gap-y-5">
+    <ul className="gap-y-5 flex flex-col mt-4">
       {grouped.map(([group, deployments]) => (
         <li>
           {group}
-          <ul className="mt-4 flex flex-col gap-y-5">
+          <ul className="gap-y-5 flex flex-col mt-4">
             {deployments.map((deployment) => (
               <DeploymentLine
                 branchesWithoutPullRequests={branchesWithoutPullRequests}
