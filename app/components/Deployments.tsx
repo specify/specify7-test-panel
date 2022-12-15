@@ -4,7 +4,7 @@ import type { DeploymentWithInfo } from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
 import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
-import type { localizationStrings } from '../pages';
+import type { Database, localizationStrings } from '../pages';
 import type { Actions } from '../reducers/Dashboard';
 import { DeploymentLine } from './Deployment';
 import { group } from '../lib/helpers';
@@ -21,7 +21,7 @@ export function Deployments({
   readonly languageStrings: typeof localizationStrings[Language];
   readonly deployments: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
-  readonly databases: IR<string | null>;
+  readonly databases: RA<Database>;
   readonly dispatch: (action: Actions) => void;
   readonly branchesWithPullRequests: RA<
     Readonly<readonly [string, PullRequest]>

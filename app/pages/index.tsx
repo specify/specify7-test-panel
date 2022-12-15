@@ -107,6 +107,26 @@ export default function Index(): JSX.Element {
   );
 }
 
+export type Database = {
+  readonly name: string;
+  readonly version: string | null;
+};
+
+export function useDatabases(): undefined | string | RA<Database> {
+  const databases = useApi<IR<string | null>>('/api/databases')[0];
+  return React.useMemo(
+    () =>
+      typeof databases === 'object'
+        ? Object.entries(databases.data)
+            .sort(([leftName], [rightName]) =>
+              leftName.toLowerCase().localeCompare(rightName.toLowerCase())
+            )
+            .map(([name, version]) => ({ name, version }))
+        : databases,
+    [databases]
+  );
+}
+
 function Wrapper({
   languageStrings,
   language,
@@ -119,7 +139,9 @@ function Wrapper({
   const schemaVersions = useApi<IR<string>>(
     '/api/dockerhub/specify6-service'
   )[0];
-  const databases = useApi<IR<string | null>>('/api/databases')[0];
+
+  const databases = useDatabases();
+
   const pullRequests = useAsync(
     React.useCallback(
       async () =>
@@ -196,7 +218,7 @@ function Wrapper({
   ) : (
     <Dashboard
       branches={branches.data}
-      databases={databases.data}
+      databases={databases}
       initialState={state.data.map((deployment, id) => ({
         ...deployment,
         frontend: { id },

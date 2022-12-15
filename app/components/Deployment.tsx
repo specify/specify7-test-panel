@@ -7,7 +7,7 @@ import { isNoFetchMode, trimString } from '../lib/helpers';
 import { getRelativeDate } from '../lib/internationalization';
 import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
-import type { localizationStrings } from '../pages';
+import type { Database, localizationStrings } from '../pages';
 import type { Actions } from '../reducers/Dashboard';
 import { AutoGrowTextArea } from './AutoGrowTextArea';
 import { DeploymentOptions } from './DeploymentOptions';
@@ -42,7 +42,7 @@ export function DeploymentLine({
   readonly deployment: DeploymentWithInfo;
   readonly languageStrings: typeof localizationStrings[Language];
   readonly schemaVersions: IR<string>;
-  readonly databases: IR<string | null>;
+  readonly databases: RA<Database>;
   readonly dispatch: (action: Actions) => void;
   readonly branchesWithPullRequests: RA<
     Readonly<readonly [string, PullRequest]>
@@ -210,11 +210,9 @@ export function DeploymentLine({
       >
         <optgroup label={languageStrings.databases}>
           <option />
-          {Object.entries(databases).map(([database, schemaVersion]) => (
-            <option key={database} value={database}>
-              {`${database} (${
-                schemaVersion ?? languageStrings.corruptDatabase
-              })`}
+          {databases.map(({ name, version }) => (
+            <option key={name} value={name}>
+              {`${name} (${version ?? languageStrings.corruptDatabase})`}
             </option>
           ))}
         </optgroup>

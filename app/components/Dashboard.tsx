@@ -7,7 +7,7 @@ import type { PullRequest } from '../lib/github';
 import { getMostCommonElement, getMostRecentTag } from '../lib/helpers';
 import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
-import type { localizationStrings } from '../pages';
+import type { Database, localizationStrings } from '../pages';
 import { reducer } from '../reducers/Dashboard';
 import { Deployments } from './Deployments';
 import {
@@ -30,7 +30,7 @@ export function Dashboard({
   readonly initialState: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
   readonly branches: IR<string>;
-  readonly databases: IR<string | null>;
+  readonly databases: RA<Database>;
   readonly pullRequests: RA<PullRequest>;
   readonly onSave: (state: RA<DeploymentWithInfo>) => void;
 }) {
@@ -112,13 +112,13 @@ export function Dashboard({
         </Link>
         <button
           className={`${successButtonClassName} ${
-            Object.keys(databases).length === 0
+            databases.length === 0
               ? 'cursor-not-allowed bg-green-900 hover:bg-green-900'
               : ''
           }`}
-          disabled={Object.keys(databases).length === 0}
+          disabled={databases.length === 0}
           title={
-            Object.keys(databases).length === 0
+            databases.length === 0
               ? languageStrings.uploadDatabasesFirst
               : undefined
           }
