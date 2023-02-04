@@ -35,26 +35,25 @@ export function useApi<TYPE>(
 ) {
   return useAsync<{ readonly data: TYPE }>(
     React.useCallback(
-      async () =>
-        fetch(endpoint).then(async (response) => {
-          if (response.status === 404)
-            throw new Error('API endpoint not found');
-          const textResponse = await response.text();
-          try {
-            const state =
-              format === 'json'
-                ? JSON.parse(textResponse)
-                : { data: textResponse };
-            if (response.status === 200) return state;
-            else
-              throw new Error(
-                state.error ?? state ?? 'Unexpected Error Occurred'
-              );
-          } catch {
-            return textResponse;
-          }
-        }),
+      async () => fetchApi(endpoint, format),
       [endpoint, format]
     )
   );
 }
+
+export const fetchApi = async (
+  endpoint: string,
+  format: 'txt' | 'json' = 'json'
+) =>
+  fetch(endpoint).then(async (response) => {
+    if (response.status === 404) throw new Error('API endpoint not found');
+    const textResponse = await response.text();
+    try {
+      const state =
+        format === 'json' ? JSON.parse(textResponse) : { data: textResponse };
+      if (response.status === 200) return state;
+      else throw new Error(state.error ?? state ?? 'Unexpected Error Occurred');
+    } catch {
+      return textResponse;
+    }
+  });

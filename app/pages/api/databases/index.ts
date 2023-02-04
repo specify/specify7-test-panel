@@ -4,14 +4,14 @@ import { getUser, noCaching } from '../../../lib/apiUtils';
 import { connectToDatabase } from '../../../lib/database';
 import type { IR, RA } from '../../../lib/typescriptCommonTypes';
 
-const databasesToExclude = new Set([
+export const databasesToExclude = new Set([
   'information_schema',
   'performance_schema',
   'mysql',
   'sys',
 ]);
 
-// Get databases and schema versions
+/** Get databases and schema versions */
 export const getDatabases = async (): Promise<IR<string | null>> =>
   connectToDatabase().then(async (connection) =>
     connection

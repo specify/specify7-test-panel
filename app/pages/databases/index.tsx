@@ -4,17 +4,19 @@ import React from 'react';
 import FilterUsers from '../../components/FilterUsers';
 import {
   dangerButtonClassName,
+  infoButtonClassName,
   primaryButtonClassName,
   successButtonClassName,
 } from '../../components/InteractivePrimitives';
 import Layout from '../../components/Layout';
 import { Loading, ModalDialog } from '../../components/ModalDialog';
-import { useApi } from '../../components/useApi';
+import { fetchApi, useApi } from '../../components/useApi';
 import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
 import type { Language, LocalizationStrings } from '../../lib/languages';
-import type { IR } from '../../lib/typescriptCommonTypes';
-import { useDatabases } from '../index';
+import type { IR, RA } from '../../lib/typescriptCommonTypes';
+import { Database, useDatabases } from '../index';
+import { multiSortFunction } from '../../lib/helpers';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -27,6 +29,8 @@ export const localizationStrings: LocalizationStrings<{
   readonly deleteDialogMessage: (database: string) => string;
   readonly corruptDatabase: string;
   readonly makeSuperUser: string;
+  readonly calculateSizes: string;
+  readonly mb: string;
 }> = {
   'en-US': {
     title: 'Databases',
@@ -40,11 +44,15 @@ export const localizationStrings: LocalizationStrings<{
       `Are you sure you want to delete ${database} database?`,
     corruptDatabase: 'corrupt database',
     makeSuperUser: 'Make super user',
+    calculateSizes: 'Calculate sizes',
+    mb: 'mb',
   },
 };
 
+type DatabaseWithSize = Database & { readonly size?: string | undefined };
+
 export default function Index(): JSX.Element {
-  const databases = useDatabases();
+  const rawDatabases = useDatabases();
   const [listUsers, setListUsers] = React.useState<string | undefined>(
     undefined
   );
@@ -52,6 +60,27 @@ export default function Index(): JSX.Element {
   const [deleteDatabase, setDeleteDatabase] = React.useState<
     string | undefined
   >(undefined);
+
+  const [showSizes, setShowSizes] = React.useState(false);
+  const [sizes, setSizes] = React.useState<
+    { readonly data: IR<number> } | string | undefined
+  >(undefined);
+  const databases = React.useMemo<
+    RA<DatabaseWithSize> | string | undefined
+  >(() => {
+    if (typeof sizes !== 'object' || typeof rawDatabases !== 'object')
+      return rawDatabases;
+    const indexed = Object.fromEntries(
+      rawDatabases.map(({ name, version }) => [name, version])
+    );
+    return Object.entries(sizes.data)
+      .sort(multiSortFunction(([_name, size]) => size, true))
+      .map(([name, size]) => ({
+        name,
+        size,
+        version: indexed[name],
+      }));
+  }, [sizes, rawDatabases]);
 
   return (
     <Layout
@@ -64,43 +93,48 @@ export default function Index(): JSX.Element {
             <Loading />
           ) : typeof databases === 'string' ? (
             <ModalDialog title={languageStrings.title}>{databases}</ModalDialog>
+          ) : typeof sizes === 'number' ? (
+            <ModalDialog title={languageStrings.title}>{sizes}</ModalDialog>
           ) : (
             <>
-              <div className="flex flex-col flex-1 gap-5">
+              <div className="flex flex-1 flex-col gap-5">
                 <Link href="/">
-                  <a className="hover:underline text-blue-500">
+                  <a className="text-blue-500 hover:underline">
                     {commonStrings[language].goBack}
                   </a>
                 </Link>
                 <h1 className="text-5xl">{siteInfo[language].title}</h1>
                 <h2 className="text-2xl">{languageStrings.title}</h2>
-                <ul className="gap-y-5 flex flex-col w-8/12">
-                  {databases.map(({ name, version }) => (
+                <ul className="flex w-8/12 flex-col gap-y-5">
+                  {databases.map(({ name, version, size }) => (
                     <li
-                      className="gap-x-5 flex flex-row p-5 bg-gray-300 rounded"
+                      className="flex flex-row gap-x-5 rounded bg-gray-300 p-5"
                       key={name}
                     >
                       <span className="flex-1">
                         {name}
                         <b> ({version ?? languageStrings.corruptDatabase})</b>
+                        {typeof size === 'number' && (
+                          <b>{` (${size} ${languageStrings.mb})`}</b>
+                        )}
                       </span>
                       <a
-                        className="hover:underline text-green-400"
+                        className="text-green-400 hover:underline"
                         href={`/api/databases/${name}/export`}
                       >
                         {languageStrings.download}
                       </a>
                       <button
-                        className="hover:underline text-blue-400"
+                        className="text-blue-400 hover:underline"
                         type="button"
-                        onClick={() => setListUsers(name)}
+                        onClick={(): void => setListUsers(name)}
                       >
                         {languageStrings.listUsers}
                       </button>
                       <a
-                        className="hover:underline text-red-400"
+                        className="text-red-400 hover:underline"
                         href={`/api/databases/${name}/drop`}
-                        onClick={(event) => {
+                        onClick={(event): void => {
                           event.preventDefault();
                           setDeleteDatabase(name);
                         }}
@@ -117,6 +151,20 @@ export default function Index(): JSX.Element {
                     {languageStrings.uploadNew}
                   </a>
                 </Link>
+                <button
+                  className={infoButtonClassName}
+                  onClick={(): void => {
+                    setShowSizes(true);
+                    fetchApi('/api/databases/size')
+                      .then(setSizes)
+                      .catch(console.error);
+                  }}
+                  disabled={showSizes}
+                >
+                  {showSizes && sizes === undefined
+                    ? commonStrings[language].loading
+                    : languageStrings.calculateSizes}
+                </button>
               </div>
               {typeof listUsers === 'string' && (
                 <ListUsers
@@ -162,12 +210,12 @@ function ListUsers({
       {typeof users === 'string' ? (
         users
       ) : (
-        <ul className="gap-y-3 flex flex-col">
+        <ul className="flex flex-col gap-y-3">
           {Object.entries(users.data).map(([id, name]) => (
-            <li className="gap-x-1 flex" key={id}>
+            <li className="flex gap-x-1" key={id}>
               <span>{name}</span>
               <button
-                className="hover:underline text-blue-400"
+                className="text-blue-400 hover:underline"
                 type="button"
                 onClick={(): void =>
                   void fetch(
