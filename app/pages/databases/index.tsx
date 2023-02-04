@@ -17,6 +17,7 @@ import type { Language, LocalizationStrings } from '../../lib/languages';
 import type { IR, RA } from '../../lib/typescriptCommonTypes';
 import { Database, useDatabases } from '../index';
 import { multiSortFunction } from '../../lib/helpers';
+import { Deployment } from '../../lib/deployment';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -55,6 +56,15 @@ export default function Index(): JSX.Element {
   const rawDatabases = useDatabases();
   const [listUsers, setListUsers] = React.useState<string | undefined>(
     undefined
+  );
+
+  const [state] = useApi<RA<Deployment>>('/api/state');
+  const usedDatabases = React.useMemo(
+    () =>
+      typeof state === 'object'
+        ? new Set(state.data.map(({ database }) => database))
+        : new Set(),
+    [state]
   );
 
   const [deleteDatabase, setDeleteDatabase] = React.useState<
@@ -118,6 +128,18 @@ export default function Index(): JSX.Element {
                           <b>{` (${size} ${languageStrings.mb})`}</b>
                         )}
                       </span>
+                      {!usedDatabases.has(name) && (
+                        <a
+                          className="text-red-400 hover:underline"
+                          href={`/api/databases/${name}/drop`}
+                          onClick={(event): void => {
+                            event.preventDefault();
+                            setDeleteDatabase(name);
+                          }}
+                        >
+                          {commonStrings[language].delete}
+                        </a>
+                      )}
                       <a
                         className="text-green-400 hover:underline"
                         href={`/api/databases/${name}/export`}
@@ -131,16 +153,6 @@ export default function Index(): JSX.Element {
                       >
                         {languageStrings.listUsers}
                       </button>
-                      <a
-                        className="text-red-400 hover:underline"
-                        href={`/api/databases/${name}/drop`}
-                        onClick={(event): void => {
-                          event.preventDefault();
-                          setDeleteDatabase(name);
-                        }}
-                      >
-                        {commonStrings[language].delete}
-                      </a>
                     </li>
                   ))}
                 </ul>
