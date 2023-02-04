@@ -53,6 +53,8 @@ export function DeploymentLine({
       setStatus('fetching');
       return;
     }
+    let destructorCalled = false;
+
     const fetchStatus = (hostname: string): void => {
       if (destructorCalled) return;
       const timeout = setTimeout(() => setStatus('fetching'), 150);
@@ -90,7 +92,6 @@ export function DeploymentLine({
     if (typeof deployment.hostname === 'string')
       fetchStatus(deployment.hostname);
 
-    let destructorCalled = false;
     return () => {
       destructorCalled = true;
     };

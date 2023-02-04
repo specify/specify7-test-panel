@@ -37,10 +37,11 @@ export default function ErrorPage({
             <h2>{languageStrings.header}</h2>
             <p>
               {languageStrings.message}
-              <Link href="/">
-                <a className="block pt-10 text-red-400 transition hover:text-black">
-                  {languageStrings.returnToHomePage}
-                </a>
+              <Link
+                href="/"
+                className="block pt-10 text-red-400 transition hover:text-black"
+              >
+                {languageStrings.returnToHomePage}
               </Link>
             </p>
           </div>

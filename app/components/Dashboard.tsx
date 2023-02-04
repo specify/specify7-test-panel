@@ -111,8 +111,8 @@ export function Dashboard({
         </form>
       </div>
       <div className="flex gap-2">
-        <Link href="/databases/">
-          <a className={extraButtonClassName}>{languageStrings.databases}</a>
+        <Link href="/databases/" className={extraButtonClassName}>
+          {languageStrings.databases}
         </Link>
         <button
           className={`${successButtonClassName} ${

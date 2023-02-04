@@ -108,10 +108,8 @@ export default function Index(): JSX.Element {
           ) : (
             <>
               <div className="flex flex-1 flex-col gap-5">
-                <Link href="/">
-                  <a className="text-blue-500 hover:underline">
-                    {commonStrings[language].goBack}
-                  </a>
+                <Link href="/" className="text-blue-500 hover:underline">
+                  {commonStrings[language].goBack}
                 </Link>
                 <h1 className="text-5xl">{siteInfo[language].title}</h1>
                 <h2 className="text-2xl">{languageStrings.title}</h2>
@@ -158,10 +156,11 @@ export default function Index(): JSX.Element {
                 </ul>
               </div>
               <div className="flex gap-2">
-                <Link href="/databases/upload">
-                  <a className={successButtonClassName}>
-                    {languageStrings.uploadNew}
-                  </a>
+                <Link
+                  href="/databases/upload"
+                  className={successButtonClassName}
+                >
+                  {languageStrings.uploadNew}
                 </Link>
                 <button
                   className={infoButtonClassName}

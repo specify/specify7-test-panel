@@ -59,10 +59,8 @@ export default function Index(): JSX.Element {
     >
       {(languageStrings, language): JSX.Element => (
         <div className="flex flex-1 flex-col gap-5">
-          <Link href="/databases/">
-            <a className="text-blue-500 hover:underline">
-              {commonStrings[language].goBack}
-            </a>
+          <Link href="/databases/" className="text-blue-500 hover:underline">
+            {commonStrings[language].goBack}
           </Link>
           {`${languageStrings.diskUsage} ${
             typeof diskUsage === 'undefined'
