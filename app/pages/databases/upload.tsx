@@ -7,6 +7,7 @@ import { useApi } from '../../components/useApi';
 import commonStrings from '../../const/commonStrings';
 import siteInfo from '../../const/siteInfo';
 import type { LocalizationStrings } from '../../lib/languages';
+import { useDatabases } from '../index';
 
 export const localizationStrings: LocalizationStrings<{
   readonly title: string;
@@ -17,6 +18,7 @@ export const localizationStrings: LocalizationStrings<{
   readonly diskUsage: string;
   readonly notEnoughSpace: string;
   readonly mb: string;
+  readonly nameConflict: string;
 }> = {
   'en-US': {
     title: 'Upload new database',
@@ -28,6 +30,8 @@ export const localizationStrings: LocalizationStrings<{
     notEnoughSpace:
       'Warning: there may be not enough space on the server to upload this file',
     mb: 'MB',
+    nameConflict:
+      'Database with this name already exists. Please delete it first',
   },
 };
 
@@ -35,6 +39,7 @@ const bytesToMb = (size: number): number =>
   Math.round((size / 1024 / 1024) * 100) / 100;
 
 export default function Index(): JSX.Element {
+  const databases = useDatabases();
   const [isUploading, setIsUploading] = React.useState<boolean>(false);
   const [databaseName, setDatabaseName] = React.useState<string>('');
   const [fileSize, setFileSize] = React.useState<number | undefined>(undefined);
@@ -42,6 +47,10 @@ export default function Index(): JSX.Element {
   const formRef = React.useRef<HTMLFormElement>(null);
 
   const [diskUsage] = useApi<DiskSpace>('/api/disk-usage');
+
+  const isConflict =
+    typeof databases === 'object' &&
+    databases.some(({ name }) => name === databaseName);
 
   return (
     <Layout
@@ -84,7 +93,7 @@ export default function Index(): JSX.Element {
                     name="file"
                     required
                     type="file"
-                    onChange={({ target }) => {
+                    onChange={({ target }): void => {
                       const file = target.files?.[0];
                       if (typeof file !== 'undefined' && databaseName === '') {
                         const fileName = file.name;
@@ -122,8 +131,10 @@ export default function Index(): JSX.Element {
                     className={`cursor-pointer rounded-xl bg-green-500 p-3
                     hover:bg-green-800`}
                     type="submit"
+                    disabled={isConflict}
                     value={languageStrings.upload}
                   />
+                  {isConflict && <p>{languageStrings.nameConflict}</p>}
                 </form>
               </div>
             </>
