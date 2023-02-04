@@ -28,9 +28,10 @@ export function ModalDialog({
           w-screen h-screen absolute inset-0 flex items-center
           justify-center bg-shadow transition-opacity
         `}
-        portalClassName={`${className}`}
+        portalClassName={className}
         shouldCloseOnEsc={typeof handleClose === 'function'}
         shouldCloseOnOverlayClick={typeof handleClose === 'function'}
+        onRequestClose={handleClose}
       >
         <div className="m-auto w-auto w-1/2 bg-white shadow-xl">
           <div className="flex items-center justify-between bg-gray-50 p-4">
