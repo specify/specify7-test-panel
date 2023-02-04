@@ -105,7 +105,8 @@ export function DeploymentLine({
       },
     });
 
-  const isFrozen = deployment.notes.length > 0;
+  const isFrozen =
+    deployment.deployedAt !== undefined && deployment.notes.length > 0;
   const frozenDescription = isFrozen
     ? languageStrings.frozenDeploymentDescription
     : undefined;
