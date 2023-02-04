@@ -11,13 +11,14 @@ import type { Database, localizationStrings } from '../pages';
 import type { Actions } from '../reducers/Dashboard';
 import { AutoGrowTextArea } from './AutoGrowTextArea';
 import { DeploymentOptions } from './DeploymentOptions';
+import type { Branch } from './Deployments';
+import { isStale } from './Deployments';
 import {
   disabledButtonClassName,
   infoButtonClassName,
   link,
 } from './InteractivePrimitives';
 import { ModalDialog } from './ModalDialog';
-import { Branch, isStale } from './Deployments';
 
 type Status =
   | 'fetching'
@@ -154,9 +155,9 @@ export function DeploymentLine({
       <select
         className="rounded-md bg-gray-200 p-2 disabled:opacity-50"
         disabled={isFrozen}
-        title={frozenDescription}
         required
         style={{ maxWidth: '20vw' }}
+        title={frozenDescription}
         value={deployment.branch}
         onChange={({ target }): void =>
           handleChange({
@@ -218,9 +219,9 @@ export function DeploymentLine({
       <select
         className="rounded-md bg-gray-200 p-2 disabled:opacity-50"
         disabled={isFrozen}
-        title={frozenDescription}
         required
         style={{ maxWidth: '10vw' }}
+        title={frozenDescription}
         value={deployment.database}
         onChange={({ target }): void =>
           handleChange({
@@ -240,9 +241,9 @@ export function DeploymentLine({
       <select
         className="rounded-md bg-gray-200 p-2 disabled:opacity-50"
         disabled={isFrozen}
-        title={frozenDescription}
         required
         style={{ maxWidth: '10vw' }}
+        title={frozenDescription}
         value={deployment.schemaVersion}
         onChange={({ target }): void =>
           handleChange({

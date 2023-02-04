@@ -42,9 +42,9 @@ type ChangeConfigurationAction = Action<
 
 export type Actions =
   | AddInstanceAction
-  | RemoveInstanceAction
   | ChangeConfigurationAction
-  | DestroyInstanceAction;
+  | DestroyInstanceAction
+  | RemoveInstanceAction;
 
 export const reducer = generateReducer<States, Actions>({
   DestroyInstanceAction: ({ state, action }) => ({
@@ -57,10 +57,9 @@ export const reducer = generateReducer<States, Actions>({
   }),
   RemoveInstanceAction: ({ state, action }) => ({
     ...state,
-    deployment: [
-      ...state.deployment.slice(0, action.id),
-      ...state.deployment.slice(action.id + 1),
-    ],
+    deployment: state.deployment.filter(
+      ({ frontend }) => frontend.id !== action.id
+    ),
   }),
   ChangeConfigurationAction: ({ state, action }) => ({
     ...state,
