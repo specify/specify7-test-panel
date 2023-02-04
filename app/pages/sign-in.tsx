@@ -3,27 +3,11 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import FilterUsers from '../components/FilterUsers';
-import { LanguageContext } from '../components/LanguageContext';
 import Layout from '../components/Layout';
 import { StatusLineContext } from '../components/StatusLine';
 import { Centered } from '../components/UI';
-import siteInfo from '../const/siteInfo';
-import type { LocalizationStrings } from '../lib/languages';
 import { statusLineContentClassName } from '../lib/statusLineConfig';
-
-const localizationStrings: LocalizationStrings<{
-  readonly title: string;
-  readonly signInWithGitHub: string;
-  readonly unexpectedErrorHasOccurred: string;
-  readonly loading: string;
-}> = {
-  'en-US': {
-    title: 'Sign In ',
-    signInWithGitHub: 'Sign in with GitHub',
-    unexpectedErrorHasOccurred: 'Unexpected error has occurred',
-    loading: 'Loading...',
-  },
-};
+import { localization } from '../const/localization';
 
 export default function SignIn({
   code,
@@ -37,17 +21,13 @@ export default function SignIn({
 
   const router = useRouter();
 
-  const language = React.useContext(LanguageContext);
-
-  const languageStrings = localizationStrings[language];
-
   React.useEffect(() => {
     if (code.length === 0) return;
 
     addStatusMessage({
       message: (
         <span className={`${statusLineContentClassName} bg-blue-200`}>
-          {languageStrings.loading}
+          {localization.loading}
         </span>
       ),
       id: 'signInStatus',
@@ -75,7 +55,7 @@ export default function SignIn({
         addStatusMessage({
           message: (
             <span className={`${statusLineContentClassName} bg-red-200`}>
-              {languageStrings.unexpectedErrorHasOccurred}:
+              {localization.unexpectedErrorHasOccurred}:
               <br />
               {error.toString()}
             </span>
@@ -83,27 +63,25 @@ export default function SignIn({
           id: 'signInStatus',
         });
       });
-  }, [code, language]);
+  }, [code]);
 
   return (
-    <Layout title={localizationStrings}>
-      {(_languageStrings, language): JSX.Element => (
-        <FilterUsers>
-          <Centered>
-            <div>
-              <h1 className="text-5xl">{siteInfo[language].title}</h1>
-              <div className="flex-column flex gap-y-1 pt-4">
-                <a
-                  className="box-content w-full border border-gray-400 bg-gray-300 p-4 hover:bg-white"
-                  href={signInUrl}
-                >
-                  {languageStrings.signInWithGitHub}
-                </a>
-              </div>
+    <Layout title={localization.signIn}>
+      <FilterUsers>
+        <Centered>
+          <div>
+            <h1 className="text-5xl">{localization.pageTitle}</h1>
+            <div className="flex-column flex gap-y-1 pt-4">
+              <a
+                className="box-content w-full border border-gray-400 bg-gray-300 p-4 hover:bg-white"
+                href={signInUrl}
+              >
+                {localization.signInWithGitHub}
+              </a>
             </div>
-          </Centered>
-        </FilterUsers>
-      )}
+          </div>
+        </Centered>
+      </FilterUsers>
     </Layout>
   );
 }

@@ -2,9 +2,8 @@ import React from 'react';
 
 import type { DeploymentWithInfo } from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
-import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
-import type { Database, localizationStrings } from '../pages';
+import type { Database } from '../pages';
 import type { Actions } from '../reducers/Dashboard';
 import { DeploymentLine } from './Deployment';
 import { group, multiSortFunction } from '../lib/helpers';
@@ -43,21 +42,17 @@ function useSortedBranches(branches: RA<Branch>): RA<Branch> {
 }
 
 export function Deployments({
-  languageStrings,
   deployments,
   schemaVersions,
   databases,
   branches: rawBranches,
-  language,
   dispatch,
   databaseGroups,
 }: {
-  readonly languageStrings: typeof localizationStrings[Language];
   readonly deployments: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
   readonly databases: RA<Database>;
   readonly dispatch: (action: Actions) => void;
-  readonly language: Language;
   readonly branches: RA<Branch>;
   readonly databaseGroups: IR<RA<string>>;
 }): JSX.Element {
@@ -79,8 +74,6 @@ export function Deployments({
                 deployment={deployment}
                 dispatch={dispatch}
                 key={deployment.frontend.id}
-                language={language}
-                languageStrings={languageStrings}
                 schemaVersions={schemaVersions}
                 databaseGroups={databaseGroups}
               />

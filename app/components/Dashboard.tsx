@@ -1,13 +1,11 @@
 import Link from 'next/link';
 import React from 'react';
 
-import siteInfo from '../const/siteInfo';
 import type { DeploymentWithInfo } from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
 import { getMostCommonElement, getMostRecentTag, group } from '../lib/helpers';
-import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
-import type { Database, localizationStrings } from '../pages';
+import type { Database } from '../pages';
 import { reducer } from '../reducers/Dashboard';
 import { Deployments } from './Deployments';
 import {
@@ -15,10 +13,9 @@ import {
   successButtonClassName,
 } from './InteractivePrimitives';
 import { filterArray } from '../lib/typescriptCommonTypes';
+import { localization } from '../const/localization';
 
 export function Dashboard({
-  languageStrings,
-  language,
   initialState,
   schemaVersions,
   branches,
@@ -26,8 +23,6 @@ export function Dashboard({
   pullRequests,
   onSave: handleSave,
 }: {
-  readonly languageStrings: typeof localizationStrings[Language];
-  readonly language: Language;
   readonly initialState: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
   readonly branches: IR<string>;
@@ -75,11 +70,9 @@ export function Dashboard({
   );
 
   const deploymentProps: Parameters<typeof Deployments>[0] = {
-    languageStrings,
     deployments: state.deployment,
     schemaVersions,
     databases,
-    language,
     dispatch,
     branches: pairedBranches,
     databaseGroups,
@@ -105,7 +98,7 @@ export function Dashboard({
   return (
     <div className="flex h-screen w-full flex-col gap-10 overflow-hidden">
       <div className="flex flex-1 flex-col gap-5 overflow-hidden">
-        <h1 className="text-5xl">{siteInfo[language].title}</h1>
+        <h1 className="text-5xl">{localization.pageTitle}</h1>
         <form
           id="dashboard"
           className="flex-1 overflow-y-auto"
@@ -116,14 +109,14 @@ export function Dashboard({
         >
           {readyForTesting.deployments.length > 0 && (
             <>
-              <h2 className="text-2xl">{languageStrings.readyForTesting}</h2>
+              <h2 className="text-2xl">{localization.readyForTesting}</h2>
               <Deployments {...readyForTesting} />
             </>
           )}
           {customDeployments.deployments.length > 0 && (
             <>
               <h2 className="mt-8 text-2xl">
-                {languageStrings.customDeployments}
+                {localization.customDeployments}
               </h2>
               <Deployments {...customDeployments} />
             </>
@@ -132,7 +125,7 @@ export function Dashboard({
       </div>
       <div className="flex gap-2">
         <Link href="/databases/" className={extraButtonClassName}>
-          {languageStrings.databases}
+          {localization.databases}
         </Link>
         <button
           className={`${successButtonClassName} ${
@@ -143,7 +136,7 @@ export function Dashboard({
           disabled={databases.length === 0}
           title={
             databases.length === 0
-              ? languageStrings.uploadDatabasesFirst
+              ? localization.uploadDatabasesFirst
               : undefined
           }
           type="button"
@@ -166,7 +159,7 @@ export function Dashboard({
             })
           }
         >
-          {languageStrings.addInstance}
+          {localization.addInstance}
         </button>
         <span className="flex-1" />
         <input
@@ -174,7 +167,7 @@ export function Dashboard({
           disabled={!hasChanges}
           form="dashboard"
           type="submit"
-          value={languageStrings.saveChanges}
+          value={localization.saveChanges}
         />
       </div>
     </div>

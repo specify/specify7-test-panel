@@ -8,105 +8,16 @@ import { useApi, useAsync } from '../components/useApi';
 import { stateRefreshInterval } from '../const/siteConfig';
 import type { Deployment } from '../lib/deployment';
 import { getPullRequests } from '../lib/github';
-import type { Language, LocalizationStrings } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
 import { getUserInfo, getUserTokenCookie } from '../lib/user';
-
-export const localizationStrings: LocalizationStrings<{
-  readonly title: string;
-  readonly errorOccurred: string;
-  readonly launch: string;
-  readonly readyForTesting: string;
-  readonly customDeployments: string;
-  readonly automatic: string;
-  readonly automaticDescription: string;
-  readonly ready: string;
-  readonly fetching: string;
-  readonly starting: string;
-  readonly collection: string;
-  readonly discipline: string;
-  readonly institution: string;
-  readonly specifyVersion: string;
-  readonly schemaVersion: string;
-  readonly database: string;
-  readonly databases: string;
-  readonly saveChanges: string;
-  readonly destroy: string;
-  readonly addInstance: string;
-  readonly branches: string;
-  readonly staleBranches: string;
-  readonly serverName: (index: number) => string;
-  readonly uploadDatabasesFirst: string;
-  readonly corruptDatabase: string;
-  readonly lastAccessed: string;
-  readonly notes: string;
-  readonly newDeployment: string;
-  readonly close: string;
-  readonly remove: string;
-  readonly deployedAt: string;
-  readonly buildDate: string;
-  readonly loading: string;
-  readonly frozenDeploymentDescription: string;
-  readonly groupName: string;
-  readonly never: string;
-  readonly listUsers: string;
-}> = {
-  'en-US': {
-    title: 'Dashboard',
-    errorOccurred: 'Unexpected error occurred',
-    launch: 'Launch',
-    readyForTesting: 'Ready for Testing',
-    customDeployments: 'Custom Deployments',
-    automatic: 'Automatic',
-    automaticDescription:
-      'This instance was deployed automatically because it is ready for ' +
-      'testing',
-    ready: 'Ready',
-    fetching: 'Fetching',
-    starting: 'Starting',
-    collection: 'Collection',
-    discipline: 'Discipline',
-    institution: 'Institution',
-    specifyVersion: 'Specify Version',
-    database: 'Database',
-    databases: 'Databases',
-    saveChanges: 'Save Changes',
-    destroy: 'Destroy',
-    addInstance: 'Add Instance',
-    branches: 'Branches:',
-    staleBranches: 'Stale Branches:',
-    serverName: (index) => `Server #${index}`,
-    uploadDatabasesFirst: 'Upload database first',
-    schemaVersion: 'Schema Version',
-    corruptDatabase: 'corrupt database',
-    lastAccessed: 'Last accessed',
-    notes: 'Notes',
-    newDeployment: 'New Deployment',
-    close: 'Close',
-    remove: 'Remove',
-    deployedAt: 'Deployed at',
-    buildDate: 'Build Date',
-    loading: 'Loading...',
-    frozenDeploymentDescription:
-      'This deployment is frozen to prevent accidental changes.\n' +
-      'You can unfreeze it by clearing the deployment notes field',
-    groupName: 'Group Name',
-    never: 'never',
-    listUsers: 'List Users',
-  },
-};
+import { localization } from '../const/localization';
 
 export default function Index(): JSX.Element {
   return (
-    <Layout
-      localizationStrings={localizationStrings}
-      title={localizationStrings}
-    >
-      {(languageStrings, language): JSX.Element => (
-        <FilterUsers protected>
-          <Wrapper language={language} languageStrings={languageStrings} />
-        </FilterUsers>
-      )}
+    <Layout title={localization.pageTitle}>
+      <FilterUsers protected>
+        <Wrapper />
+      </FilterUsers>
     </Layout>
   );
 }
@@ -131,13 +42,7 @@ export function useDatabases(): undefined | string | RA<Database> {
   );
 }
 
-function Wrapper({
-  languageStrings,
-  language,
-}: {
-  readonly languageStrings: typeof localizationStrings[Language];
-  readonly language: Language;
-}): JSX.Element {
+function Wrapper(): JSX.Element {
   const [state, setState] = useApi<RA<Deployment>>('/api/state');
   const branches = useApi<IR<string>>('/api/dockerhub/specify7-service')[0];
   const schemaVersions = useApi<IR<string>>(
@@ -214,7 +119,7 @@ function Wrapper({
     typeof branches === 'string' ||
     typeof databases === 'string' ||
     typeof pullRequests === 'string' ? (
-    <ModalDialog title={languageStrings.title}>
+    <ModalDialog title={localization.dashboard}>
       {[state, schemaVersions, branches, databases, pullRequests].find(
         (value): value is string => typeof value === 'string'
       )}
@@ -227,8 +132,6 @@ function Wrapper({
         ...deployment,
         frontend: { id },
       }))}
-      language={language}
-      languageStrings={languageStrings}
       pullRequests={pullRequests}
       schemaVersions={schemaVersions.data}
       onSave={(newState): void => {

@@ -11,44 +11,11 @@ import {
 import Layout from '../../components/Layout';
 import { Loading, ModalDialog } from '../../components/ModalDialog';
 import { fetchApi, useApi } from '../../components/useApi';
-import commonStrings from '../../const/commonStrings';
-import siteInfo from '../../const/siteInfo';
-import type { Language, LocalizationStrings } from '../../lib/languages';
 import type { IR, RA } from '../../lib/typescriptCommonTypes';
 import { Database, useDatabases } from '../index';
 import { multiSortFunction } from '../../lib/helpers';
 import { Deployment } from '../../lib/deployment';
-
-export const localizationStrings: LocalizationStrings<{
-  readonly title: string;
-  readonly errorOccurred: string;
-  readonly listUsers: string;
-  readonly download: string;
-  readonly uploadNew: string;
-  readonly usersOfDatabase: (database: string) => string;
-  readonly deleteDialogTitle: string;
-  readonly deleteDialogMessage: (database: string) => string;
-  readonly corruptDatabase: string;
-  readonly makeSuperUser: string;
-  readonly calculateSizes: string;
-  readonly mb: string;
-}> = {
-  'en-US': {
-    title: 'Databases',
-    errorOccurred: 'Unexpected error occurred',
-    listUsers: 'List users',
-    download: 'Download',
-    uploadNew: 'Upload New',
-    usersOfDatabase: (database) => `Specify Users in ${database}`,
-    deleteDialogTitle: 'Delete Database?',
-    deleteDialogMessage: (database) =>
-      `Are you sure you want to delete ${database} database?`,
-    corruptDatabase: 'corrupt database',
-    makeSuperUser: 'Make super user',
-    calculateSizes: 'Calculate sizes',
-    mb: 'mb',
-  },
-};
+import { localization } from '../../const/localization';
 
 type DatabaseWithSize = Database & { readonly size?: string | undefined };
 
@@ -93,129 +60,116 @@ export default function Index(): JSX.Element {
   }, [sizes, rawDatabases]);
 
   return (
-    <Layout
-      localizationStrings={localizationStrings}
-      title={localizationStrings}
-    >
-      {(languageStrings, language): JSX.Element => (
-        <FilterUsers protected>
-          {typeof databases === 'undefined' ? (
-            <Loading />
-          ) : typeof databases === 'string' ? (
-            <ModalDialog title={languageStrings.title}>{databases}</ModalDialog>
-          ) : typeof sizes === 'number' ? (
-            <ModalDialog title={languageStrings.title}>{sizes}</ModalDialog>
-          ) : (
-            <>
-              <div className="flex flex-1 flex-col gap-5">
-                <Link href="/" className="text-blue-500 hover:underline">
-                  {commonStrings[language].goBack}
-                </Link>
-                <h1 className="text-5xl">{siteInfo[language].title}</h1>
-                <h2 className="text-2xl">{languageStrings.title}</h2>
-                <ul className="flex w-8/12 flex-col gap-y-5">
-                  {databases.map(({ name, version, size }) => (
-                    <li
-                      className="flex flex-row gap-x-5 rounded bg-gray-300 p-5"
-                      key={name}
-                    >
-                      <span className="flex-1">
-                        {name}
-                        <b> ({version ?? languageStrings.corruptDatabase})</b>
-                        {typeof size === 'number' && (
-                          <b>{` (${size} ${languageStrings.mb})`}</b>
-                        )}
-                      </span>
-                      {!usedDatabases.has(name) && (
-                        <a
-                          className="text-red-400 hover:underline"
-                          href={`/api/databases/${name}/drop`}
-                          onClick={(event): void => {
-                            event.preventDefault();
-                            setDeleteDatabase(name);
-                          }}
-                        >
-                          {commonStrings[language].delete}
-                        </a>
+    <Layout title={localization.databases}>
+      <FilterUsers protected>
+        {typeof databases === 'undefined' ? (
+          <Loading />
+        ) : typeof databases === 'string' ? (
+          <ModalDialog title={localization.dashboard}>{databases}</ModalDialog>
+        ) : typeof sizes === 'number' ? (
+          <ModalDialog title={localization.dashboard}>{sizes}</ModalDialog>
+        ) : (
+          <>
+            <div className="flex flex-1 flex-col gap-5">
+              <Link href="/" className="text-blue-500 hover:underline">
+                {localization.goBack}
+              </Link>
+              <h1 className="text-5xl">{localization.pageTitle}</h1>
+              <h2 className="text-2xl">{localization.dashboard}</h2>
+              <ul className="flex w-8/12 flex-col gap-y-5">
+                {databases.map(({ name, version, size }) => (
+                  <li
+                    className="flex flex-row gap-x-5 rounded bg-gray-300 p-5"
+                    key={name}
+                  >
+                    <span className="flex-1">
+                      {name}
+                      <b> ({version ?? localization.corruptDatabase})</b>
+                      {typeof size === 'number' && (
+                        <b>{` (${size} ${localization.mb})`}</b>
                       )}
+                    </span>
+                    {!usedDatabases.has(name) && (
                       <a
-                        className="text-green-400 hover:underline"
-                        href={`/api/databases/${name}/export`}
+                        className="text-red-400 hover:underline"
+                        href={`/api/databases/${name}/drop`}
+                        onClick={(event): void => {
+                          event.preventDefault();
+                          setDeleteDatabase(name);
+                        }}
                       >
-                        {languageStrings.download}
+                        {localization.delete}
                       </a>
-                      <button
-                        className="text-blue-400 hover:underline"
-                        type="button"
-                        onClick={(): void => setListUsers(name)}
-                      >
-                        {languageStrings.listUsers}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="flex gap-2">
-                <Link
-                  href="/databases/upload"
-                  className={successButtonClassName}
-                >
-                  {languageStrings.uploadNew}
-                </Link>
-                <button
-                  className={infoButtonClassName}
-                  onClick={(): void => {
-                    setShowSizes(true);
-                    fetchApi('/api/databases/size')
-                      .then(setSizes)
-                      .catch(console.error);
-                  }}
-                  disabled={showSizes}
-                >
-                  {showSizes && sizes === undefined
-                    ? commonStrings[language].loading
-                    : languageStrings.calculateSizes}
-                </button>
-              </div>
-              {typeof listUsers === 'string' && (
-                <ListUsers
-                  database={listUsers}
-                  language={language}
-                  onClose={(): void => setListUsers(undefined)}
-                />
-              )}
-              {typeof deleteDatabase === 'string' && (
-                <DeleteDatabase
-                  database={deleteDatabase}
-                  language={language}
-                  onClose={(): void => setDeleteDatabase(undefined)}
-                />
-              )}
-            </>
-          )}
-        </FilterUsers>
-      )}
+                    )}
+                    <a
+                      className="text-green-400 hover:underline"
+                      href={`/api/databases/${name}/export`}
+                    >
+                      {localization.download}
+                    </a>
+                    <button
+                      className="text-blue-400 hover:underline"
+                      type="button"
+                      onClick={(): void => setListUsers(name)}
+                    >
+                      {localization.listUsers}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex gap-2">
+              <Link href="/databases/upload" className={successButtonClassName}>
+                {localization.uploadNew}
+              </Link>
+              <button
+                className={infoButtonClassName}
+                onClick={(): void => {
+                  setShowSizes(true);
+                  fetchApi('/api/databases/size')
+                    .then(setSizes)
+                    .catch(console.error);
+                }}
+                disabled={showSizes}
+              >
+                {showSizes && sizes === undefined
+                  ? localization.loading
+                  : localization.calculateSizes}
+              </button>
+            </div>
+            {typeof listUsers === 'string' && (
+              <ListUsers
+                database={listUsers}
+                onClose={(): void => setListUsers(undefined)}
+              />
+            )}
+            {typeof deleteDatabase === 'string' && (
+              <DeleteDatabase
+                database={deleteDatabase}
+                onClose={(): void => setDeleteDatabase(undefined)}
+              />
+            )}
+          </>
+        )}
+      </FilterUsers>
     </Layout>
   );
 }
 
 export function ListUsers({
   database,
-  language,
   onClose: handleClose,
 }: {
   readonly database: string;
-  readonly language: Language;
   readonly onClose: () => void;
 }) {
   const users = useApi<IR<string>>(`/api/databases/${database}/users`)[0];
-  const languageStrings = localizationStrings[language];
 
   return typeof users === 'undefined' ? (
     <Loading />
   ) : (
     <ModalDialog
-      title={languageStrings.usersOfDatabase(database)}
+      title={localization.usersOfDatabase(database)}
       onClose={handleClose}
     >
       {typeof users === 'string' ? (
@@ -239,7 +193,7 @@ export function ListUsers({
                     .catch(console.error)
                 }
               >
-                {languageStrings.makeSuperUser}
+                {localization.makeSuperUser}
               </button>
             </li>
           ))}
@@ -251,15 +205,11 @@ export function ListUsers({
 
 function DeleteDatabase({
   database,
-  language,
   onClose: handleClose,
 }: {
   readonly database: string;
-  readonly language: Language;
   readonly onClose: () => void;
-}) {
-  const languageStrings = localizationStrings[language];
-
+}): JSX.Element {
   return (
     <ModalDialog
       buttons={
@@ -269,20 +219,20 @@ function DeleteDatabase({
             type="button"
             onClick={handleClose}
           >
-            {commonStrings[language].cancel}
+            {localization.cancel}
           </button>
           <a
             className={dangerButtonClassName}
             href={`/api/databases/${database}/drop`}
           >
-            {commonStrings[language].delete}
+            {localization.delete}
           </a>
         </>
       }
-      title={languageStrings.deleteDialogTitle}
+      title={localization.deleteDialogTitle}
       onClose={handleClose}
     >
-      {languageStrings.deleteDialogMessage(database)}
+      {localization.deleteDialogMessage(database)}
     </ModalDialog>
   );
 }

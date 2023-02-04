@@ -5,9 +5,8 @@ import type { Deployment, DeploymentWithInfo } from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
 import { isNoFetchMode, split, trimString } from '../lib/helpers';
 import { getRelativeDate } from '../lib/internationalization';
-import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
-import type { Database, localizationStrings } from '../pages';
+import type { Database } from '../pages';
 import type { Actions } from '../reducers/Dashboard';
 import { AutoGrowTextArea } from './AutoGrowTextArea';
 import { DeploymentOptions } from './DeploymentOptions';
@@ -18,6 +17,7 @@ import {
 } from './InteractivePrimitives';
 import { ModalDialog } from './ModalDialog';
 import { Branch, isStale } from './Deployments';
+import { localization } from '../const/localization';
 
 type Status =
   | 'fetching'
@@ -33,8 +33,6 @@ type Status =
 
 export function DeploymentLine({
   deployment,
-  language,
-  languageStrings,
   schemaVersions,
   databases,
   dispatch,
@@ -42,8 +40,6 @@ export function DeploymentLine({
   databaseGroups,
 }: {
   readonly deployment: DeploymentWithInfo;
-  readonly language: Language;
-  readonly languageStrings: typeof localizationStrings[Language];
   readonly schemaVersions: IR<string>;
   readonly databases: RA<Database>;
   readonly dispatch: (action: Actions) => void;
@@ -119,7 +115,7 @@ export function DeploymentLine({
   const isFrozen =
     deployment.deployedAt !== undefined && deployment.notes.length > 0;
   const frozenDescription = isFrozen
-    ? languageStrings.frozenDeploymentDescription
+    ? localization.frozenDeploymentDescription
     : undefined;
 
   const branchesWithPullRequests = branches.filter(
@@ -160,7 +156,7 @@ export function DeploymentLine({
           )
         }
       >
-        {languageStrings.launch}
+        {localization.launch}
       </a>
       <select
         className="rounded-md bg-gray-200 p-2 disabled:opacity-50"
@@ -181,14 +177,14 @@ export function DeploymentLine({
             <option value={branch}>{branch}</option>
           </optgroup>
         ))}
-        <optgroup label={languageStrings.branches}>
+        <optgroup label={localization.branches}>
           {freshBranches.map(({ branch }) => (
             <option key={branch} value={branch}>
               {branch}
             </option>
           ))}
         </optgroup>
-        <optgroup label={languageStrings.staleBranches}>
+        <optgroup label={localization.staleBranches}>
           {slateBranches.map(({ branch }) => (
             <option key={branch} value={branch}>
               {branch}
@@ -201,7 +197,7 @@ export function DeploymentLine({
           {branchesWithoutPullRequests.some(
             ({ branch }) => branch === deployment.branch
           )
-            ? languageStrings.serverName(deployment.frontend.id + 1)
+            ? localization.serverName(deployment.frontend.id + 1)
             : [
                 branchesWithPullRequests.find(
                   ({ branch }) => branch === deployment.branch
@@ -216,16 +212,8 @@ export function DeploymentLine({
                 ))[0]}
         </p>
       </div>
-      <StatusIndicator
-        deployment={deployment}
-        languageStrings={languageStrings}
-        status={status}
-      />
-      <TextBox
-        deployment={deployment}
-        languageStrings={languageStrings}
-        onChange={handleChange}
-      />
+      <StatusIndicator deployment={deployment} status={status} />
+      <TextBox deployment={deployment} onChange={handleChange} />
       <select
         className="rounded-md bg-gray-200 p-2 disabled:opacity-50"
         disabled={isFrozen}
@@ -243,10 +231,10 @@ export function DeploymentLine({
         }
       >
         <option />
-        <optgroup label={languageStrings.databases}>
+        <optgroup label={localization.databases}>
           {ungroupedDatabases.map(({ name, version }) => (
             <option key={name} value={name}>
-              {`${name} (${version ?? languageStrings.corruptDatabase})`}
+              {`${name} (${version ?? localization.corruptDatabase})`}
             </option>
           ))}
         </optgroup>
@@ -256,7 +244,7 @@ export function DeploymentLine({
               <option key={name} value={name}>
                 {`${name} (${
                   databases.find((database) => database.name === name)
-                    ?.version ?? languageStrings.corruptDatabase
+                    ?.version ?? localization.corruptDatabase
                 })`}
               </option>
             ))}
@@ -265,8 +253,6 @@ export function DeploymentLine({
       </select>
       <DeploymentOptions
         deployment={deployment}
-        language={language}
-        languageStrings={languageStrings}
         schemaVersions={schemaVersions}
         onChange={handleChange}
         onDelete={(): void =>
@@ -282,11 +268,9 @@ export function DeploymentLine({
 
 function TextBox({
   deployment,
-  languageStrings,
   onChange: handleChange,
 }: {
   readonly deployment: Deployment;
-  readonly languageStrings: typeof localizationStrings[Language];
   readonly onChange: (deployment: Partial<Deployment>) => void;
 }): JSX.Element {
   const retrieveRelativeDate = (): string =>
@@ -301,8 +285,8 @@ function TextBox({
       containerClassName="w-80"
       placeholder={
         relativeDate === ''
-          ? languageStrings.notes
-          : `${languageStrings.lastAccessed} ${relativeDate}`
+          ? localization.notes
+          : `${localization.lastAccessed} ${relativeDate}`
       }
       rows={1}
       value={deployment.notes}
@@ -358,11 +342,9 @@ function JsxPullRequestFormatter({
 function StatusIndicator({
   deployment,
   status,
-  languageStrings,
 }: {
   readonly deployment: DeploymentWithInfo;
   readonly status: Status;
-  readonly languageStrings: typeof localizationStrings[Language];
 }): JSX.Element {
   let state = '';
   let stateDescription: string | undefined;
@@ -371,16 +353,16 @@ function StatusIndicator({
   const isReady = typeof status === 'object';
 
   if (typeof status === 'undefined' || status === 'fetching') {
-    state = languageStrings.fetching;
+    state = localization.fetching;
     color = 'text-blue-600';
   } else if (status === 'unreachable') {
-    state = languageStrings.starting;
+    state = localization.starting;
     color = 'text-red-600';
   } else if (isReady) {
     if (deployment.wasAutoDeployed) {
-      state = languageStrings.automatic;
-      stateDescription = languageStrings.automaticDescription;
-    } else state = languageStrings.ready;
+      state = localization.automatic;
+      stateDescription = localization.automaticDescription;
+    } else state = localization.ready;
     color = 'text-green-600';
   }
 
@@ -403,15 +385,15 @@ function StatusIndicator({
       )}
       {isReady && isOpen && (
         <ModalDialog title={deployment.branch} onClose={() => setIsOpen(false)}>
-          <b>{languageStrings.collection}:</b> {status.collection}
+          <b>{localization.collection}:</b> {status.collection}
           <br />
-          <b>{languageStrings.discipline}:</b> {status.discipline}
+          <b>{localization.discipline}:</b> {status.discipline}
           <br />
-          <b>{languageStrings.institution}:</b> {status.institution}
+          <b>{localization.institution}:</b> {status.institution}
           <br />
-          <b>{languageStrings.schemaVersion}:</b> {status.schemaVersion}
+          <b>{localization.schemaVersion}:</b> {status.schemaVersion}
           <br />
-          <b>{languageStrings.specifyVersion}:</b> {status.specifyVersion}
+          <b>{localization.specifyVersion}:</b> {status.specifyVersion}
         </ModalDialog>
       )}
     </>

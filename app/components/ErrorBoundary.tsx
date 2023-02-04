@@ -7,10 +7,9 @@
  */
 
 import React from 'react';
+import { localization } from '../const/localization';
 
-import type { Language, LocalizationStrings } from '../lib/languages';
 import { dangerButtonClassName } from './InteractivePrimitives';
-import { GetUserLanguage } from './LanguageContext';
 import { ModalDialog } from './ModalDialog';
 
 type ErrorBoundaryState =
@@ -24,20 +23,6 @@ type ErrorBoundaryState =
       readonly error: { readonly toString: () => string };
       readonly errorInfo: { readonly componentStack: string };
     };
-
-const localizationStrings: LocalizationStrings<{
-  readonly title: string;
-  readonly reload: string;
-  readonly previousPage: string;
-  readonly unexpectedErrorHasOccurred: string;
-}> = {
-  'en-US': {
-    title: 'Unexpected Error',
-    reload: 'Reload',
-    previousPage: 'Previous page',
-    unexpectedErrorHasOccurred: 'An unexpected error has occurred.',
-  },
-};
 
 export default class ErrorBoundary extends React.Component<
   { readonly children: JSX.Element },
@@ -67,40 +52,34 @@ export default class ErrorBoundary extends React.Component<
 
   public readonly render = (): JSX.Element =>
     this.state.hasError ? (
-      <GetUserLanguage localizationStrings={localizationStrings}>
-        {(
-          languageStrings: Readonly<typeof localizationStrings[Language]>
-        ): JSX.Element => (
-          <ModalDialog
-            buttons={
-              <>
-                <button
-                  className={dangerButtonClassName}
-                  type="button"
-                  onClick={this.handleReload}
-                >
-                  {languageStrings.reload}
-                </button>
-                <button
-                  className={dangerButtonClassName}
-                  type="button"
-                  onClick={this.handleHistoryBack}
-                >
-                  {languageStrings.previousPage}
-                </button>
-              </>
-            }
-            title="Unexpected Error"
-          >
-            <p>{languageStrings.unexpectedErrorHasOccurred}</p>
-            <details style={{ whiteSpace: 'pre-wrap' }}>
-              {this.state.error?.toString()}
-              <br />
-              {this.state.errorInfo?.componentStack}
-            </details>
-          </ModalDialog>
-        )}
-      </GetUserLanguage>
+      <ModalDialog
+        buttons={
+          <>
+            <button
+              className={dangerButtonClassName}
+              type="button"
+              onClick={this.handleReload}
+            >
+              {localization.reload}
+            </button>
+            <button
+              className={dangerButtonClassName}
+              type="button"
+              onClick={this.handleHistoryBack}
+            >
+              {localization.previousPage}
+            </button>
+          </>
+        }
+        title={localization.unexpectedError}
+      >
+        <p>{localization.unexpectedErrorHasOccurred}</p>
+        <details style={{ whiteSpace: 'pre-wrap' }}>
+          {this.state.error?.toString()}
+          <br />
+          {this.state.errorInfo?.componentStack}
+        </details>
+      </ModalDialog>
     ) : (
       this.props.children
     );
