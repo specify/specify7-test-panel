@@ -49,6 +49,7 @@ export function Deployments({
   databases,
   branches: rawBranches,
   dispatch,
+  databaseGroups,
 }: {
   readonly languageStrings: typeof localizationStrings[Language];
   readonly deployments: RA<DeploymentWithInfo>;
@@ -56,6 +57,7 @@ export function Deployments({
   readonly databases: RA<Database>;
   readonly dispatch: (action: Actions) => void;
   readonly branches: RA<Branch>;
+  readonly databaseGroups: IR<RA<string>>;
 }): JSX.Element {
   const branches = useSortedBranches(rawBranches);
 
@@ -77,6 +79,7 @@ export function Deployments({
                 key={deployment.frontend.id}
                 languageStrings={languageStrings}
                 schemaVersions={schemaVersions}
+                databaseGroups={databaseGroups}
               />
             ))}
           </ul>

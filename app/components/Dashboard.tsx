@@ -4,7 +4,7 @@ import React from 'react';
 import siteInfo from '../const/siteInfo';
 import type { DeploymentWithInfo } from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
-import { getMostCommonElement, getMostRecentTag } from '../lib/helpers';
+import { getMostCommonElement, getMostRecentTag, group } from '../lib/helpers';
 import type { Language } from '../lib/languages';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
 import type { Database, localizationStrings } from '../pages';
@@ -56,6 +56,24 @@ export function Dashboard({
     )
   );
 
+  const databaseGroups = React.useMemo(
+    () =>
+      Object.fromEntries(
+        group(
+          group(
+            filterArray(
+              state.deployment.map(({ group, database }) =>
+                group === undefined || group.length === 0
+                  ? undefined
+                  : [database, group]
+              )
+            )
+          ).map(([database, groups]) => [groups.join(', '), database])
+        )
+      ),
+    [state.deployment]
+  );
+
   const deploymentProps: Parameters<typeof Deployments>[0] = {
     languageStrings,
     deployments: state.deployment,
@@ -63,6 +81,7 @@ export function Dashboard({
     databases,
     dispatch,
     branches: pairedBranches,
+    databaseGroups,
   };
 
   const readyForTesting = {

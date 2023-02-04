@@ -38,6 +38,7 @@ export function DeploymentLine({
   databases,
   dispatch,
   branches,
+  databaseGroups,
 }: {
   readonly deployment: DeploymentWithInfo;
   readonly languageStrings: typeof localizationStrings[Language];
@@ -45,8 +46,14 @@ export function DeploymentLine({
   readonly databases: RA<Database>;
   readonly dispatch: (action: Actions) => void;
   readonly branches: RA<Branch>;
+  readonly databaseGroups: IR<RA<string>>;
 }): JSX.Element {
   const [status, setStatus] = React.useState<Status>(undefined);
+
+  const ungroupedDatabases = React.useMemo(() => {
+    const groupedDatabases = new Set(Object.values(databaseGroups).flat());
+    return databases.filter(({ name }) => !groupedDatabases.has(name));
+  }, [databaseGroups, databases]);
 
   React.useEffect(() => {
     if (isNoFetchMode()) {
@@ -235,12 +242,24 @@ export function DeploymentLine({
       >
         <option />
         <optgroup label={languageStrings.databases}>
-          {databases.map(({ name, version }) => (
+          {ungroupedDatabases.map(({ name, version }) => (
             <option key={name} value={name}>
               {`${name} (${version ?? languageStrings.corruptDatabase})`}
             </option>
           ))}
         </optgroup>
+        {Object.entries(databaseGroups).map(([group, databaseNames]) => (
+          <optgroup label={group} key={group}>
+            {databaseNames.map((name) => (
+              <option key={name} value={name}>
+                {`${name} (${
+                  databases.find((database) => database.name === name)
+                    ?.version ?? languageStrings.corruptDatabase
+                })`}
+              </option>
+            ))}
+          </optgroup>
+        ))}
       </select>
       <DeploymentOptions
         deployment={deployment}
