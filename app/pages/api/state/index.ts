@@ -16,6 +16,7 @@ import { createDockerConfig } from '../../../lib/dockerCompose';
 import { createNginxConfig } from '../../../lib/nginx';
 import type { RA } from '../../../lib/typescriptCommonTypes';
 import type { User } from '../../../lib/user';
+import { fetchTagsForImage } from '../dockerhub/[image]';
 
 const configurationFile = path.resolve(stateDirectory, 'configuration.json');
 const nginxConfigurationFile = path.resolve(nginxConfigDirectory, 'nginx.conf');
@@ -50,11 +51,17 @@ export async function setState(
   origin: string,
   autoDeploy = true
 ): Promise<RA<ActiveDeployment>> {
-  const state = await autoDeployPullRequests(
+  const rawState = await autoDeployPullRequests(
     formalizeState(deployments, await getState()),
     user,
     autoDeploy
   );
+
+  const branches = await fetchTagsForImage('specify7-service');
+  const state = rawState.map((deployment) => ({
+    ...deployment,
+    digest: branches[deployment.branch]?.digest ?? deployment.digest,
+  }));
 
   await fs.promises.writeFile(configurationFile, JSON.stringify(state));
   const nginxConfig = createNginxConfig(state, new URL(origin).host);

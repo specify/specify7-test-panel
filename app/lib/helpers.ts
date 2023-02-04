@@ -15,9 +15,9 @@ export const getMostCommonElement = <T>(array: RA<T>): T | undefined =>
     [-1, undefined]
   )[1];
 
-export const getMostRecentTag = (tags: IR<string>) =>
-  Object.entries(tags).sort(([_, dateLeft], [__, dateRight]) =>
-    new Date(dateLeft).getTime() > new Date(dateRight).getTime() ? -1 : 1
+export const getMostRecentTag = (tags: IR<string>): string =>
+  Object.entries(tags).sort(
+    multiSortFunction(([_name, lastUpdated]) => lastUpdated, true)
   )[0][0];
 
 /** Like sortFunction, but can sort based on multiple fields */

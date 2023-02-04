@@ -2,6 +2,8 @@ import React from 'react';
 import Modal from 'react-modal';
 import css from 'styled-jsx/css';
 
+import { localization } from '../const/localization';
+
 export function ModalDialog({
   isOpen = true,
   title,
@@ -88,9 +90,8 @@ export function ModalDialog({
 
 export function Loading(): JSX.Element {
   return (
-    <ModalDialog title="Loading...">
-      {/* TODO: add a fancy loading bar here */}
-      Loading...
+    <ModalDialog title={localization.loading}>
+      {localization.loading}
     </ModalDialog>
   );
 }

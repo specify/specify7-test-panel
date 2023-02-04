@@ -378,13 +378,16 @@ function StatusIndicator({
           disabled={!isReady}
           title={stateDescription}
           type="button"
-          onClick={isReady ? () => setIsOpen(true) : undefined}
+          onClick={isReady ? (): void => setIsOpen(true) : undefined}
         >
           {state}
         </button>
       )}
       {isReady && isOpen && (
-        <ModalDialog title={deployment.branch} onClose={() => setIsOpen(false)}>
+        <ModalDialog
+          title={deployment.branch}
+          onClose={(): void => setIsOpen(false)}
+        >
           <b>{localization.collection}:</b> {status.collection}
           <br />
           <b>{localization.discipline}:</b> {status.discipline}

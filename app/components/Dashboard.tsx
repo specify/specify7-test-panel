@@ -1,19 +1,20 @@
 import Link from 'next/link';
 import React from 'react';
 
+import { localization } from '../const/localization';
 import type { DeploymentWithInfo } from '../lib/deployment';
 import type { PullRequest } from '../lib/github';
 import { getMostCommonElement, getMostRecentTag, group } from '../lib/helpers';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
+import { filterArray } from '../lib/typescriptCommonTypes';
 import type { Database } from '../pages';
+import type { DockerHubTag } from '../pages/api/dockerhub/[image]';
 import { reducer } from '../reducers/Dashboard';
 import { Deployments } from './Deployments';
 import {
   extraButtonClassName,
   successButtonClassName,
 } from './InteractivePrimitives';
-import { filterArray } from '../lib/typescriptCommonTypes';
-import { localization } from '../const/localization';
 
 export function Dashboard({
   initialState,
@@ -25,20 +26,21 @@ export function Dashboard({
 }: {
   readonly initialState: RA<DeploymentWithInfo>;
   readonly schemaVersions: IR<string>;
-  readonly branches: IR<string>;
+  readonly branches: IR<DockerHubTag>;
   readonly databases: RA<Database>;
   readonly pullRequests: RA<PullRequest>;
   readonly onSave: (state: RA<DeploymentWithInfo>) => void;
-}) {
+}): JSX.Element {
   const [state, dispatch] = React.useReducer(reducer, {
     type: 'MainState',
     deployment: initialState,
   });
 
   const pairedBranches = Object.entries(branches).map(
-    ([branch, modifiedDate]) => ({
+    ([branch, { lastUpdated, digest }]) => ({
       branch,
-      modifiedDate: new Date(modifiedDate),
+      digest,
+      modifiedDate: new Date(lastUpdated),
       pullRequest: pullRequests.find(
         ({ headRefName }) => headRefName === branch
       ),
@@ -100,8 +102,8 @@ export function Dashboard({
       <div className="flex flex-1 flex-col gap-5 overflow-hidden">
         <h1 className="text-5xl">{localization.pageTitle}</h1>
         <form
-          id="dashboard"
           className="flex-1 overflow-y-auto"
+          id="dashboard"
           onSubmit={(event): void => {
             event.preventDefault();
             handleSave(state.deployment);
@@ -124,7 +126,7 @@ export function Dashboard({
         </form>
       </div>
       <div className="flex gap-2">
-        <Link href="/databases/" className={extraButtonClassName}>
+        <Link className={extraButtonClassName} href="/databases/">
           {localization.databases}
         </Link>
         <button
@@ -144,7 +146,13 @@ export function Dashboard({
             dispatch({
               type: 'AddInstanceAction',
               deployment: {
-                branch: getMostRecentTag(branches),
+                branch: getMostRecentTag(
+                  Object.fromEntries(
+                    Object.entries(branches).map(
+                      ([branch, { lastUpdated }]) => [branch, lastUpdated]
+                    )
+                  )
+                ),
                 notes: '',
                 database:
                   getMostCommonElement(

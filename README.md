@@ -211,7 +211,6 @@ Description=Run docker-compose up for test panel.
 [Service]
 Type=oneshot
 WorkingDirectory=/home/specify/specify7-test-panel
-ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml pull
 ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml up --remove-orphans -d
 ```
 
@@ -256,8 +255,6 @@ Then, run this command though nohup:
 
 ```bash
 fswatch -o ./state/docker-compose.yml | xargs -n1 -I{} sh -c " \
-docker pull specifyconsortium/specify7-service --all-tags; \
-docker pull specifyconsortium/specify6-service --all-tags; \
 docker-compose \
   -f docker-compose.yml \
   -f docker-compose.production.yml \

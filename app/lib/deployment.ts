@@ -19,12 +19,13 @@ type DeploymentDetails = {
 export type ActiveDeployment = Deployment & DeploymentDetails;
 
 export type Deployment = Partial<DeploymentDetails> & {
-  readonly branch: string;
   readonly database: string;
   readonly schemaVersion: string;
   readonly wasAutoDeployed: boolean;
   readonly notes: string;
   readonly group?: string;
+  readonly branch: string;
+  readonly digest?: string;
 };
 
 export type DeploymentWithInfo = Deployment & {
@@ -120,7 +121,7 @@ export async function autoDeployPullRequests(
   const schemaVersions = await fetchTagsForImage('specify6-service');
   const schemaVersion =
     getMostCommonElement(state.map(({ schemaVersion }) => schemaVersion)) ??
-    schemaVersions[0];
+    Object.keys(schemaVersions)[0];
 
   return formalizeState([
     ...trimmedState,

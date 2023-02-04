@@ -2,7 +2,14 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IR, RA } from '../../../lib/typescriptCommonTypes';
 
-export const fetchTagsForImage = async (image: string): Promise<IR<string>> =>
+export type DockerHubTag = {
+  readonly lastUpdated: string;
+  readonly digest: string;
+};
+
+export const fetchTagsForImage = async (
+  image: string
+): Promise<IR<DockerHubTag>> =>
   fetchTags(
     `https://hub.docker.com/v2/repositories/specifyconsortium/${image}/tags/?page_size=1000`
   ).then(processTagsResponse);
@@ -11,6 +18,7 @@ type Response = {
   readonly results: RA<{
     readonly name: string;
     readonly last_updated: string;
+    readonly digest: string;
   }>;
   readonly next: string | undefined;
 };
@@ -23,11 +31,17 @@ export const fetchTags = async (url: string): Promise<Response['results']> =>
       ...(typeof next === 'string' ? await fetchTags(next) : []),
     ]);
 
-const processTagsResponse = (tags: Response['results']) =>
+const processTagsResponse = (tags: Response['results']): IR<DockerHubTag> =>
   Object.fromEntries(
     tags
       .filter(({ name }) => !name.startsWith('sha-'))
-      .map(({ name, last_updated }) => [name, last_updated])
+      .map(({ name, last_updated, digest }) => [
+        name,
+        {
+          lastUpdated: last_updated,
+          digest,
+        },
+      ])
       .sort(([nameLeft], [nameRight]) =>
         nameLeft < nameRight ? -1 : nameLeft === nameRight ? 0 : 1
       )

@@ -11,6 +11,7 @@ import { getPullRequests } from '../lib/github';
 import type { IR, RA } from '../lib/typescriptCommonTypes';
 import { getUserInfo, getUserTokenCookie } from '../lib/user';
 import { localization } from '../const/localization';
+import { DockerHubTag } from './api/dockerhub/[image]';
 
 export default function Index(): JSX.Element {
   return (
@@ -44,7 +45,9 @@ export function useDatabases(): undefined | string | RA<Database> {
 
 function Wrapper(): JSX.Element {
   const [state, setState] = useApi<RA<Deployment>>('/api/state');
-  const branches = useApi<IR<string>>('/api/dockerhub/specify7-service')[0];
+  const branches = useApi<IR<DockerHubTag>>(
+    '/api/dockerhub/specify7-service'
+  )[0];
   const schemaVersions = useApi<IR<string>>(
     '/api/dockerhub/specify6-service'
   )[0];

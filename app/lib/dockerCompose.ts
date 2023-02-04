@@ -1,5 +1,10 @@
-import type { ActiveDeployment } from './deployment';
+import type { ActiveDeployment, Deployment } from './deployment';
 import type { RA } from './typescriptCommonTypes';
+
+const resolveVersion = (deployment: Deployment) =>
+  typeof deployment.digest === 'string'
+    ? `@${deployment.digest}`
+    : `:${deployment.branch}`;
 
 export const createDockerConfig = (
   deployments: RA<ActiveDeployment>,
@@ -20,7 +25,7 @@ ${deployments
   .map(
     (deployment) => `
   ${deployment.hostname}:
-    image: specifyconsortium/specify7-service:${deployment.branch}
+    image: specifyconsortium/specify7-service${resolveVersion(deployment)}
     init: true
     restart: unless-stopped
     networks:
@@ -45,8 +50,10 @@ ${deployments
       - LOG_LEVEL=DEBUG
 
   ${deployment.hostname}-worker:
-    image: specifyconsortium/specify7-service:${deployment.branch}
-    command: ve/bin/celery -A specifyweb worker -l INFO --concurrency=1 -Q ${deployment.hostname}
+    image: specifyconsortium/specify7-service:${resolveVersion(deployment)}
+    command: ve/bin/celery -A specifyweb worker -l INFO --concurrency=1 -Q ${
+      deployment.hostname
+    }
     init: true
     restart: unless-stopped
     volumes:
