@@ -1,5 +1,5 @@
 const baseButtonStyle = `inline-flex px-4 py-2 rounded-md sm:text-sm
-  justify-center text-white items-center`;
+  justify-center text-white items-center disabled:brightness-50`;
 export const primaryButtonClassName = `${baseButtonStyle} bg-black
   hover:bg-gray-800 border border-gray-500`;
 export const infoButtonClassName = `${baseButtonStyle} bg-blue-600
