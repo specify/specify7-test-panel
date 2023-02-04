@@ -151,7 +151,7 @@ export function DeploymentLine({
         {languageStrings.launch}
       </a>
       <select
-        className="rounded-md bg-gray-200 p-2"
+        className="rounded-md bg-gray-200 p-2 disabled:opacity-50"
         disabled={isFrozen}
         title={frozenDescription}
         required
@@ -169,7 +169,7 @@ export function DeploymentLine({
             <option value={branch}>{branch}</option>
           </optgroup>
         ))}
-        <optgroup label={languageStrings.otherBranches}>
+        <optgroup label={languageStrings.branches}>
           {freshBranches.map(({ branch }) => (
             <option key={branch} value={branch}>
               {branch}
@@ -215,7 +215,7 @@ export function DeploymentLine({
         onChange={handleChange}
       />
       <select
-        className="rounded-md bg-gray-200 p-2"
+        className="rounded-md bg-gray-200 p-2 disabled:opacity-50"
         disabled={isFrozen}
         title={frozenDescription}
         required
@@ -237,7 +237,7 @@ export function DeploymentLine({
         </optgroup>
       </select>
       <select
-        className="rounded-md bg-gray-200 p-2"
+        className="rounded-md bg-gray-200 p-2 disabled:opacity-50"
         disabled={isFrozen}
         title={frozenDescription}
         required
