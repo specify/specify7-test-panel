@@ -64,8 +64,8 @@ export function Deployments({
   ).sort(([leftGroup], [rightGroup]) => leftGroup.localeCompare(rightGroup));
   return (
     <ul className="mt-4 flex flex-col gap-y-5">
-      {grouped.map(([group, deployments]) => (
-        <li>
+      {grouped.map(([group, deployments], index) => (
+        <li key={index}>
           {group}
           <ul className="mt-4 flex flex-col gap-y-5">
             {deployments.map((deployment) => (

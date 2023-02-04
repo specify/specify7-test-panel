@@ -57,7 +57,8 @@ export function DeploymentLine({
       if (destructorCalled) return;
       const timeout = setTimeout(() => setStatus('fetching'), 150);
       fetch(
-        `${document.location.protocol}//${hostname}.${document.location.hostname}/context/system_info.json`
+        `${document.location.protocol}//${hostname}.${document.location.hostname}/context/system_info.json`,
+        { cache: 'no-cache' }
       )
         .then<Status>(async (response) => {
           if (response.status !== 200) return 'unreachable';
