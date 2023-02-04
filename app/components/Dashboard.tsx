@@ -86,7 +86,14 @@ export function Dashboard({
     <div className="flex h-screen w-full flex-col gap-10 overflow-hidden">
       <div className="flex flex-1 flex-col gap-5 overflow-hidden">
         <h1 className="text-5xl">{siteInfo[language].title}</h1>
-        <form id="dashboard" className="flex-1 overflow-y-auto">
+        <form
+          id="dashboard"
+          className="flex-1 overflow-y-auto"
+          onSubmit={(event): void => {
+            event.preventDefault();
+            handleSave(state.deployment);
+          }}
+        >
           {readyForTesting.deployments.length > 0 && (
             <>
               <h2 className="text-2xl">{languageStrings.readyForTesting}</h2>
@@ -142,15 +149,13 @@ export function Dashboard({
           {languageStrings.addInstance}
         </button>
         <span className="flex-1" />
-        <button
+        <input
           className={`${successButtonClassName} ${hasChanges ? '' : 'sr-only'}`}
           disabled={!hasChanges}
           form="dashboard"
           type="submit"
-          onClick={() => handleSave(state.deployment)}
-        >
-          {languageStrings.saveChanges}
-        </button>
+          value={languageStrings.saveChanges}
+        />
       </div>
     </div>
   );

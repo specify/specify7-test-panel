@@ -232,8 +232,8 @@ export function DeploymentLine({
           })
         }
       >
+        <option />
         <optgroup label={languageStrings.databases}>
-          <option />
           {databases.map(({ name, version }) => (
             <option key={name} value={name}>
               {`${name} (${version ?? languageStrings.corruptDatabase})`}
