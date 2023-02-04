@@ -1,7 +1,9 @@
 import React from 'react';
 
 import type { Deployment } from '../lib/deployment';
+import { isNoFetchMode } from '../lib/helpers';
 import type { Language } from '../lib/languages';
+import type { IR } from '../lib/typescriptCommonTypes';
 import type { localizationStrings } from '../pages';
 import { DateElement } from './DateElement';
 import { icons } from './Icons';
@@ -11,16 +13,17 @@ import {
 } from './InteractivePrimitives';
 import { ModalDialog } from './ModalDialog';
 import { useApi } from './useApi';
-import { isNoFetchMode } from '../lib/helpers';
 
 export function DeploymentOptions({
   deployment,
   languageStrings,
+  schemaVersions,
   onChange: handleChange,
   onDelete: handleDelete,
 }: {
   readonly deployment: Deployment;
   readonly languageStrings: typeof localizationStrings[Language];
+  readonly schemaVersions: IR<string>;
   readonly onChange: (deployment: Partial<Deployment>) => void;
   readonly onDelete: () => void;
 }): JSX.Element {
@@ -54,10 +57,10 @@ export function DeploymentOptions({
           <>
             <button
               className={dangerButtonClassName}
-              type="button"
-              onClick={handleDelete}
               disabled={isFrozen}
               title={frozenDescription}
+              type="button"
+              onClick={handleDelete}
             >
               {languageStrings.remove}
             </button>
@@ -96,11 +99,34 @@ export function DeploymentOptions({
           <label className="flex flex-col gap-2">
             {languageStrings.groupName}
             <input
-              type="text"
               className="rounded-md border bg-gray-200 p-1.5"
+              type="text"
               value={group ?? ''}
               onChange={({ target }): void => setGroup(target.value)}
             />
+          </label>
+          <label className="flex flex-col gap-2">
+            {languageStrings.schemaVersion}
+            <select
+              className="rounded-md bg-gray-200 p-2 disabled:opacity-50"
+              disabled={isFrozen}
+              required
+              title={frozenDescription}
+              value={deployment.schemaVersion}
+              onChange={({ target }): void =>
+                handleChange({
+                  schemaVersion: target.value,
+                })
+              }
+            >
+              <optgroup label={languageStrings.schemaVersion}>
+                {Object.keys(schemaVersions).map((version) => (
+                  <option key={version} value={version}>
+                    {version}
+                  </option>
+                ))}
+              </optgroup>
+            </select>
           </label>
         </div>
         {typeof deployment.hostname === 'string' && !isNoFetchMode() && (

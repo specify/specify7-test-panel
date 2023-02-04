@@ -226,6 +226,9 @@ export function DeploymentLine({
         onChange={({ target }): void =>
           handleChange({
             database: target.value,
+            schemaVersion:
+              databases.find(({ name }) => name === target.value)?.version ??
+              deployment.schemaVersion,
           })
         }
       >
@@ -238,30 +241,10 @@ export function DeploymentLine({
           ))}
         </optgroup>
       </select>
-      <select
-        className="rounded-md bg-gray-200 p-2 disabled:opacity-50"
-        disabled={isFrozen}
-        title={frozenDescription}
-        required
-        style={{ maxWidth: '10vw' }}
-        value={deployment.schemaVersion}
-        onChange={({ target }): void =>
-          handleChange({
-            schemaVersion: target.value,
-          })
-        }
-      >
-        <optgroup label={languageStrings.schemaVersion}>
-          {Object.keys(schemaVersions).map((version) => (
-            <option key={version} value={version}>
-              {version}
-            </option>
-          ))}
-        </optgroup>
-      </select>
       <DeploymentOptions
         deployment={deployment}
         languageStrings={languageStrings}
+        schemaVersions={schemaVersions}
         onChange={handleChange}
         onDelete={(): void =>
           dispatch({
