@@ -49,6 +49,7 @@ export const localizationStrings: LocalizationStrings<{
   readonly frozenDeploymentDescription: string;
   readonly groupName: string;
   readonly never: string;
+  readonly listUsers: string;
 }> = {
   'en-US': {
     title: 'Dashboard',
@@ -91,6 +92,7 @@ export const localizationStrings: LocalizationStrings<{
       'You can unfreeze it by clearing the deployment notes field',
     groupName: 'Group Name',
     never: 'never',
+    listUsers: 'List Users',
   },
 };
 

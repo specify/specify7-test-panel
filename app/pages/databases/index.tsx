@@ -181,14 +181,14 @@ export default function Index(): JSX.Element {
                 <ListUsers
                   database={listUsers}
                   language={language}
-                  onClose={() => setListUsers(undefined)}
+                  onClose={(): void => setListUsers(undefined)}
                 />
               )}
               {typeof deleteDatabase === 'string' && (
                 <DeleteDatabase
                   database={deleteDatabase}
                   language={language}
-                  onClose={() => setDeleteDatabase(undefined)}
+                  onClose={(): void => setDeleteDatabase(undefined)}
                 />
               )}
             </>
@@ -199,7 +199,7 @@ export default function Index(): JSX.Element {
   );
 }
 
-function ListUsers({
+export function ListUsers({
   database,
   language,
   onClose: handleClose,

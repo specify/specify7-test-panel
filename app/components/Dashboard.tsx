@@ -79,6 +79,7 @@ export function Dashboard({
     deployments: state.deployment,
     schemaVersions,
     databases,
+    language,
     dispatch,
     branches: pairedBranches,
     databaseGroups,

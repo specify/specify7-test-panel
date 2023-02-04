@@ -33,6 +33,7 @@ type Status =
 
 export function DeploymentLine({
   deployment,
+  language,
   languageStrings,
   schemaVersions,
   databases,
@@ -41,6 +42,7 @@ export function DeploymentLine({
   databaseGroups,
 }: {
   readonly deployment: DeploymentWithInfo;
+  readonly language: Language;
   readonly languageStrings: typeof localizationStrings[Language];
   readonly schemaVersions: IR<string>;
   readonly databases: RA<Database>;
@@ -263,6 +265,7 @@ export function DeploymentLine({
       </select>
       <DeploymentOptions
         deployment={deployment}
+        language={language}
         languageStrings={languageStrings}
         schemaVersions={schemaVersions}
         onChange={handleChange}

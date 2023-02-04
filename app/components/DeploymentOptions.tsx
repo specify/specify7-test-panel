@@ -13,15 +13,18 @@ import {
 } from './InteractivePrimitives';
 import { ModalDialog } from './ModalDialog';
 import { useApi } from './useApi';
+import { ListUsers } from '../pages/databases';
 
 export function DeploymentOptions({
   deployment,
+  language,
   languageStrings,
   schemaVersions,
   onChange: handleChange,
   onDelete: handleDelete,
 }: {
   readonly deployment: Deployment;
+  readonly language: Language;
   readonly languageStrings: typeof localizationStrings[Language];
   readonly schemaVersions: IR<string>;
   readonly onChange: (deployment: Partial<Deployment>) => void;
@@ -43,6 +46,8 @@ export function DeploymentOptions({
     if (group !== deployment.group) handleChange({ group });
   }
 
+  const [listUsers, setListUsers] = React.useState(false);
+
   return (
     <>
       <button
@@ -52,6 +57,13 @@ export function DeploymentOptions({
       >
         {icons.cog}
       </button>
+      {listUsers && (
+        <ListUsers
+          database={deployment.database}
+          language={language}
+          onClose={(): void => setListUsers(false)}
+        />
+      )}
       <ModalDialog
         buttons={
           <>
@@ -63,6 +75,13 @@ export function DeploymentOptions({
               onClick={handleDelete}
             >
               {languageStrings.remove}
+            </button>
+            <button
+              className={infoButtonClassName}
+              type="button"
+              onClick={(): void => setListUsers(!listUsers)}
+            >
+              {languageStrings.listUsers}
             </button>
             <button
               className={infoButtonClassName}

@@ -48,6 +48,7 @@ export function Deployments({
   schemaVersions,
   databases,
   branches: rawBranches,
+  language,
   dispatch,
   databaseGroups,
 }: {
@@ -56,6 +57,7 @@ export function Deployments({
   readonly schemaVersions: IR<string>;
   readonly databases: RA<Database>;
   readonly dispatch: (action: Actions) => void;
+  readonly language: Language;
   readonly branches: RA<Branch>;
   readonly databaseGroups: IR<RA<string>>;
 }): JSX.Element {
@@ -77,6 +79,7 @@ export function Deployments({
                 deployment={deployment}
                 dispatch={dispatch}
                 key={deployment.frontend.id}
+                language={language}
                 languageStrings={languageStrings}
                 schemaVersions={schemaVersions}
                 databaseGroups={databaseGroups}
