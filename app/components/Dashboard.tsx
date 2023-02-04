@@ -67,15 +67,15 @@ export function Dashboard({
 
   const readyForTesting = {
     ...deploymentProps,
-    deployments: state.deployment.filter(
-      ({ branch }) => !branchesWithoutPullRequests.includes(branch)
+    deployments: state.deployment.filter(({ branch }) =>
+      branchesWithoutPullRequests.includes(branch)
     ),
   };
 
   const customDeployments = {
     ...deploymentProps,
-    deployments: state.deployment.filter(({ branch }) =>
-      branchesWithoutPullRequests.includes(branch)
+    deployments: state.deployment.filter(
+      ({ branch }) => !branchesWithoutPullRequests.includes(branch)
     ),
   };
 
