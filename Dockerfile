@@ -2,7 +2,7 @@
 # https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
 
 # Install dependencies
-FROM node:16.13.0-alpine3.14 AS deps
+FROM node:19-alpine3.16 AS deps
 
 USER node
 WORKDIR /home/node
@@ -22,7 +22,7 @@ RUN npm run build
 
 
 # Common for production & development deployments
-FROM node:16.13.0-alpine3.14 AS runner-common
+FROM node:19-alpine3.16 AS runner-common
 LABEL maintainer="Specify Collections Consortium <github.com/specify>"
 
 RUN apk add --no-cache mariadb-client
