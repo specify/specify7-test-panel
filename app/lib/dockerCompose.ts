@@ -50,7 +50,7 @@ ${deployments
       - LOG_LEVEL=DEBUG
 
   ${deployment.hostname}-worker:
-    image: specifyconsortium/specify7-service:${resolveVersion(deployment)}
+    image: specifyconsortium/specify7-service${resolveVersion(deployment)}
     command: ve/bin/celery -A specifyweb worker -l INFO --concurrency=1 -Q ${
       deployment.hostname
     }
