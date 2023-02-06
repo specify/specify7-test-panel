@@ -8,20 +8,16 @@ const defaultRedirectLocations = {
   notProtected: '/',
 } as const;
 
-export default function FilterUsers<
-  IS_PROTECTED extends true | undefined = undefined
->({
-  protected: pageIsProtected = undefined,
+export default function FilterUsers({
+  protected: isProtected = true,
   redirectPath,
   children,
 }: {
-  readonly protected?: IS_PROTECTED;
+  readonly protected?: boolean;
   readonly redirectPath?: string;
-  readonly children: JSX.Element;
+  readonly children: React.ReactNode;
 }): JSX.Element | null {
   const router = useRouter();
-
-  const isProtected = typeof pageIsProtected === 'boolean' && pageIsProtected;
 
   const resolvedRedirectPath =
     redirectPath ??
@@ -36,8 +32,7 @@ export default function FilterUsers<
   );
 
   if (typeof isSignedIn === 'undefined') return null;
-  else if (isSignedIn === isProtected)
-    return typeof children === 'undefined' ? <></> : children;
+  else if (isSignedIn === isProtected) return <>{children}</>;
   else {
     router.push(resolvedRedirectPath).catch(console.error);
     return null;

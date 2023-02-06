@@ -11,7 +11,7 @@ export default function ErrorPage({
   readonly errorCode: number;
 }): JSX.Element {
   return (
-    <Layout title={errorCode.toString()}>
+    <Layout title={errorCode.toString()} protected={undefined}>
       <Centered>
         <div className="text-center">
           <h1 className="py-2 text-9xl text-indigo-300">{errorCode}</h1>

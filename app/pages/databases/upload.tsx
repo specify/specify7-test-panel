@@ -25,7 +25,7 @@ export default function Index(): JSX.Element {
     databases.some(({ name }) => name === databaseName);
 
   return (
-    <Layout title={localization.uploadNewDatabase}>
+    <Layout title={localization.uploadNewDatabase} protected>
       <div className="flex flex-1 flex-col gap-5">
         <Link href="/databases/" className="text-blue-500 hover:underline">
           {localization.goBack}

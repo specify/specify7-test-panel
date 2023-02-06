@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Dashboard } from '../components/Dashboard';
-import FilterUsers from '../components/FilterUsers';
 import Layout from '../components/Layout';
 import { Loading, ModalDialog } from '../components/ModalDialog';
 import { useApi, useAsync } from '../components/useApi';
@@ -15,10 +14,8 @@ import { DockerHubTag } from './api/dockerhub/[image]';
 
 export default function Index(): JSX.Element {
   return (
-    <Layout title={localization.pageTitle}>
-      <FilterUsers protected>
-        <Wrapper />
-      </FilterUsers>
+    <Layout title={localization.pageTitle} protected>
+      <Wrapper />
     </Layout>
   );
 }

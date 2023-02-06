@@ -16,10 +16,10 @@ export const getUserInfo = async (token: string): Promise<User> =>
     token,
     `{
   organization(login: "${organization}") {
-    teams(first: 20) {
+    teams(first: 40) {
       nodes {
         name
-        members(first: 20) {
+        members(first: 40) {
           nodes {
             login
           }

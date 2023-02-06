@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
 
-import FilterUsers from '../../components/FilterUsers';
 import {
   dangerButtonClassName,
   infoButtonClassName,
@@ -60,98 +59,96 @@ export default function Index(): JSX.Element {
   }, [sizes, rawDatabases]);
 
   return (
-    <Layout title={localization.databases}>
-      <FilterUsers protected>
-        {typeof databases === 'undefined' ? (
-          <Loading />
-        ) : typeof databases === 'string' ? (
-          <ModalDialog title={localization.dashboard}>{databases}</ModalDialog>
-        ) : typeof sizes === 'number' ? (
-          <ModalDialog title={localization.dashboard}>{sizes}</ModalDialog>
-        ) : (
-          <>
-            <div className="flex flex-1 flex-col gap-5">
-              <Link href="/" className="text-blue-500 hover:underline">
-                {localization.goBack}
-              </Link>
-              <h1 className="text-5xl">{localization.pageTitle}</h1>
-              <h2 className="text-2xl">{localization.dashboard}</h2>
-              <ul className="flex w-8/12 flex-col gap-y-5">
-                {databases.map(({ name, version, size }) => (
-                  <li
-                    className="flex flex-row gap-x-5 rounded bg-gray-300 p-5"
-                    key={name}
-                  >
-                    <span className="flex-1">
-                      {name}
-                      <b> ({version ?? localization.corruptDatabase})</b>
-                      {typeof size === 'number' && (
-                        <b>{` (${size} ${localization.mb})`}</b>
-                      )}
-                    </span>
-                    {!usedDatabases.has(name) && (
-                      <a
-                        className="text-red-400 hover:underline"
-                        href={`/api/databases/${name}/drop`}
-                        onClick={(event): void => {
-                          event.preventDefault();
-                          setDeleteDatabase(name);
-                        }}
-                      >
-                        {localization.delete}
-                      </a>
+    <Layout title={localization.databases} protected>
+      {typeof databases === 'undefined' ? (
+        <Loading />
+      ) : typeof databases === 'string' ? (
+        <ModalDialog title={localization.dashboard}>{databases}</ModalDialog>
+      ) : typeof sizes === 'number' ? (
+        <ModalDialog title={localization.dashboard}>{sizes}</ModalDialog>
+      ) : (
+        <>
+          <div className="flex flex-1 flex-col gap-5">
+            <Link href="/" className="text-blue-500 hover:underline">
+              {localization.goBack}
+            </Link>
+            <h1 className="text-5xl">{localization.pageTitle}</h1>
+            <h2 className="text-2xl">{localization.dashboard}</h2>
+            <ul className="flex w-8/12 flex-col gap-y-5">
+              {databases.map(({ name, version, size }) => (
+                <li
+                  className="flex flex-row gap-x-5 rounded bg-gray-300 p-5"
+                  key={name}
+                >
+                  <span className="flex-1">
+                    {name}
+                    <b> ({version ?? localization.corruptDatabase})</b>
+                    {typeof size === 'number' && (
+                      <b>{` (${size} ${localization.mb})`}</b>
                     )}
+                  </span>
+                  {!usedDatabases.has(name) && (
                     <a
-                      className="text-green-400 hover:underline"
-                      href={`/api/databases/${name}/export`}
+                      className="text-red-400 hover:underline"
+                      href={`/api/databases/${name}/drop`}
+                      onClick={(event): void => {
+                        event.preventDefault();
+                        setDeleteDatabase(name);
+                      }}
                     >
-                      {localization.download}
+                      {localization.delete}
                     </a>
-                    <button
-                      className="text-blue-400 hover:underline"
-                      type="button"
-                      onClick={(): void => setListUsers(name)}
-                    >
-                      {localization.listUsers}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="flex gap-2">
-              <Link href="/databases/upload" className={successButtonClassName}>
-                {localization.uploadNew}
-              </Link>
-              <button
-                className={infoButtonClassName}
-                onClick={(): void => {
-                  setShowSizes(true);
-                  fetchApi('/api/databases/size')
-                    .then(setSizes)
-                    .catch(console.error);
-                }}
-                disabled={showSizes}
-              >
-                {showSizes && sizes === undefined
-                  ? localization.loading
-                  : localization.calculateSizes}
-              </button>
-            </div>
-            {typeof listUsers === 'string' && (
-              <ListUsers
-                database={listUsers}
-                onClose={(): void => setListUsers(undefined)}
-              />
-            )}
-            {typeof deleteDatabase === 'string' && (
-              <DeleteDatabase
-                database={deleteDatabase}
-                onClose={(): void => setDeleteDatabase(undefined)}
-              />
-            )}
-          </>
-        )}
-      </FilterUsers>
+                  )}
+                  <a
+                    className="text-green-400 hover:underline"
+                    href={`/api/databases/${name}/export`}
+                  >
+                    {localization.download}
+                  </a>
+                  <button
+                    className="text-blue-400 hover:underline"
+                    type="button"
+                    onClick={(): void => setListUsers(name)}
+                  >
+                    {localization.listUsers}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex gap-2">
+            <Link href="/databases/upload" className={successButtonClassName}>
+              {localization.uploadNew}
+            </Link>
+            <button
+              className={infoButtonClassName}
+              onClick={(): void => {
+                setShowSizes(true);
+                fetchApi('/api/databases/size')
+                  .then(setSizes)
+                  .catch(console.error);
+              }}
+              disabled={showSizes}
+            >
+              {showSizes && sizes === undefined
+                ? localization.loading
+                : localization.calculateSizes}
+            </button>
+          </div>
+          {typeof listUsers === 'string' && (
+            <ListUsers
+              database={listUsers}
+              onClose={(): void => setListUsers(undefined)}
+            />
+          )}
+          {typeof deleteDatabase === 'string' && (
+            <DeleteDatabase
+              database={deleteDatabase}
+              onClose={(): void => setDeleteDatabase(undefined)}
+            />
+          )}
+        </>
+      )}
     </Layout>
   );
 }

@@ -66,22 +66,20 @@ export default function SignIn({
   }, [code]);
 
   return (
-    <Layout title={localization.signIn}>
-      <FilterUsers>
-        <Centered>
-          <div>
-            <h1 className="text-5xl">{localization.pageTitle}</h1>
-            <div className="flex-column flex gap-y-1 pt-4">
-              <a
-                className="box-content w-full border border-gray-400 bg-gray-300 p-4 hover:bg-white"
-                href={signInUrl}
-              >
-                {localization.signInWithGitHub}
-              </a>
-            </div>
+    <Layout title={localization.signIn} protected={false}>
+      <Centered>
+        <div>
+          <h1 className="text-5xl">{localization.pageTitle}</h1>
+          <div className="flex-column flex gap-y-1 pt-4">
+            <a
+              className="box-content w-full border border-gray-400 bg-gray-300 p-4 hover:bg-white"
+              href={signInUrl}
+            >
+              {localization.signInWithGitHub}
+            </a>
           </div>
-        </Centered>
-      </FilterUsers>
+        </div>
+      </Centered>
     </Layout>
   );
 }

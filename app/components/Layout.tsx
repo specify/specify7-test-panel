@@ -2,6 +2,7 @@ import Head from 'next/head';
 import React from 'react';
 
 import { localization } from '../const/localization';
+import FilterUsers from './FilterUsers';
 
 const extractTitle = (title: string): string =>
   title === ''
@@ -13,9 +14,11 @@ const extractTitle = (title: string): string =>
 export default function Layout({
   title,
   children,
+  protected: isProtected,
 }: {
   readonly title: string;
   readonly children: React.ReactNode;
+  readonly protected: boolean | undefined;
 }): JSX.Element {
   return (
     <>
@@ -25,7 +28,11 @@ export default function Layout({
         <meta content="noindex,nofollow" name="robots" />
       </Head>
       <main className="flex h-screen w-full flex-col gap-10 overflow-auto p-8">
-        {children}
+        {typeof isProtected === 'boolean' ? (
+          <FilterUsers protected={isProtected}>{children}</FilterUsers>
+        ) : (
+          children
+        )}
       </main>
     </>
   );
