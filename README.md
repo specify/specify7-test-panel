@@ -264,6 +264,22 @@ docker-compose \
 
 ## Miscellaneous
 
+### Maintenance
+
+Until #93 is addressed, Specify 7 test panel has a memory leak:
+Older images and volumes are not deleted and will slowly eat all
+available disk space on the system.
+
+A workaround at the moment is to run this command once every few
+months:
+
+```bash
+docker system prune --all
+```
+
+A proper solution would be to run that as a CRON job on a regular
+interval.
+
 ### Initial State
 
 The `./state` directory is indexed by git, but changes are ignored
