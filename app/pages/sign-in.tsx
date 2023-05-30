@@ -2,7 +2,6 @@ import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import FilterUsers from '../components/FilterUsers';
 import Layout from '../components/Layout';
 import { StatusLineContext } from '../components/StatusLine';
 import { Centered } from '../components/UI';
