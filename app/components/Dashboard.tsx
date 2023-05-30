@@ -142,7 +142,11 @@ export function Dashboard({
               : undefined
           }
           type="button"
-          onClick={(): void =>
+          onClick={(): void => {
+            const database =
+              getMostCommonElement(
+                state.deployment.map(({ database }) => database)
+              ) ?? '';
             dispatch({
               type: 'AddInstanceAction',
               deployment: {
@@ -154,18 +158,17 @@ export function Dashboard({
                   )
                 ),
                 notes: '',
-                database:
-                  getMostCommonElement(
-                    state.deployment.map(({ database }) => database)
-                  ) ?? '',
-                schemaVersion: getMostRecentTag(schemaVersions),
+                database,
+                schemaVersion:
+                  databases.find(({ name }) => name === database)?.version ??
+                  getMostRecentTag(schemaVersions),
                 wasAutoDeployed: false,
                 frontend: {
                   id: state.deployment.length,
                 },
               },
-            })
-          }
+            });
+          }}
         >
           {localization.addInstance}
         </button>
