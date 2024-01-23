@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IR, RA } from '../../../lib/typescriptCommonTypes';
+import { tagToBranch } from '../../../lib/dockerCompose';
 
 export type DockerHubTag = {
   readonly lastUpdated: string;
@@ -36,7 +37,7 @@ const processTagsResponse = (tags: Response['results']): IR<DockerHubTag> =>
     tags
       .filter(({ name }) => !name.startsWith('sha-'))
       .map(({ name, last_updated, digest }) => [
-        name,
+        tagToBranch(name),
         {
           lastUpdated: last_updated,
           digest,
