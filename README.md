@@ -140,7 +140,7 @@ crontab -e
 Add this line:
 
 ```sh
-0 3 * * * docker system prune --all
+0 3 * * * docker system prune --all --volumes --force
 ```
 
 ## Deployment
