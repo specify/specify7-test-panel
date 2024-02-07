@@ -20,10 +20,8 @@ openssl req \
   -out ./config/fullchain.pem
 ```
 
-Note, production deployment expects `privkey.pem` and `fullchain.pem`
-to be in the
-`/etc/letsencrypt/live/test.specifysystems.org-0001/privkey.pem`
-directory
+Note, production deployment expects `privkey.pem` and `fullchain.pem` to be in
+the `/etc/letsencrypt/live/test.specifysystems.org-0001/privkey.pem` directory
 
 ## Create a GitHub OAuth App
 
@@ -127,6 +125,24 @@ OAuth app configuration page on GitHub
 Replace `<github_token>` with the token you generated in
 [the previous step](#configure-automatic-deployment)
 
+## Setup cleanup cron job
+
+To avoid memory leaks, setup a cron job that runs `docker system prune --all` at
+a regular schedule (i.e at 3am every day).
+[Example tutorial](https://www.digitalocean.com/community/tutorials/how-to-use-cron-to-automate-tasks-ubuntu-1804)
+
+Open the cron file:
+
+```sh
+crontab -e
+```
+
+Add this line:
+
+```sh
+0 3 * * * docker system prune --all
+```
+
 ## Deployment
 
 After completing all the steps from previous sections, do one of these:
@@ -152,8 +168,7 @@ docker-compose \
   up --remove-orphans -d
 ```
 
-If
-`/var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml`
+If `/var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml`
 is not correct on your host, you can find the correct path using
 `docker volume ls` and `docker volume inspect`.
 
@@ -177,10 +192,10 @@ docker-compose \
   up --remove-orphans
 ```
 
-> This will deploy the development server and the deployments configured
-> in the test panel. If there is no need to start the configured
-> deployments, omit the `-f state/docker-compose.yml \ ` line from above.
-> 
+> This will deploy the development server and the deployments configured in the
+> test panel. If there is no need to start the configured deployments, omit the
+> `-f state/docker-compose.yml \ ` line from above.
+>
 > If deployments, are not started, there would be a lot of errors in the dev
 > console in the test panel. You can silence those by disabling deployment
 > status fetching by adding "?no-fetch" to the url (https://localhost/?no-fetch)
@@ -197,9 +212,9 @@ types.
 ### Using systemd
 
 After user changes the configuration in the panel, the file
-`/var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml`
-is modified. Systemd can be configured to watch this file and run
-docker-compose pull and up when changes occur. Use the following unit files:
+`/var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml` is
+modified. Systemd can be configured to watch this file and run docker-compose
+pull and up when changes occur. Use the following unit files:
 
 #### /etc/systemd/system/specify7-test-panel-update.service
 
@@ -263,22 +278,6 @@ docker-compose \
 ```
 
 ## Miscellaneous
-
-### Maintenance
-
-Until #93 is addressed, Specify 7 test panel has a memory leak:
-Older images and volumes are not deleted and will slowly eat all
-available disk space on the system.
-
-A workaround at the moment is to run this command once every few
-months:
-
-```bash
-docker system prune --all
-```
-
-A proper solution would be to run that as a CRON job on a regular
-interval.
 
 ### Initial State
 
