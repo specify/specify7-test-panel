@@ -35,7 +35,8 @@ export const fetchTags = async (url: string): Promise<Response['results']> =>
 const processTagsResponse = (tags: Response['results']): IR<DockerHubTag> =>
   Object.fromEntries(
     tags
-      .filter(({ name }) => !name.startsWith('sha-'))
+      // Latest is an unpredictable branch, thus will exclude it
+      .filter(({ name }) => !name.startsWith('sha-') && name !== 'latest')
       .map(({ name, last_updated, digest }) => [
         tagToBranch(name),
         {

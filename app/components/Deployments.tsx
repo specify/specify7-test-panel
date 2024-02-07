@@ -24,19 +24,16 @@ export function isStale(date: Date): boolean {
 function useSortedBranches(branches: RA<Branch>): RA<Branch> {
   return React.useMemo(
     () =>
-      Array.from(branches)
-        // Latest is an unpredictable branch, thus will exclude it
-        .filter(({ branch }) => branch !== 'latest')
-        .sort(
-          multiSortFunction(
-            ({ pullRequest }) => typeof pullRequest === 'object',
-            true,
-            ({ branch }) => branch === 'edge',
-            true,
-            ({ branch }) => branch.startsWith(versionPrefix),
-            true
-          )
-        ),
+      Array.from(branches).sort(
+        multiSortFunction(
+          ({ pullRequest }) => typeof pullRequest === 'object',
+          true,
+          ({ branch }) => branch === 'edge',
+          true,
+          ({ branch }) => branch.startsWith(versionPrefix),
+          true
+        )
+      ),
     [branches]
   );
 }
