@@ -15,6 +15,7 @@ import {
   extraButtonClassName,
   successButtonClassName,
 } from './InteractivePrimitives';
+import { branchToTag } from '../lib/dockerCompose';
 
 export function Dashboard({
   initialState,
@@ -42,7 +43,7 @@ export function Dashboard({
       digest,
       modifiedDate: new Date(lastUpdated),
       pullRequest: pullRequests.find(
-        ({ headRefName }) => headRefName === branch
+        ({ headRefName }) => branchToTag(headRefName) === branch
       ),
     })
   );

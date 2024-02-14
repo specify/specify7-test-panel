@@ -2,8 +2,7 @@ import type { ActiveDeployment, Deployment } from './deployment';
 import type { RA } from './typescriptCommonTypes';
 
 // As per https://github.com/specify/specify7/blob/e52a2c09d41aa65f623f2bd73126dd594f5d9522/.github/workflows/docker.yml#L30
-export const branchToTag = (branch: string) => branch.replaceAll('/', '-');
-export const tagToBranch = (branch: string) => branch.replaceAll('-', '/');
+export const branchToTag = (branch: string) => branch.replaceAll(/\\+/g, '-');
 
 const resolveVersion = (deployment: Deployment) =>
   typeof deployment.digest === 'string'

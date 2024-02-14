@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IR, RA } from '../../../lib/typescriptCommonTypes';
-import { tagToBranch } from '../../../lib/dockerCompose';
 
 export type DockerHubTag = {
   readonly lastUpdated: string;
@@ -38,7 +37,7 @@ const processTagsResponse = (tags: Response['results']): IR<DockerHubTag> =>
       // Latest is an unpredictable branch, thus will exclude it
       .filter(({ name }) => !name.startsWith('sha-') && name !== 'latest')
       .map(({ name, last_updated, digest }) => [
-        tagToBranch(name),
+        name,
         {
           lastUpdated: last_updated,
           digest,
