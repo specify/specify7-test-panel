@@ -81,13 +81,6 @@ export function Dashboard({
     databaseGroups,
   };
 
-  const readyForTesting = {
-    ...deploymentProps,
-    deployments: state.deployment.filter(({ branch }) =>
-      branchesWithoutPullRequests.includes(branch)
-    ),
-  };
-
   const customDeployments = {
     ...deploymentProps,
     deployments: state.deployment.filter(
@@ -110,12 +103,6 @@ export function Dashboard({
             handleSave(state.deployment);
           }}
         >
-          {readyForTesting.deployments.length > 0 && (
-            <>
-              <h2 className="text-2xl">{localization.readyForTesting}</h2>
-              <Deployments {...readyForTesting} />
-            </>
-          )}
           {customDeployments.deployments.length > 0 && (
             <>
               <h2 className="mt-8 text-2xl">
