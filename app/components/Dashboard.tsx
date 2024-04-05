@@ -85,7 +85,7 @@ export function Dashboard({
     ...deploymentProps,
     deployments: state.deployment.filter(({ branch }) =>
       branchesWithoutPullRequests.includes(branch)
-  ),
+    ),
   };
 
   const customDeployments = {
