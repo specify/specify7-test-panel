@@ -10,6 +10,7 @@ export const localization = {
   dashboard: 'Dashboard',
   errorOccurred: 'Unexpected error occurred',
   launch: 'Launch',
+  readyForTesting: 'Ready for Testing',
   customDeployments: 'Custom Deployments',
   automatic: 'Automatic',
   automaticDescription:
