@@ -11,7 +11,7 @@ export const targetTeams = ['UX Testing'];
  * The limit on the number of manual deployments has been removed, thus users
  * have to exercise caution when creating a lot of deployments.
  */
-export const maxAutoDeployments = 3;
+export const maxAutoDeployments = 0;
 
 // Auto deployed instances may be garbage collected after 2 days
 export const staleAfter = 60 * 60 * 24 * 2;
