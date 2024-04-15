@@ -5,7 +5,7 @@ import type { RA } from './typescriptCommonTypes';
 export const branchToTag = (branch: string) => branch.replaceAll(/\\+/g, '-');
 
 const resolveVersion = (deployment: Deployment) =>
-  typeof deployment.digest === 'string'
+  typeof deployment.digest === 'string' && (process.env.USE_BRANCH_NAME?.toLowerCase() !== 'true')
     ? `@${deployment.digest}`
     : `:${branchToTag(deployment.branch)}`;
 
