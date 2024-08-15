@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   mariadb:
-    image: mariadb:10.6.4-focal
+    image: mariadb:11.4
     networks:
       - database
     restart: unless-stopped
