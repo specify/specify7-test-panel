@@ -1,18 +1,18 @@
 version: '3.9'
 services:
-  mariadb:
-    image: mariadb:11.4
-    networks:
-      - database
-    restart: unless-stopped
-    ports:
-      - '127.0.0.1:3306:3306'
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-    volumes:
-      - './config/mariadb.cnf:/etc/mysql/conf.d/mariadb.cnf'
-      - 'database:/var/lib/mysql'
-      - './seed-database/:/docker-entrypoint-initdb.d/:ro'
+  # mariadb:
+  #   image: mariadb:11.4
+  #   networks:
+  #     - database
+  #   restart: unless-stopped
+  #   ports:
+  #     - '127.0.0.1:3306:3306'
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=root
+  #   volumes:
+  #     - './config/mariadb.cnf:/etc/mysql/conf.d/mariadb.cnf'
+  #     - 'database:/var/lib/mysql'
+  #     - './seed-database/:/docker-entrypoint-initdb.d/:ro'
 
   redis:
     image: redis

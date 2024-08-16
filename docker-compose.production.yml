@@ -13,8 +13,8 @@ services:
     build:
       context: ./.
       target: runner
-    depends_on:
-      - mariadb
+    # depends_on:
+    #   - mariadb
     networks:
       - database
       - nginx
