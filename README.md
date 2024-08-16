@@ -152,7 +152,7 @@ After completing all the steps from previous sections, do one of these:
 Build the containers:
 
 ```shell
-docker-compose \
+docker compose \
   -f docker-compose.yml \
   -f docker-compose.production.yml \
   up --no-start --build
@@ -161,7 +161,7 @@ docker-compose \
 Run the containers:
 
 ```zsh
-docker-compose \
+docker compose \
   -f docker-compose.yml \
   -f docker-compose.production.yml \
   -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml \
@@ -185,7 +185,7 @@ npm i
 Run the containers:
 
 ```zsh
-docker-compose \
+docker compose \
   -f docker-compose.yml \
   -f docker-compose.development.yml \
   -f state/docker-compose.yml \
@@ -226,7 +226,7 @@ Description=Run docker-compose up for test panel.
 [Service]
 Type=oneshot
 WorkingDirectory=/home/specify/specify7-test-panel
-ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml up --remove-orphans -d
+ExecStart=docker compose -f docker-compose.yml -f docker-compose.production.yml -f /var/lib/docker/volumes/specify7-test-panel_state/_data/docker-compose.yml up --remove-orphans -d
 ```
 
 #### /etc/systemd/system/specify7-test-panel-update.path
