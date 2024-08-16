@@ -1,7 +1,9 @@
 # Specify 7 Test Panel
 
 A cluster of Specify 7 instances for testing with automatic deployment,
-authentication and a test panel for setting configuration
+authentication and a test panel for setting configuration.
+
+These instructions have last been updated and tested on Ubuntu 24.04 with MariaDB 11.4 and Docker 27.1.2. 
 
 ![Main Page](./docs/src/main-page.png)
 
