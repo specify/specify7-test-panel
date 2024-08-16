@@ -39,7 +39,7 @@ FROM runner-common AS dev-runner
 USER node
 RUN mkdir /home/node/app
 WORKDIR /home/node/app
-ENV NODE_ENV development
+ENV NODE_ENV=development
 
 COPY docker-entrypoint.sh ../
 ENTRYPOINT ["../docker-entrypoint.sh"]
@@ -50,7 +50,7 @@ FROM runner-common AS runner
 
 USER node
 WORKDIR /home/node/app
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 COPY --from=builder /home/node/app/next.config.js ./
 COPY --from=builder /home/node/app/public ./public
