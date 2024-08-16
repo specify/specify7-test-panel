@@ -6,7 +6,7 @@ services:
     depends_on:
       - panel
     volumes:
-      - './config:/etc/letsencrypt/live/test.specifysystems.org-0001:ro'
+      - './config:/etc/letsencrypt/live/test.specifysoftware.org-0001:ro'
 
   panel:
     build:

@@ -23,7 +23,7 @@ openssl req \
 ```
 
 Note, production deployment expects `privkey.pem` and `fullchain.pem` to be in
-the `/etc/letsencrypt/live/test.specifysystems.org-0001/privkey.pem` directory
+the `/etc/letsencrypt/live/test.specifysoftware.org-0001/privkey.pem` directory
 
 ## Create a GitHub OAuth App
 
