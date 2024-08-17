@@ -23,7 +23,7 @@ openssl req \
 ```
 
 Note, production deployment expects `privkey.pem` and `fullchain.pem` to be in
-the `/etc/letsencrypt/live/test.specifysoftware.org-0001/privkey.pem` directory
+the `/etc/letsencrypt/live/test.specifysystems.org-0001/privkey.pem` directory
 
 ## Create a GitHub OAuth App
 
@@ -251,6 +251,49 @@ systemctl daemon-reload
 systemctl enable specify7-test-panel-update.path
 systemctl start specify7-test-panel-update.path
 ```
+
+### Emulating x86_64 for Specify 6 images
+
+Using an emulation layer like `binfmt_misc` or `docker-run-arm` can help you run `x86_64` images on an `arm64` platform.
+
+Here's an example of how you can use `binfmt_misc` to run `x86_64` images on an `arm64` platform:
+
+1. Install `binfmt_misc` on your system:
+```
+sudo apt-get update
+sudo apt-get install binfmt-support qemu-user-static
+```
+2. Configure `binfmt_misc` to enable emulation:
+```
+sudo update-binfmts --enable
+```
+3. Create a `binfmt_misc` configuration file to enable `x86_64` emulation:
+```
+sudo tee /proc/sys/fs/binfmt_misc/register <<EOF
+:x86_64:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x3e\x00:\xff\xff\xff\xff\xff\xfe\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-x86_64-static:
+EOF
+```
+4. Reload the `binfmt_misc` configuration:
+```
+sudo mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+```
+5. Update your `docker-compose.yml` file to use the `x86_64` architecture:
+```
+specify6803:
+  image: specifyconsortium/specify6-service:6.8.03
+  architecture: x86_64
+  volumes:
+    - specify6803:/opt/Specify
+```
+6. Run `docker-compose up` to start the containers:
+```
+docker-compose up
+```
+This should allow you to run the `x86_64` images on your `arm64` platform using the `binfmt_misc` emulation layer.
+
+Note that you may need to adjust the `binfmt_misc` configuration and the `docker-compose.yml` file to fit your specific use case.
+
+Let me know if you have any further questions or if there's anything else I can help you with!
 
 ### Using fswatch
 
