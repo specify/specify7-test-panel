@@ -32,7 +32,7 @@ export async function getState(): Promise<RA<ActiveDeployment>> {
   return fs.promises
     .readFile(configurationFile)
     .then((file) => file.toString())
-    .then((content) => (content.length === 0 ? {} : JSON.parse(content)));
+    .then((content) => (content.length === 0 ? [] : JSON.parse(content)));
 }
 
 // Based on https://stackoverflow.com/a/34842797/8584605
