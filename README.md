@@ -13,6 +13,7 @@ To run the containers, generate `fullchain.pem` and `privkey.pem` (certificate
 and the private key) using Let's Encrypt and put these files into the
 `./config/` directory.
 
+### Development
 While in development, you can generate self-signed certificates:
 
 ```zsh
@@ -21,9 +22,34 @@ openssl req \
   -keyout ./config/privkey.pem \
   -out ./config/fullchain.pem
 ```
-
-Note, production deployment expects `privkey.pem` and `fullchain.pem` to be in
+### Production
+In a production environment, the deployment expects `privkey.pem` and `fullchain.pem` to be in
 the `/etc/letsencrypt/live/test.specifysystems.org-0001/privkey.pem` directory
+
+Before the Test Panel is running, you can install `nginx` locally 
+
+```bash
+sudo apt install nginx
+sudo service nginx start
+```
+
+The SSL certs must be for both `test.specifysystems.org` and `*.test.specifysystems.org`.
+We use [DigitalOcean to manage the DNS configuration](https://www.digitalocean.com/community/tutorials/how-to-create-let-s-encrypt-wildcard-certificates-with-certbot) (Dreamhost doesn't support wilcard certificates).
+
+Follow [these instructions](https://www.digitalocean.com/community/tutorials/how-to-create-let-s-encrypt-wildcard-certificates-with-certbot) to create the `~/certbot-creds.ini` file necessary to generate the SSL certificates.
+
+Once it is started, you can use certbot to generate the certificates:
+
+```bash
+sudo certbot certonly --dns-digitalocean --dns-digitalocean-credentials ~/certbot-creds.ini -d test.specifysystems.org,*.test.specifysystems.org
+```
+
+Now that this is done, make sure to remove the local `nginx` installation so it does not conflict with the one in Docker:
+
+```
+sudo systemctl stop nginx
+sudo apt-get purge nginx
+```
 
 ## Create a GitHub OAuth App
 
@@ -120,6 +146,23 @@ MYSQL_PASSWORD=root
 MYSQL_HOST=mariadb
 ```
 
+### Using RDS
+
+Since we do not use MariaDB in Docker when working with Amazon RDS, you need to set up the connection details in this same file:
+
+```ini
+NEXT_PUBLIC_GITHUB_CLIENT_ID=<client_id>
+GITHUB_CLIENT_SECRET=<client_secret>
+
+GITHUB_PERSONAL_TOKEN=<github_token>
+
+MYSQL_USERNAME=<master_username>
+MYSQL_PASSWORD=<master_password>
+MYSQL_HOST=something.something.us-east-1.rds.amazonaws.com
+```
+
+### Configuration
+
 Replace `<client_id>` and `<client_secret>` with the actual values from the
 OAuth app configuration page on GitHub
 ([see more details](#create-a-github-oauth-app))
@@ -210,6 +253,10 @@ Before committing changes, run `npm run test` to verify validity of TypeScript
 types.
 
 ## Watch for configuration file changes
+
+You can choose either approach. You do not need to use both `systemd` and `fswatch` solutions as they do the same thing.
+
+The `systemd` approach may be preferable as it can be configured to automatically start when the system boots up.
 
 ### Using systemd
 
