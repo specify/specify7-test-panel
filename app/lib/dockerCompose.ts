@@ -14,7 +14,6 @@ export const createDockerConfig = (
   // This is used just to make docker Nginx container if config changed
   nginxConfigHash: number
 ): string => `
-version: '3.9'
 services:
 
 ${

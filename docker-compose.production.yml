@@ -1,6 +1,5 @@
 # Production config
 
-version: '3.9'
 services:
   nginx:
     depends_on:
