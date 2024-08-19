@@ -144,6 +144,13 @@ GITHUB_PERSONAL_TOKEN=<github_token>
 MYSQL_USERNAME=root
 MYSQL_PASSWORD=root
 MYSQL_HOST=mariadb
+
+REPORT_RUNNER_HOST=report-runner
+
+SECRET_KEY=<secret_key>
+
+ASSET_SERVER_KEY=<asset_secret_key>
+ASSET_SERVER_URL=asset-server
 ```
 
 ### Using RDS
