@@ -19,7 +19,7 @@ services:
 ${
   deployments.length === 0
     ? `
-  mariadb:
+  nginx:
     restart: unless-stopped`
     : ''
 }
