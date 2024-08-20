@@ -45,6 +45,7 @@ ${deployments
       - SECRET_KEY=${process.env.SECRET_KEY}
       - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
       - ASSET_SERVER_KEY=${process.env.ASSET_SERVER_KEY}
+      - ASSET_SERVER_COLLECTION=${process.env.ASSET_SERVER_COLLECTION}
       - REPORT_RUNNER_HOST=${process.env.REPORT_RUNNER_HOST}
       - REPORT_RUNNER_PORT=8080
       - CELERY_BROKER_URL=redis://redis/0
@@ -75,6 +76,7 @@ ${deployments
       - SECRET_KEY=${process.env.SECRET_KEY}
       - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
       - ASSET_SERVER_KEY=${process.env.ASSET_SERVER_KEY}
+      - ASSET_SERVER_COLLECTION=${process.env.ASSET_SERVER_COLLECTION}
       - REPORT_RUNNER_HOST=${process.env.REPORT_RUNNER_HOST}
       - REPORT_RUNNER_PORT=8080
       - CELERY_BROKER_URL=redis://redis/0
