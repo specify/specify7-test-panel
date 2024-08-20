@@ -1,6 +1,5 @@
 # Development config
 
-version: '3.9'
 services:
   nginx:
     depends_on:
@@ -12,8 +11,8 @@ services:
     build:
       context: ./.
       target: dev-runner
-    depends_on:
-      - mariadb
+    # depends_on:
+    #   - mariadb
     networks:
       - database
       - nginx
