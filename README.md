@@ -343,11 +343,7 @@ specify6803:
 ```
 docker-compose up
 ```
-This should allow you to run the `x86_64` images on your `arm64` platform using the `binfmt_misc` emulation layer.
 
-Note that you may need to adjust the `binfmt_misc` configuration and the `docker-compose.yml` file to fit your specific use case.
-
-Let me know if you have any further questions or if there's anything else I can help you with!
 
 ### Using fswatch
 
