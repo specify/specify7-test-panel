@@ -30,7 +30,8 @@ server {
            add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
         }
         root /volumes;
-        rewrite ^/static/config/(.*)$ /specify${deployment.schemaVersion}/config/$1 break;
+        # rewrite ^/static/config/(.*)$ /specify${deployment.schemaVersion}/config/$1 break;
+        rewrite ^/static/config/(.*)$ /${deployment.hostname}-static-files/specify-config/config/$1 break;
         rewrite ^/static/depository/(.*)$ /${deployment.hostname}-static-files/depository/$1 break;
         rewrite ^/static/(.*)$ /${deployment.hostname}-static-files/frontend-static/$1 break;
     }
