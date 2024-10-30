@@ -18,52 +18,38 @@ export default async function handler(
   const user = await getUser(request, res);
   if (typeof user === 'undefined') return;
 
-  await connectToDatabase();
+  const connection = await connectToDatabase();
 
-  const databaseName = Array.isArray(request.query.name) ? request.query.name[0] : request.query.name;
+  // Define the existing database name to clone
+  const existingDatabaseName = request.query.name as string | undefined;
 
-  if (!databaseName) {
-    return res.status(400).json({ error: 'Database name is required.' });
+  if (!existingDatabaseName) {
+    return res.status(400).json({ error: 'Existing database name is required' });
   }
 
-  const timestamp = new Date().toISOString().replace(/T/, '_').replace(/:/g, '_').split('.')[0];
-  const newDatabaseName = `${databaseName}_${timestamp}`;
+  // Validate that the existing database name is valid
+  if (existingDatabaseName.match(/^\w+$/) === null) {
+    return res.status(400).json({ error: 'Existing database name is invalid' });
+  }
 
   try {
+    // Generate a new database name with timestamp
+    const timestamp = new Date().toISOString().replace(/T/, '_').replace(/:/g, '_').split('.')[0];
+    const newDatabaseName = `${existingDatabaseName}_${timestamp}`;
+
     // Create the new database
-    const createDatabaseChild = spawn(
-      'mysql',
-      [
-        `-u${process.env.MYSQL_USERNAME}`,
-        `-p${process.env.MYSQL_PASSWORD}`,
-        `-h${process.env.MYSQL_HOST}`,
-        '-e',
-        `CREATE DATABASE ${newDatabaseName};`,
-      ],
-      {
-        stdio: 'inherit',
-        shell: true,
-      }
-    );
+    await connection.execute(`DROP DATABASE IF EXISTS \`${newDatabaseName}\``);
+    await connection.execute(`CREATE DATABASE \`${newDatabaseName}\``);
 
-    await new Promise((resolve, reject) => {
-      createDatabaseChild.on('exit', (code) => {
-        if (code !== 0) {
-          return reject(new Error(`Failed to create database: ${newDatabaseName}`));
-        }
-        resolve(null);
-      });
-    });
-
-    // Clone the current database into the new database
-    const cloneDatabaseChild = spawn(
+    // Clone the existing database into the new database
+    const cloneChild = spawn(
       'mysqldump',
       [
         `-u${process.env.MYSQL_USERNAME}`,
         `-p${process.env.MYSQL_PASSWORD}`,
         `-h${process.env.MYSQL_HOST}`,
         '--databases',
-        databaseName,
+        existingDatabaseName,
         '--no-create-db',
       ],
       {
@@ -87,9 +73,10 @@ export default async function handler(
     );
 
     // Pipe the dump output to the new database
-    cloneDatabaseChild.stdout.pipe(importChild.stdin);
-    cloneDatabaseChild.stderr.on('data', (error) => {
-      throw new Error(error);
+    cloneChild.stdout.pipe(importChild.stdin);
+    cloneChild.stderr.on('data', (error) => {
+      console.error('Error cloning database:', error.toString());
+      throw new Error(`Failed to clone database from ${existingDatabaseName} to ${newDatabaseName}`);
     });
 
     await new Promise((resolve, reject) => {
@@ -104,9 +91,7 @@ export default async function handler(
     res.status(200).json({
       message: `Database cloned successfully: ${newDatabaseName}`,
     });
-  } catch (error) {
-    res.status(500).json({
-      error: (error as Error).message,
-    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.toString() });
   }
 }
