@@ -18,7 +18,9 @@ server {
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 5m;
     ssl_prefer_server_ciphers on;
-    proxy_read_timeout 300s;
+    proxy_read_timeout 480s;
+    proxy_connect_timeout 480s;
+    proxy_send_timeout 480s;
     client_max_body_size 0;
 
 
