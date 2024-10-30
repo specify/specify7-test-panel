@@ -105,6 +105,12 @@ export default function Index(): JSX.Element {
                   >
                     {localization.download}
                   </a>
+                  <a
+                    className="text-orange-400 hover:underline"
+                    href={`/api/databases/${name}/clone`}
+                  >
+                    {localization.clone}
+                  </a>
                   <button
                     className="text-blue-400 hover:underline"
                     type="button"

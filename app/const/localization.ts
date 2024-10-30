@@ -58,6 +58,7 @@ export const localization = {
   signIn: 'Sign In ',
   signInWithGitHub: 'Sign in with GitHub',
   download: 'Download',
+  clone: 'Clone',
   uploadNew: 'Upload New',
   usersOfDatabase: (database: string) => `Specify Users in "${database}"`,
   deleteDialogTitle: 'Delete Database?',
