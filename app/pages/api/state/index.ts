@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'node:fs';
 import path from 'node:path';
+import fetch from 'node-fetch';
 
 import {
   nginxConfDirectory as nginxConfigDirectory,
@@ -45,6 +46,23 @@ const getHash = (string: string): number =>
       0
     );
 
+// Given a branch name, chech GitHub if that branch has a 'config/' directory.
+// Do this by doing a GET request to 'github.com/specify/specify7/tree/{deployment.branch}/config'.
+// IF the request returns a 200 status code, then the branch has a 'config/' directory,
+// otherwise it does not.
+// Return true if it does, false otherwise
+// #HackyAF
+const branchHasConfigDirectory = async (branch: string): Promise<boolean> => {
+  const url = `https://github.com/specify/specify7/tree/${branch}/config`;
+  try {
+    const response = await fetch(url);
+    return response.status === 200;
+  } catch (error) {
+    console.error(`Error checking config directory for branch ${branch}:`, error);
+    return false;
+  }
+};
+
 export async function setState(
   deployments: RA<Deployment>,
   user: User,
@@ -58,10 +76,16 @@ export async function setState(
   );
 
   const branches = await fetchTagsForImage('specify7-service');
-  const state = rawState.map((deployment) => ({
-    ...deployment,
-    digest: branches[deployment.branch]?.digest ?? deployment.digest,
-  }));
+  const state = await Promise.all(
+    rawState.map(async (deployment) => {
+      const hasInteralSp7ConfigDirectory = await branchHasConfigDirectory(deployment.branch);
+      return {
+        ...deployment,
+        digest: branches[deployment.branch]?.digest ?? deployment.digest,
+        hasInteralSp7ConfigDirectory,
+      };
+    })
+  );
 
   await fs.promises.writeFile(configurationFile, JSON.stringify(state));
   const nginxConfig = createNginxConfig(state, new URL(origin).host);

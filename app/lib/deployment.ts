@@ -26,6 +26,7 @@ export type Deployment = Partial<DeploymentDetails> & {
   readonly group?: string;
   readonly branch: string;
   readonly digest?: string;
+  readonly hasInteralSp7ConfigDirectory?: boolean;
 };
 
 export type DeploymentWithInfo = Deployment & {
