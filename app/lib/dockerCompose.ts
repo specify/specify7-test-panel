@@ -12,8 +12,7 @@ const resolveVersion = (deployment: Deployment) =>
 export const createDockerConfig = (
   deployments: RA<ActiveDeployment>,
   // This is used just to make docker Nginx container if config changed
-  nginxConfigHash: number,
-  sp7HasConfig: boolean = false
+  nginxConfigHash: number
 ): string => `
 version: '3.9'
 services:
