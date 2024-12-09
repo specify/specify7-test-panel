@@ -36,7 +36,11 @@ ${deployments
       - nginx
       - redis
     volumes:
-      - "specify${deployment.schemaVersion}:/opt/Specify:ro"
+      ${
+        deployment.hasInteralSp7ConfigDirectory
+          ? ''
+          : `- "specify${deployment.schemaVersion}:/opt/Specify:ro"`
+      }
       - "${deployment.hostname}-static-files:/volumes/static-files"
     environment:
       - DATABASE_NAME=${deployment.database}
@@ -51,6 +55,11 @@ ${deployments
       - CELERY_TASK_QUEUE=${deployment.hostname}
       - SP7_DEBUG=true
       - LOG_LEVEL=DEBUG
+      ${
+        deployment.hasInteralSp7ConfigDirectory
+          ? '- THICK_CLIENT_LOCATION=/opt/specify7'
+          : '- THICK_CLIENT_LOCATION=/opt/Specify'
+      }
 
   ${deployment.hostname}-worker:
     image: specifyconsortium/specify7-service${resolveVersion(deployment)}
@@ -59,8 +68,12 @@ ${deployments
     }
     init: true
     restart: unless-stopped
-    volumes:
-      - "specify${deployment.schemaVersion}:/opt/Specify:ro"
+    ${
+      deployment.hasInteralSp7ConfigDirectory
+        ? ''
+        : `volumes:
+      - "specify${deployment.schemaVersion}:/opt/Specify:ro"`
+    }
     networks:
       - redis
       - database
@@ -78,7 +91,12 @@ ${deployments
       - CELERY_RESULT_BACKEND=redis://redis/1
       - CELERY_TASK_QUEUE=${deployment.hostname}
       - SP7_DEBUG=true
-      - LOG_LEVEL=DEBUG`
+      - LOG_LEVEL=DEBUG
+      ${
+        deployment.hasInteralSp7ConfigDirectory
+          ? '- THICK_CLIENT_LOCATION=/opt/specify7'
+          : '- THICK_CLIENT_LOCATION=/opt/Specify'
+      }`
   )
   .join('\n\n')}
 
