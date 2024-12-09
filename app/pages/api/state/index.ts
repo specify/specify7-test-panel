@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'node:fs';
 import path from 'node:path';
-import fetch from 'node-fetch';
 
 import {
   nginxConfDirectory as nginxConfigDirectory,
