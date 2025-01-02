@@ -38,6 +38,7 @@ ${deployments
     volumes:
       - "specify${deployment.schemaVersion}:/opt/Specify:ro"
       - "${deployment.hostname}-static-files:/volumes/static-files"
+      - "./config/local_specify_settings.py:/opt/specify7/settings/local_specify_settings.py:ro"
     environment:
       - DATABASE_NAME=${deployment.database}
       - DATABASE_HOST=${process.env.MYSQL_HOST}
