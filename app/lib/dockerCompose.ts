@@ -44,8 +44,10 @@ ${deployments
       - MASTER_NAME=${process.env.MYSQL_USERNAME}
       - MASTER_PASSWORD=${process.env.MYSQL_PASSWORD}
       - SECRET_KEY="change this to some unique random string"
-      - REPORT_RUNNER_HOST=report-runner
-      - REPORT_RUNNER_PORT=8080
+      - REPORT_RUNNER_HOST=${process.env.REPORT_RUNNER_HOST}
+      - REPORT_RUNNER_PORT=${process.env.REPORT_RUNNER_PORT}
+      - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
+      - ASSET_SERVER_KEY=${process.env.ASSET_SERVER_KEY}
       - CELERY_BROKER_URL=redis://redis/0
       - CELERY_RESULT_BACKEND=redis://redis/1
       - CELERY_TASK_QUEUE=${deployment.hostname}
@@ -72,8 +74,10 @@ ${deployments
       - MASTER_NAME=${process.env.MYSQL_USERNAME}
       - MASTER_PASSWORD=${process.env.MYSQL_PASSWORD}
       - SECRET_KEY="change this to some unique random string"
-      - REPORT_RUNNER_HOST=report-runner
-      - REPORT_RUNNER_PORT=8080
+      - REPORT_RUNNER_HOST=${process.env.REPORT_RUNNER_HOST}
+      - REPORT_RUNNER_PORT=${process.env.REPORT_RUNNER_PORT}
+      - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
+      - ASSET_SERVER_KEY=${process.env.ASSET_SERVER_KEY}
       - CELERY_BROKER_URL=redis://redis/0
       - CELERY_RESULT_BACKEND=redis://redis/1
       - CELERY_TASK_QUEUE=${deployment.hostname}
