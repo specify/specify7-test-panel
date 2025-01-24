@@ -1,164 +1,144 @@
-import React from 'react';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'node:fs';
+import path from 'node:path';
 
-import { Dashboard } from '../components/Dashboard';
-import Layout from '../components/Layout';
-import { Loading, ModalDialog } from '../components/ModalDialog';
-import { useApi, useAsync } from '../components/useApi';
-import { stateRefreshInterval } from '../const/siteConfig';
-import type { Deployment } from '../lib/deployment';
-import { getPullRequests } from '../lib/github';
-import type { IR, RA } from '../lib/typescriptCommonTypes';
-import { getUserInfo, getUserTokenCookie } from '../lib/user';
-import { localization } from '../const/localization';
-import { DockerHubTag } from './api/dockerhub/[image]';
+import {
+  nginxConfDirectory as nginxConfigDirectory,
+  stateDirectory,
+} from '../../../const/siteConfig';
+import { fileExists, getUser, noCaching } from '../../../lib/apiUtils';
+import type { ActiveDeployment, Deployment } from '../../../lib/deployment';
+import {
+  autoDeployPullRequests,
+  formalizeState,
+} from '../../../lib/deployment';
+import { createDockerConfig } from '../../../lib/dockerCompose';
+import { createNginxConfig } from '../../../lib/nginx';
+import type { RA } from '../../../lib/typescriptCommonTypes';
+import type { User } from '../../../lib/user';
+import { fetchTagsForImage } from '../dockerhub/[image]';
 
-export default function Index(): JSX.Element {
-  return (
-    <Layout title={localization.pageTitle} protected>
-      <Wrapper />
-    </Layout>
-  );
+const configurationFile = path.resolve(stateDirectory, 'configuration.json');
+const nginxConfigurationFile = path.resolve(nginxConfigDirectory, 'nginx.conf');
+const dockerConfigurationFile = path.resolve(
+  stateDirectory,
+  'docker-compose.yml'
+);
+
+export async function getState(): Promise<RA<ActiveDeployment>> {
+  if (!(await fileExists(configurationFile)))
+    await fs.promises.writeFile(configurationFile, JSON.stringify([]));
+
+  return fs.promises
+    .readFile(configurationFile)
+    .then((file) => file.toString())
+    .then((content) => (content.length === 0 ? [] : JSON.parse(content)));
 }
 
-export type Database = {
-  readonly name: string;
-  readonly version: string | null;
+// Based on https://stackoverflow.com/a/34842797/8584605
+const getHash = (string: string): number =>
+  string
+    .split('')
+    .reduce(
+      (previousHash, currentValue) =>
+        (previousHash << 5) - previousHash + currentValue.charCodeAt(0),
+      0
+    );
+
+// Given a branch name, chech GitHub if that branch has a 'config/' directory.
+// Do this by doing a GET request to 'github.com/specify/specify7/tree/{deployment.branch}/config'.
+// IF the request returns a 200 status code, then the branch has a 'config/' directory,
+// otherwise it does not.
+// Return true if it does, false otherwise
+// #HackyAF
+const branchHasConfigDirectory = async (branch: string): Promise<boolean> => {
+  const url = `https://github.com/specify/specify7/tree/${branch}/config`;
+  try {
+    const response = await fetch(url);
+    return response.status === 200;
+  } catch (error) {
+    console.error(`Error checking config directory for branch ${branch}:`, error);
+    return false;
+  }
 };
 
-export function useDatabases(): undefined | string | RA<Database> {
-  const databases = useApi<IR<string | null>>('/api/databases')[0];
-  return React.useMemo(
-    () =>
-      typeof databases === 'object'
-        ? Object.entries(databases.data)
-            .sort(([leftName], [rightName]) =>
-              leftName.toLowerCase().localeCompare(rightName.toLowerCase())
-            )
-            .map(([name, version]) => ({ name, version }))
-        : databases,
-    [databases]
+export async function setState(
+  deployments: RA<Deployment>,
+  user: User,
+  origin: string,
+  autoDeploy = true
+): Promise<RA<ActiveDeployment>> {
+  const rawState = await autoDeployPullRequests(
+    formalizeState(deployments, await getState()),
+    user,
+    autoDeploy
   );
+
+  const branches = await fetchTagsForImage('specify7-service');
+  const state = await Promise.all(
+    rawState.map(async (deployment) => {
+      const hasInteralSp7ConfigDirectory = await branchHasConfigDirectory(deployment.branch);
+      return {
+        ...deployment,
+        digest: branches[deployment.branch]?.digest ?? deployment.digest,
+        hasInteralSp7ConfigDirectory,
+      };
+    })
+  );
+
+  await fs.promises.writeFile(configurationFile, JSON.stringify(state));
+  const nginxConfig = createNginxConfig(state, new URL(origin).host);
+  await fs.promises.writeFile(nginxConfigurationFile, nginxConfig);
+  const currentDockerConfigurationFile = await fetchCurrentConfig();
+  const newDockerConfigurationFile = createDockerConfig(
+    state,
+    getHash(nginxConfig)
+  );
+  if (currentDockerConfigurationFile !== newDockerConfigurationFile)
+    await fs.promises.writeFile(
+      dockerConfigurationFile,
+      newDockerConfigurationFile
+    );
+  return state;
 }
 
-function Wrapper(): JSX.Element {
-  const [state, setState] = useApi<RA<Deployment>>('/api/state');
-  const branches = useApi<IR<DockerHubTag>>(
-    '/api/dockerhub/specify7-service'
-  )[0];
-  const schemaVersions = useApi<IR<string>>(
-    '/api/dockerhub/specify6-service'
-  )[0];
+async function fetchCurrentConfig(): Promise<string> {
+  try {
+    return (await fs.promises.readFile(dockerConfigurationFile)).toString();
+  } catch {
+    return '';
+  }
+}
 
-  const databases = useDatabases();
+export default async function handler(
+  request_: NextApiRequest,
+  res: NextApiResponse
+) {
+  const user = await getUser(request_, res);
+  if (typeof user === 'undefined') return;
 
-  const pullRequests = useAsync(
-    React.useCallback(
-      async () =>
-        getPullRequests(
-          await getUserInfo(getUserTokenCookie(document.cookie ?? '') ?? '')
-        ),
-      []
-    )
-  )[0];
+  if (request_.method === 'POST') {
+    const request = JSON.parse(request_.body);
+    if (typeof request !== 'object')
+      return void res.status(400).json({
+        error: 'Invalid request body specified',
+      });
 
-  // Check periodically if deployment configuration has changed
-  React.useEffect(() => {
-    if (typeof state !== 'object') return;
-    const fetchStatus = () => {
-      if (destructorCalled || typeof state !== 'object') return;
-      setTimeout(
-        async () =>
-          fetch('/api/state')
-            .then<{ readonly data: RA<Deployment> }>(async (response) =>
-              response.json()
-            )
-            .then(({ data }) => {
-              if (destructorCalled || typeof state !== 'object') return;
+    const origin = request_.headers.origin;
+    if (typeof origin !== 'string')
+      return void res
+        .status(400)
+        .json({ error: '"Origin" request header is missing' });
 
-              /*
-               * Remove deployedAt, accessedAt and wasAutoDeployed when
-               * comparing the states
-               */
-              const oldState = JSON.stringify(
-                state.data.map(
-                  ({ deployedAt, accessedAt, wasAutoDeployed, ...rest }) => rest
-                )
-              );
-              const newState = JSON.stringify(
-                data.map(
-                  ({ deployedAt, accessedAt, wasAutoDeployed, ...rest }) => rest
-                )
-              );
+    const state = await setState(request, user, origin);
 
-              if (oldState !== newState) {
-                // Force re-render layout from scratch
-                setState('loading');
-                setTimeout(() => setState({ data }), 0);
-              }
-              fetchStatus();
-            })
-            .catch(console.error),
-        stateRefreshInterval
-      );
-    };
-
-    let destructorCalled = false;
-    fetchStatus();
-    return () => {
-      destructorCalled = true;
-    };
-  }, [state]);
-  return typeof state === 'undefined' ||
-    typeof schemaVersions === 'undefined' ||
-    typeof branches === 'undefined' ||
-    typeof databases === 'undefined' ||
-    typeof pullRequests === 'undefined' ? (
-    <Loading />
-  ) : typeof state === 'string' ||
-    typeof schemaVersions === 'string' ||
-    typeof branches === 'string' ||
-    typeof databases === 'string' ||
-    typeof pullRequests === 'string' ? (
-    <ModalDialog title={localization.dashboard}>
-      {[state, schemaVersions, branches, databases, pullRequests].find(
-        (value): value is string => typeof value === 'string'
-      )}
-    </ModalDialog>
-  ) : (
-    <Dashboard
-      branches={branches.data}
-      databases={databases}
-      initialState={state.data.map((deployment, id) => ({
-        ...deployment,
-        frontend: { id },
-      }))}
-      pullRequests={pullRequests}
-      schemaVersions={schemaVersions.data}
-      onSave={(newState): void => {
-        setState(undefined);
-        fetch('/api/state', {
-          method: 'POST',
-          body: JSON.stringify(
-            newState.map(({ frontend: _, ...rest }) => rest)
-          ),
-        })
-          .then(async (response) => {
-            const textResponse = await response.text();
-            try {
-              const jsonResponse = JSON.parse(textResponse);
-              if (response.status === 200) setState(jsonResponse);
-              else
-                setState(
-                  jsonResponse.error ??
-                    jsonResponse ??
-                    'Unexpected Error Occurred'
-                );
-            } catch {
-              setState(textResponse);
-            }
-          })
-          .catch((error) => setState(error.toString()));
-      }}
-    />
-  );
+    noCaching(res).status(200).json({ data: state });
+  } else if (request_.method === 'GET')
+    await getState()
+      .then((data) => noCaching(res).status(200).json({ data }))
+      .catch((error) => res.status(500).json({ error: error.toString() }));
+  else
+    return res.status(400).json({
+      error: 'Only POST and GET Methods are allowed',
+    });
 }

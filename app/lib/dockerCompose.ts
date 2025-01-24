@@ -43,16 +43,22 @@ ${deployments
       - DATABASE_HOST=${process.env.MYSQL_HOST}
       - MASTER_NAME=${process.env.MYSQL_USERNAME}
       - MASTER_PASSWORD=${process.env.MYSQL_PASSWORD}
+      - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
+      - ASSET_SERVER_KEY=${process.env.ASSET_SERVER_KEY}
+      - ASSET_SERVER_COLLECTION=${process.env.ASSET_SERVER_COLLECTION}
       - SECRET_KEY="change this to some unique random string"
       - REPORT_RUNNER_HOST=${process.env.REPORT_RUNNER_HOST}
       - REPORT_RUNNER_PORT=${process.env.REPORT_RUNNER_PORT}
-      - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
-      - ASSET_SERVER_KEY=${process.env.ASSET_SERVER_KEY}
       - CELERY_BROKER_URL=redis://redis/0
       - CELERY_RESULT_BACKEND=redis://redis/1
       - CELERY_TASK_QUEUE=${deployment.hostname}
       - SP7_DEBUG=true
       - LOG_LEVEL=DEBUG
+      ${
+        deployment.hasInteralSp7ConfigDirectory
+          ? '- THICK_CLIENT_LOCATION=/opt/specify7'
+          : '- THICK_CLIENT_LOCATION=/opt/Specify'
+      }
 
   ${deployment.hostname}-worker:
     image: specifyconsortium/specify7-service${resolveVersion(deployment)}
@@ -72,17 +78,22 @@ ${deployments
       - DATABASE_NAME=${deployment.database}
       - DATABASE_HOST=${process.env.MYSQL_HOST}
       - MASTER_NAME=${process.env.MYSQL_USERNAME}
+      - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
+      - ASSET_SERVER_KEY=${process.env.ASSET_SERVER_KEY}
       - MASTER_PASSWORD=${process.env.MYSQL_PASSWORD}
       - SECRET_KEY="change this to some unique random string"
       - REPORT_RUNNER_HOST=${process.env.REPORT_RUNNER_HOST}
       - REPORT_RUNNER_PORT=${process.env.REPORT_RUNNER_PORT}
-      - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
-      - ASSET_SERVER_KEY=${process.env.ASSET_SERVER_KEY}
       - CELERY_BROKER_URL=redis://redis/0
       - CELERY_RESULT_BACKEND=redis://redis/1
       - CELERY_TASK_QUEUE=${deployment.hostname}
       - SP7_DEBUG=true
-      - LOG_LEVEL=DEBUG`
+      - LOG_LEVEL=DEBUG
+      ${
+        deployment.hasInteralSp7ConfigDirectory
+          ? '- THICK_CLIENT_LOCATION=/opt/specify7'
+          : '- THICK_CLIENT_LOCATION=/opt/Specify'
+      }`
   )
   .join('\n\n')}
 
