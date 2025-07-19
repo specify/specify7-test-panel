@@ -15,6 +15,10 @@ import { ListUsers } from '../pages/databases';
 import { localization } from '../const/localization';
 import { ContainerLogs } from './ContainerLogs';
 
+function getContainerName(hostname: string): string {
+  // Match the docker naming scheme for deployment containers
+  return `specify7-test-panel-${hostname}-1`;
+}
 export function DeploymentOptions({
   deployment,
   schemaVersions,
@@ -44,6 +48,44 @@ export function DeploymentOptions({
 
   const [listUsers, setListUsers] = React.useState(false);
   const [showLogs, setShowLogs] = React.useState(false);
+  const [downloading, setDownloading] = React.useState(false);
+
+  const handleDownloadLogs = async () => {
+    if (!deployment.hostname) return;
+    
+    setDownloading(true);
+    try {
+      const containerName = getContainerName(deployment.hostname);
+      const response = await fetch(`/api/logs/${encodeURIComponent(containerName)}`);
+      if (!response.ok) throw new Error('Failed to fetch logs for download');
+      
+      const logsText = await response.text();
+      
+      if (!logsText || logsText.trim() === '') {
+        alert('No logs available for this container');
+        return;
+      }
+      
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `${containerName}-logs-${timestamp}.txt`;
+      
+      const blob = new Blob([logsText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download logs:', error);
+      alert('Failed to download logs. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <>
@@ -64,6 +106,27 @@ export function DeploymentOptions({
         <ModalDialog
           title={localization.viewLogs ?? "Container Logs"}
           onClose={(): void => setShowLogs(false)}
+          buttons={
+            <>
+              <button
+                onClick={handleDownloadLogs}
+                disabled={downloading}
+                className={infoButtonClassName}
+              >
+                {icons.download}
+                <span className="ml-2">
+                  {downloading ? 'Downloading...' : 'Download Logs'}
+                </span>
+              </button>
+              <button
+                className={infoButtonClassName}
+                type="button"
+                onClick={(): void => setShowLogs(false)}
+              >
+                Close
+              </button>
+            </>
+          }
         >
           <ContainerLogs deployment={deployment} />
         </ModalDialog>
