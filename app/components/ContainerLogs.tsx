@@ -6,11 +6,17 @@ function getContainerName(hostname: string): string {
   return `specify7-test-panel-${hostname}-1`;
 }
 
-export function ContainerLogs({ deployment }: { deployment: Deployment }) {
-  if (!deployment.hostname) {
+export function ContainerLogs({ 
+  deployment, 
+  containerName: customContainerName 
+}: { 
+  deployment: Deployment;
+  containerName?: string;
+}) {
+  if (!deployment.hostname && !customContainerName) {
     return <div>Error: No hostname available for this deployment</div>;
   }
-  const containerName = getContainerName(deployment.hostname);
+  const containerName = customContainerName || getContainerName(deployment.hostname!);
   const [logs, setLogs] = React.useState<string>('');
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);

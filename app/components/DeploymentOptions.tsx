@@ -19,6 +19,12 @@ function getContainerName(hostname: string): string {
   // Match the docker naming scheme for deployment containers
   return `specify7-test-panel-${hostname}-1`;
 }
+
+function getWorkerContainerName(hostname: string): string {
+  // Match the docker naming scheme for worker containers
+  return `specify7-test-panel-${hostname}-worker-1`;
+}
+
 export function DeploymentOptions({
   deployment,
   schemaVersions,
@@ -48,25 +54,33 @@ export function DeploymentOptions({
 
   const [listUsers, setListUsers] = React.useState(false);
   const [showLogs, setShowLogs] = React.useState(false);
+  const [showWorkerLogs, setShowWorkerLogs] = React.useState(false);
   const [downloading, setDownloading] = React.useState(false);
+  const [downloadingWorker, setDownloadingWorker] = React.useState(false);
 
-  const handleDownloadLogs = async () => {
+  const handleDownloadLogs = async (containerType: 'main' | 'worker' = 'main') => {
     if (!deployment.hostname) return;
     
-    setDownloading(true);
+    const isWorker = containerType === 'worker';
+    const setDownloadingState = isWorker ? setDownloadingWorker : setDownloading;
+    
+    setDownloadingState(true);
     try {
-      const containerName = getContainerName(deployment.hostname);
+      const containerName = isWorker 
+        ? getWorkerContainerName(deployment.hostname)
+        : getContainerName(deployment.hostname);
+      
       const response = await fetch(`/api/logs/${encodeURIComponent(containerName)}`);
-      if (!response.ok) throw new Error('Failed to fetch logs for download');
+      if (!response.ok) throw new Error(`Failed to fetch ${isWorker ? 'worker ' : ''}logs for download`);
       
       const logsText = await response.text();
       
       if (!logsText || logsText.trim() === '') {
-        alert('No logs available for this container');
+        alert(`No ${isWorker ? 'worker ' : ''}logs available for this container`);
         return;
       }
       
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const timestamp = new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-');
       const filename = `${containerName}-logs-${timestamp}.txt`;
       
       const blob = new Blob([logsText], { type: 'text/plain' });
@@ -80,10 +94,10 @@ export function DeploymentOptions({
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Failed to download logs:', error);
-      alert('Failed to download logs. Please try again.');
+      console.error(`Failed to download ${isWorker ? 'worker ' : ''}logs:`, error);
+      alert(`Failed to download ${isWorker ? 'worker ' : ''}logs. Please try again.`);
     } finally {
-      setDownloading(false);
+      setDownloadingState(false);
     }
   };
 
@@ -109,7 +123,7 @@ export function DeploymentOptions({
           buttons={
             <>
               <button
-                onClick={handleDownloadLogs}
+                onClick={() => handleDownloadLogs('main')}
                 disabled={downloading}
                 className={infoButtonClassName}
               >
@@ -129,6 +143,38 @@ export function DeploymentOptions({
           }
         >
           <ContainerLogs deployment={deployment} />
+        </ModalDialog>
+      )}
+      {showWorkerLogs && (
+        <ModalDialog
+          title="Worker Container Logs"
+          onClose={(): void => setShowWorkerLogs(false)}
+          buttons={
+            <>
+              <button
+                onClick={() => handleDownloadLogs('worker')}
+                disabled={downloadingWorker}
+                className={infoButtonClassName}
+              >
+                {icons.download}
+                <span className="ml-2">
+                  {downloadingWorker ? 'Downloading...' : 'Download Worker Logs'}
+                </span>
+              </button>
+              <button
+                className={infoButtonClassName}
+                type="button"
+                onClick={(): void => setShowWorkerLogs(false)}
+              >
+                Close
+              </button>
+            </>
+          }
+        >
+          <ContainerLogs 
+            deployment={deployment}
+            containerName={deployment.hostname ? getWorkerContainerName(deployment.hostname) : undefined}
+          />
         </ModalDialog>
       )}
       <ModalDialog
@@ -156,6 +202,13 @@ export function DeploymentOptions({
               onClick={(): void => setShowLogs(true)}
             >
               {localization.viewLogs ?? "View Logs"}
+            </button>
+            <button
+              className={infoButtonClassName}
+              type="button"
+              onClick={(): void => setShowWorkerLogs(true)}
+            >
+              View Worker Logs
             </button>
             <button
               className={infoButtonClassName}
