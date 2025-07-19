@@ -50,6 +50,7 @@ ${deployments
       - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
       - ASSET_SERVER_KEY=${process.env.ASSET_SERVER_KEY}
       - ASSET_SERVER_COLLECTION=${process.env.ASSET_SERVER_COLLECTION}
+      - WEB_ATTACHMENT_COLLECTION=${deployment.database}
       - SECRET_KEY="change this to some unique random string"
       - REPORT_RUNNER_HOST=${process.env.REPORT_RUNNER_HOST}
       - REPORT_RUNNER_PORT=${process.env.REPORT_RUNNER_PORT}
