@@ -14,16 +14,7 @@ import { useApi } from './useApi';
 import { ListUsers } from '../pages/databases';
 import { localization } from '../const/localization';
 import { ContainerLogs } from './ContainerLogs';
-
-function getContainerName(hostname: string): string {
-  // Match the docker naming scheme for deployment containers
-  return `specify7-test-panel-${hostname}-1`;
-}
-
-function getWorkerContainerName(hostname: string): string {
-  // Match the docker naming scheme for worker containers
-  return `specify7-test-panel-${hostname}-worker-1`;
-}
+import { getContainerName, getWorkerContainerName } from '../lib/containerUtils';
 
 export function DeploymentOptions({
   deployment,

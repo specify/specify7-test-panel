@@ -1,10 +1,6 @@
 import React from 'react';
 import type { Deployment } from '../lib/deployment';
-
-function getContainerName(hostname: string): string {
-  // Match the docker naming scheme for deployment containers
-  return `specify7-test-panel-${hostname}-1`;
-}
+import { getContainerName } from '../lib/containerUtils';
 
 export function ContainerLogs({ 
   deployment, 
