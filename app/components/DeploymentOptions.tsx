@@ -48,6 +48,53 @@ export function DeploymentOptions({
   const [showWorkerLogs, setShowWorkerLogs] = React.useState(false);
   const [downloading, setDownloading] = React.useState(false);
   const [downloadingWorker, setDownloadingWorker] = React.useState(false);
+  
+  const mainLogsRefreshRef = React.useRef<(() => void) | null>(null);
+  const workerLogsRefreshRef = React.useRef<(() => void) | null>(null);
+
+  const LogsModalButtons = ({ 
+    refreshRef, 
+    onDownload, 
+    downloading, 
+    downloadLabel,
+    onClose 
+  }: {
+    refreshRef: React.MutableRefObject<(() => void) | null>;
+    onDownload: () => void;
+    downloading: boolean;
+    downloadLabel: string;
+    onClose: () => void;
+  }) => (
+    <div className="flex justify-between w-full">
+      <button
+        onClick={() => refreshRef.current?.()}
+        className={infoButtonClassName}
+        title="Refresh logs"
+      >
+        {icons.refresh}
+        <span className="ml-2">{localization.reload}</span>
+      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={onDownload}
+          disabled={downloading}
+          className={infoButtonClassName}
+        >
+          {icons.download}
+          <span className="ml-2">
+            {downloading ? localization.downloading : downloadLabel}
+          </span>
+        </button>
+        <button
+          className={infoButtonClassName}
+          type="button"
+          onClick={onClose}
+        >
+          {localization.close}
+        </button>
+      </div>
+    </div>
+  );
 
   const handleDownloadLogs = async (containerType: 'main' | 'worker' = 'main') => {
     if (!deployment.hostname) return;
@@ -115,28 +162,16 @@ export function DeploymentOptions({
           title={`${localization.view} ${localization.logs}`}
           onClose={(): void => setShowLogs(false)}
           buttons={
-            <>
-              <button
-                onClick={() => handleDownloadLogs('main')}
-                disabled={downloading}
-                className={infoButtonClassName}
-              >
-                {icons.download}
-                <span className="ml-2">
-                  {downloading ? localization.downloading : `${localization.download} ${localization.logs}`}
-                </span>
-              </button>
-              <button
-                className={infoButtonClassName}
-                type="button"
-                onClick={(): void => setShowLogs(false)}
-              >
-                {localization.close}
-              </button>
-            </>
+            <LogsModalButtons
+              refreshRef={mainLogsRefreshRef}
+              onDownload={() => handleDownloadLogs('main')}
+              downloading={downloading}
+              downloadLabel={`${localization.download} ${localization.logs}`}
+              onClose={() => setShowLogs(false)}
+            />
           }
         >
-          <ContainerLogs deployment={deployment} />
+          <ContainerLogs deployment={deployment} refreshRef={mainLogsRefreshRef} />
         </ModalDialog>
       )}
       {showWorkerLogs && (
@@ -144,30 +179,19 @@ export function DeploymentOptions({
           title={`${localization.view} ${localization.workerLogs}`}
           onClose={(): void => setShowWorkerLogs(false)}
           buttons={
-            <>
-              <button
-                onClick={() => handleDownloadLogs('worker')}
-                disabled={downloadingWorker}
-                className={infoButtonClassName}
-              >
-                {icons.download}
-                <span className="ml-2">
-                  {downloadingWorker ? localization.downloading : `${localization.download} ${localization.workerLogs}`}
-                </span>
-              </button>
-              <button
-                className={infoButtonClassName}
-                type="button"
-                onClick={(): void => setShowWorkerLogs(false)}
-              >
-                {localization.close}
-              </button>
-            </>
+            <LogsModalButtons
+              refreshRef={workerLogsRefreshRef}
+              onDownload={() => handleDownloadLogs('worker')}
+              downloading={downloadingWorker}
+              downloadLabel={`${localization.download} ${localization.workerLogs}`}
+              onClose={() => setShowWorkerLogs(false)}
+            />
           }
         >
           <ContainerLogs 
             deployment={deployment}
             containerName={deployment.hostname ? getWorkerContainerName(deployment.hostname) : undefined}
+            refreshRef={workerLogsRefreshRef}
           />
         </ModalDialog>
       )}
