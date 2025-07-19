@@ -1,5 +1,9 @@
 import Docker from 'dockerode';
 
+// Docker log stream header length - Docker prefixes each log line with an 8-byte header
+// containing stream type (stdout/stderr) and length information
+const DOCKER_LOG_HEADER_LENGTH = 8;
+
 let docker: Docker | null = null;
 
 function getDockerInstance(): Docker {
@@ -58,7 +62,7 @@ function cleanDockerLogs(rawLogs: string): string {
     .split('\n')
     .map(line => {
       // Remove Docker log stream headers so it looks cleaner
-      if (line.length > 8) {
+      if (line.length > DOCKER_LOG_HEADER_LENGTH) {
         // Use the timestamp pattern to find the start of the actual log message
         const timestampMatch = line.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
         if (timestampMatch) {
