@@ -36,6 +36,9 @@ RUN mkdir nginx.conf.d
 # Development image
 FROM runner-common AS dev-runner
 
+USER root
+RUN addgroup -g 999 docker && adduser node docker
+
 USER node
 RUN mkdir /home/node/app
 WORKDIR /home/node/app
@@ -48,6 +51,9 @@ ENTRYPOINT ["../docker-entrypoint.sh"]
 # Production image, copy all files and run next
 FROM runner-common AS runner
 
+USER root
+RUN addgroup -g 999 docker && adduser node docker
+
 USER node
 WORKDIR /home/node/app
 ENV NODE_ENV=production
@@ -58,7 +64,5 @@ COPY --from=builder /home/node/app/.next ./.next
 COPY --from=builder /home/node/app/node_modules ./node_modules
 COPY --from=builder /home/node/app/package.json ./package.json
 COPY --from=builder /home/node/app/.env.local ./.env.local
-
-RUN addgroup -g 999 docker && adduser node docker
 
 CMD ["npm", "run", "start"]
