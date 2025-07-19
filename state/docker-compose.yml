@@ -1,7 +1,7 @@
-# docker-compose doesn't like empty files, so this redundant mariadb extend
+# docker-compose doesn't like empty files, so this redundant nginx extend
 # is provided:
 
 version: '3.9'
 services:
-  mariadb:
+  nginx:
     restart: unless-stopped
