@@ -23,8 +23,6 @@ export default async function handler(
   const databaseName = request.query.name;
 
   try {
-    res.setHeader('Content-Type', 'text/plain');
-    res.setHeader('Cache-Control', `private, max-age=5000`);
     res.setHeader(
       'Content-Disposition',
       `attachment; filename=${databaseName}.sql`

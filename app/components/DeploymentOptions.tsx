@@ -83,7 +83,7 @@ export function DeploymentOptions({
       const timestamp = new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-');
       const filename = `${containerName}-logs-${timestamp}.txt`;
       
-      const blob = new Blob([logsText], { type: 'text/plain' });
+      const blob = new Blob([logsText]);
       const url = URL.createObjectURL(blob);
       
       const link = document.createElement('a');
