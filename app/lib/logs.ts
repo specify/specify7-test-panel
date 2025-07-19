@@ -1,10 +1,18 @@
 import Docker from 'dockerode';
 
-const docker = new Docker({ socketPath: '/var/run/docker.sock' });
+let docker: Docker | null = null;
+
+function getDockerInstance(): Docker {
+  if (!docker) {
+    docker = new Docker({ socketPath: '/var/run/docker.sock' });
+  }
+  return docker;
+}
 
 export async function getContainerLogs(containerName: string): Promise<string> {
   try {
-    const container = docker.getContainer(containerName);
+    const dockerInstance = getDockerInstance();
+    const container = dockerInstance.getContainer(containerName);
     const logsBuffer = await container.logs({
       stdout: true,
       stderr: true,
