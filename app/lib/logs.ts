@@ -13,14 +13,14 @@ function getDockerInstance(): Docker {
   return docker;
 }
 
-export async function getContainerLogs(containerName: string): Promise<string> {
+export async function getContainerLogs(containerName: string, tail: number = 200): Promise<string> {
   try {
     const dockerInstance = getDockerInstance();
     const container = dockerInstance.getContainer(containerName);
     const logsBuffer = await container.logs({
       stdout: true,
       stderr: true,
-      tail: 200,
+      tail: tail,
       follow: false,
       timestamps: true
     });
