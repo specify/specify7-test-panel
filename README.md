@@ -23,7 +23,7 @@ openssl req \
 ```
 
 Note, production deployment expects `privkey.pem` and `fullchain.pem` to be in
-the `/etc/letsencrypt/live/test.specifysystems.org-0001/privkey.pem` directory
+the `/etc/letsencrypt/live/test.specifysystems.org-0001` directory
 
 ## Create a GitHub OAuth App
 
@@ -184,13 +184,13 @@ Test Panel is now available at [https://localhost/](https://localhost/)
 
 ### Development
 
-Install npm dependencies locally:
+Install npm dependencies locally (in the `/app` directory):
 
 ```zsh
 npm i
 ```
 
-Run the containers:
+Back in the main project directory, run the containers:
 
 ```zsh
 docker compose \
