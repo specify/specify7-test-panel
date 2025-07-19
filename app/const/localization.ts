@@ -58,6 +58,10 @@ export const localization = {
   signIn: 'Sign In ',
   signInWithGitHub: 'Sign in with GitHub',
   download: 'Download',
+  downloading: 'Downloading...',
+  view: 'View',
+  logs: 'Logs',
+  workerLogs: 'Worker Logs',
   uploadNew: 'Upload New',
   usersOfDatabase: (database: string) => `Specify Users in "${database}"`,
   deleteDialogTitle: 'Delete Database?',
@@ -75,5 +79,8 @@ export const localization = {
   mb: 'MB',
   nameConflict:
     'Database with this name already exists. Please delete it first',
-  viewLogs: 'View Logs',
+  container: 'Container',
+  noLogsAvailable: 'No logs available for this container',
+  failedToDownload: 'Failed to download',
+  pleaseTryAgain: 'Please try again.',
 } as const;

@@ -67,7 +67,7 @@ export function DeploymentOptions({
       const logsText = await response.text();
       
       if (!logsText || logsText.trim() === '') {
-        alert(`No ${isWorker ? 'worker ' : ''}logs available for this container`);
+        alert(localization.noLogsAvailable);
         return;
       }
       
@@ -86,7 +86,10 @@ export function DeploymentOptions({
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error(`Failed to download ${isWorker ? 'worker ' : ''}logs:`, error);
-      alert(`Failed to download ${isWorker ? 'worker ' : ''}logs. Please try again.`);
+      const errorMessage = isWorker 
+        ? `${localization.failedToDownload} ${localization.workerLogs.toLowerCase()}. ${localization.pleaseTryAgain}`
+        : `${localization.failedToDownload} ${localization.logs.toLowerCase()}. ${localization.pleaseTryAgain}`;
+      alert(errorMessage);
     } finally {
       setDownloadingState(false);
     }
@@ -109,7 +112,7 @@ export function DeploymentOptions({
       )}
       {showLogs && (
         <ModalDialog
-          title={localization.viewLogs ?? "Container Logs"}
+          title={`${localization.view} ${localization.logs}`}
           onClose={(): void => setShowLogs(false)}
           buttons={
             <>
@@ -120,7 +123,7 @@ export function DeploymentOptions({
               >
                 {icons.download}
                 <span className="ml-2">
-                  {downloading ? 'Downloading...' : 'Download Logs'}
+                  {downloading ? localization.downloading : `${localization.download} ${localization.logs}`}
                 </span>
               </button>
               <button
@@ -128,7 +131,7 @@ export function DeploymentOptions({
                 type="button"
                 onClick={(): void => setShowLogs(false)}
               >
-                Close
+                {localization.close}
               </button>
             </>
           }
@@ -138,7 +141,7 @@ export function DeploymentOptions({
       )}
       {showWorkerLogs && (
         <ModalDialog
-          title="Worker Container Logs"
+          title={`${localization.view} ${localization.workerLogs}`}
           onClose={(): void => setShowWorkerLogs(false)}
           buttons={
             <>
@@ -149,7 +152,7 @@ export function DeploymentOptions({
               >
                 {icons.download}
                 <span className="ml-2">
-                  {downloadingWorker ? 'Downloading...' : 'Download Worker Logs'}
+                  {downloadingWorker ? localization.downloading : `${localization.download} ${localization.workerLogs}`}
                 </span>
               </button>
               <button
@@ -157,7 +160,7 @@ export function DeploymentOptions({
                 type="button"
                 onClick={(): void => setShowWorkerLogs(false)}
               >
-                Close
+                {localization.close}
               </button>
             </>
           }
@@ -192,14 +195,14 @@ export function DeploymentOptions({
               type="button"
               onClick={(): void => setShowLogs(true)}
             >
-              {localization.viewLogs ?? "View Logs"}
+              {`${localization.view} ${localization.logs}`}
             </button>
             <button
               className={infoButtonClassName}
               type="button"
               onClick={(): void => setShowWorkerLogs(true)}
             >
-              View Worker Logs
+              {`${localization.view} ${localization.workerLogs}`}
             </button>
             <button
               className={infoButtonClassName}
