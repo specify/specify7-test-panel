@@ -37,7 +37,7 @@ RUN mkdir nginx.conf.d
 FROM runner-common AS dev-runner
 
 USER root
-RUN addgroup -g 999 docker && adduser node docker
+RUN addgroup -S docker 2>/dev/null || true && adduser node docker
 
 USER node
 RUN mkdir /home/node/app
@@ -52,7 +52,7 @@ ENTRYPOINT ["../docker-entrypoint.sh"]
 FROM runner-common AS runner
 
 USER root
-RUN addgroup -g 999 docker && adduser node docker
+RUN addgroup -S docker 2>/dev/null || true && adduser node docker
 
 USER node
 WORKDIR /home/node/app
