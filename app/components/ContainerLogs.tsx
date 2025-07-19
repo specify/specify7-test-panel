@@ -7,6 +7,9 @@ function getContainerName(hostname: string): string {
 }
 
 export function ContainerLogs({ deployment }: { deployment: Deployment }) {
+  if (!deployment.hostname) {
+    return <div>Error: No hostname available for this deployment</div>;
+  }
   const containerName = getContainerName(deployment.hostname);
   const [logs, setLogs] = React.useState<string>('');
   const [loading, setLoading] = React.useState<boolean>(true);

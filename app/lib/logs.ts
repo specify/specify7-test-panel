@@ -16,14 +16,16 @@ export async function getContainerLogs(containerName: string): Promise<string> {
     if (Buffer.isBuffer(logsBuffer)) {
       return logsBuffer.toString('utf-8');
     }
-    // If it is a stream (unexpected with follow: false), handle as before:
+    
+    // If it is a stream, handle as a stream:
+    const stream = logsBuffer as NodeJS.ReadableStream;
     let logs = '';
-    logsBuffer.on('data', (chunk: Buffer) => {
+    stream.on('data', (chunk: Buffer) => {
       logs += chunk.toString('utf-8');
     });
-    await new Promise((resolve, reject) => {
-      logsBuffer.on('end', resolve);
-      logsBuffer.on('error', reject);
+    await new Promise<void>((resolve, reject) => {
+      stream.on('end', resolve);
+      stream.on('error', reject);
     });
     return logs;
   } catch (err: any) {
