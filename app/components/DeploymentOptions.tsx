@@ -13,6 +13,7 @@ import { ModalDialog } from './ModalDialog';
 import { useApi } from './useApi';
 import { ListUsers } from '../pages/databases';
 import { localization } from '../const/localization';
+import { ContainerLogs } from './ContainerLogs';
 
 export function DeploymentOptions({
   deployment,
@@ -42,6 +43,7 @@ export function DeploymentOptions({
   }
 
   const [listUsers, setListUsers] = React.useState(false);
+  const [showLogs, setShowLogs] = React.useState(false);
 
   return (
     <>
@@ -57,6 +59,14 @@ export function DeploymentOptions({
           database={deployment.database}
           onClose={(): void => setListUsers(false)}
         />
+      )}
+      {showLogs && (
+        <ModalDialog
+          title={localization.viewLogs ?? "Container Logs"}
+          onClose={(): void => setShowLogs(false)}
+        >
+          <ContainerLogs deployment={deployment} />
+        </ModalDialog>
       )}
       <ModalDialog
         buttons={
@@ -76,6 +86,13 @@ export function DeploymentOptions({
               onClick={(): void => setListUsers(!listUsers)}
             >
               {localization.listUsers}
+            </button>
+            <button
+              className={infoButtonClassName}
+              type="button"
+              onClick={(): void => setShowLogs(true)}
+            >
+              {localization.viewLogs ?? "View Logs"}
             </button>
             <button
               className={infoButtonClassName}

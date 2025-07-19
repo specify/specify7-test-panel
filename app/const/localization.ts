@@ -75,4 +75,5 @@ export const localization = {
   mb: 'MB',
   nameConflict:
     'Database with this name already exists. Please delete it first',
+  viewLogs: 'View Logs',
 } as const;
