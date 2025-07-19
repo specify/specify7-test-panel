@@ -20,5 +20,6 @@ services:
       - nginx
     restart: unless-stopped
     volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
       - 'state:/home/node/state'
       - 'nginx-conf:/home/node/nginx.conf.d'
