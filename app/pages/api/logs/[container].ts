@@ -9,6 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   try {
     const logs = await getContainerLogs(container);
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.status(200).send(logs);
   } catch (e: any) {
     res.status(500).send(e?.message ?? 'Failed to fetch logs');

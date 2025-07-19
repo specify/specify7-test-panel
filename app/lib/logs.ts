@@ -43,8 +43,10 @@ export async function getContainerLogs(containerName: string): Promise<string> {
 }
 
 function cleanDockerLogs(rawLogs: string): string {
+  const sanitized = rawLogs.replace(/\0/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  
   // Split by lines and clean each line
-  return rawLogs
+  return sanitized
     .split('\n')
     .map(line => {
       // Remove Docker log stream headers so it looks cleaner
