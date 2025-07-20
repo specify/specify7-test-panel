@@ -17,6 +17,7 @@ services:
       - database
       - nginx
     restart: unless-stopped
+    user: "1000:988"
     volumes:
       - '/var/lib/docker/containers:/var/lib/docker/containers:ro'
       - 'state:/home/node/state'

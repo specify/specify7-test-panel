@@ -157,6 +157,12 @@ After completing all the steps from previous sections, do one of these:
 
 ### Production
 
+On the host, you need to change directory access to ensure Docker logs are readable:
+```shell
+sudo chown -R 1000:988 /var/lib/docker/containers
+sudo chmod -R g+r /var/lib/docker/containers
+```
+
 Build the containers:
 
 ```shell
