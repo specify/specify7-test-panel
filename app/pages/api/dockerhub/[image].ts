@@ -19,7 +19,9 @@ type Response = {
     readonly name: string;
     readonly last_updated: string;
     readonly digest: string;
-    readonly architecture: string;
+    readonly images: RA<{
+      readonly architecture: string;
+    }>;
   }>;
   readonly next: string | undefined;
 };
