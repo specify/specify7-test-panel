@@ -1,77 +1,79 @@
-import Docker from 'dockerode';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
-// Docker log stream header length - Docker prefixes each log line with an 8-byte header
-// containing stream type (stdout/stderr) and length information
-const DOCKER_LOG_HEADER_LENGTH = 8;
-
-let docker: Docker | null = null;
-
-function getDockerInstance(): Docker {
-  if (!docker) {
-    docker = new Docker({ socketPath: '/var/run/docker.sock' });
-  }
-  return docker;
-}
+const DOCKER_LOG_PATH = process.env.DOCKER_LOG_PATH || '/var/lib/docker/containers';
 
 export async function getContainerLogs(containerName: string): Promise<string> {
   try {
-    const dockerInstance = getDockerInstance();
-    const container = dockerInstance.getContainer(containerName);
-    const logsBuffer = await container.logs({
-      stdout: true,
-      stderr: true,
-      tail: 200,
-      follow: false,
-      timestamps: true
-    });
-
-    // If logsBuffer is a Buffer, convert to string:
-    if (Buffer.isBuffer(logsBuffer)) {
-      const logs = cleanDockerLogs(logsBuffer.toString('utf-8'));
-      return logs;
+    const containerId = await findContainerIdByName(containerName);
+    if (!containerId) {
+      throw new Error(`Container '${containerName}' not found`);
     }
+
+    // Read logs directly from Docker's log files
+    const logPath = path.join(DOCKER_LOG_PATH, containerId, `${containerId}-json.log`);
     
-    // If it is a stream, handle as a stream:
-    const stream = logsBuffer as NodeJS.ReadableStream;
-    let logs = '';
-    
-    return new Promise<string>((resolve, reject) => {
-      stream.on('data', (chunk: Buffer) => {
-        logs += chunk.toString('utf-8');
-      });
-      
-      stream.on('end', () => {
-        const cleanedLogs = cleanDockerLogs(logs);
-        resolve(cleanedLogs);
-      });
-      
-      stream.on('error', (error) => {
-        reject(error);
-      });
-    });
+    // Ensure we're not reading outside the allowed directory (path traversal protection)
+    const resolvedPath = path.resolve(logPath);
+    const allowedDir = path.resolve(DOCKER_LOG_PATH);
+    if (!resolvedPath.startsWith(allowedDir)) {
+      throw new Error('Invalid log path');
+    }
+
+    const logData = await fs.readFile(logPath, 'utf-8');
+    return parseDockerJsonLogs(logData);
   } catch (err: any) {
     throw new Error(`Could not fetch logs for container '${containerName}': ${err.message}`);
   }
 }
 
-function cleanDockerLogs(rawLogs: string): string {
-  const sanitized = rawLogs.replace(/\0/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-  
-  // Split by lines and clean each line
-  return sanitized
-    .split('\n')
-    .map(line => {
-      // Remove Docker log stream headers so it looks cleaner
-      if (line.length > DOCKER_LOG_HEADER_LENGTH) {
-        // Use the timestamp pattern to find the start of the actual log message
-        const timestampMatch = line.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
-        if (timestampMatch) {
-          const timestampIndex = line.indexOf(timestampMatch[0]);
-          return line.substring(timestampIndex);
+async function findContainerIdByName(containerName: string): Promise<string | null> {
+  try {
+    // Get all container directories
+    const containerDirs = await fs.readdir(DOCKER_LOG_PATH, { withFileTypes: true });
+    
+    for (const dir of containerDirs) {
+      if (!dir.isDirectory()) continue;
+      
+      try {
+        const configPath = path.join(DOCKER_LOG_PATH, dir.name, 'config.v2.json');
+        const configData = await fs.readFile(configPath, 'utf-8');
+        const config = JSON.parse(configData);
+        
+        // Check if this container matches our name
+        if (config.Name === `/${containerName}` || config.Name === containerName) {
+          return dir.name; // Return container ID (directory name)
         }
+      } catch (err) {
+        // Skip invalid config files or directories without config
+        continue;
       }
-      return line;
-    })
-    .filter(line => line.trim().length > 0)
-    .join('\n');
+    }
+    
+    return null;
+  } catch (err) {
+    throw new Error(`Failed to find container: ${err}`);
+  }
+}
+
+function parseDockerJsonLogs(logData: string): string {
+  try {
+    const lines = logData.trim().split('\n').filter(line => line.trim());
+    const parsedLogs = lines
+      .map(line => {
+        try {
+          const logEntry = JSON.parse(line);
+          const timestamp = new Date(logEntry.time).toISOString();
+          return `${timestamp} ${logEntry.log}`;
+        } catch (err) {
+          return line;
+        }
+      })
+      .slice(-200) // Just grab the last 200 lines
+      .join('');
+    
+    return parsedLogs;
+  } catch (err) {
+    throw new Error(`Failed to parse logs: ${err}`);
+  }
 }
