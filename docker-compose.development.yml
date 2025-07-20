@@ -1,23 +1,39 @@
 # Development config
-
-version: '3.9'
 services:
   nginx:
+    container_name: nginx
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
     depends_on:
       - panel
+    networks:
+      - nginx
     volumes:
-      - './config:/etc/letsencrypt/live/test.specifysystems.org-0001:ro'
+      - './config:/etc/letsencrypt/live/localhost-0001:ro'
+      - './config/panel.conf:/etc/nginx/conf.d/default.conf:ro'
 
   panel:
+    container_name: panel
     build:
       context: ./.
       target: dev-runner
-    depends_on:
-      - mariadb
     networks:
       - database
       - nginx
     restart: unless-stopped
+    user: root
+    environment:
+      - DOCKER_LOG_PATH=/var/lib/docker/containers
     volumes:
+      - '/var/lib/docker/containers:/var/lib/docker/containers:ro'
       - './state:/home/node/state'
       - './app:/home/node/app'
+  report-runner:
+    container_name: report-runner
+    image: specifyconsortium/report-runner:stable
+
+networks:
+  database:
+  nginx:
