@@ -1,5 +1,12 @@
 # Production config
 services:
+  nginx:
+    depends_on:
+      - panel
+    volumes:
+      - '/etc/letsencrypt/live:/etc/letsencrypt/live:ro'
+      - '/etc/letsencrypt/archive:/etc/letsencrypt/archive:ro'
+
   panel:
     container_name: panel
     build:
