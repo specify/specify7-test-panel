@@ -45,13 +45,19 @@ export default async function handler(
 
   if (typeof data === 'string') return res.status(400).json({ error: data });
 
-  const databaseName = data.fields.databaseName as string | undefined;
+  const databaseNameForm = data.fields.databaseName as string | undefined;
 
-  if (!databaseName)
+  if (!databaseNameForm)
     return res.status(400).json({ error: 'Database name is required' });
 
-  if (databaseName.match(/^\w+$/) === null)
+  if (databaseNameForm.match(/^\w+$/) === null)
     return res.status(400).json({ error: 'Database name is invalid' });
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const databaseName = `${databaseNameForm}_${year}_${month}_${day}`;
 
   const file = data.files.file as File | undefined;
 
