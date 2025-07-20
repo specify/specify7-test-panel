@@ -36,9 +36,6 @@ RUN mkdir nginx.conf.d
 # Development image
 FROM runner-common AS dev-runner
 
-USER root
-RUN addgroup -g 988 -S docker 2>/dev/null || true && adduser node docker
-
 USER node
 RUN mkdir /home/node/app
 WORKDIR /home/node/app
@@ -50,9 +47,6 @@ ENTRYPOINT ["../docker-entrypoint.sh"]
 
 # Production image, copy all files and run next
 FROM runner-common AS runner
-
-USER root
-RUN addgroup -g 988 -S docker 2>/dev/null || true && adduser node docker
 
 USER node
 WORKDIR /home/node/app
