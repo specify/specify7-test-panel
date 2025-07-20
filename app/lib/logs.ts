@@ -49,8 +49,11 @@ export async function getContainerLogs(containerName: string, tail: number = 200
         reject(error);
       });
     });
-  } catch (err: any) {
-    throw new Error(`Could not fetch logs for container '${containerName}': ${err.message}`);
+  } catch (err: unknown) {
+    const errorMessage = (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string')
+      ? (err as any).message
+      : 'Unknown error';
+    throw new Error(`Could not fetch logs for container '${containerName}': ${errorMessage}`);
   }
 }
 
