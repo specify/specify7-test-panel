@@ -118,6 +118,12 @@ GITHUB_PERSONAL_TOKEN=<github_token>
 MYSQL_USERNAME=root
 MYSQL_PASSWORD=root
 MYSQL_HOST=mariadb
+
+REPORT_RUNNER_HOST=10.0.0.0
+REPORT_RUNNER_PORT=8080
+
+ASSET_SERVER_URL=https://example.specifycloud.org/web_asset_store.xml
+ASSET_SERVER_KEY=e648910c-3d2c-47b0-8f1b-fa54ac15b7b4
 ```
 
 Replace `<client_id>` and `<client_secret>` with the actual values from the
