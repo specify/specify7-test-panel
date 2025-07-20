@@ -58,6 +58,14 @@ export async function getContainerLogs(containerName: string, tail: number = 200
 }
 
 function cleanDockerLogs(rawLogs: string): string {
+  // Remove null characters (\0) and other non-printable ASCII control characters.
+  // The regex [\x00-\x08\x0B\x0C\x0E-\x1F\x7F] matches:
+  // - \x00-\x08: Control characters from NULL (0x00) to BACKSPACE (0x08).
+  // - \x0B: Vertical Tab (0x0B).
+  // - \x0C: Form Feed (0x0C).
+  // - \x0E-\x1F: Control characters from SHIFT OUT (0x0E) to UNIT SEPARATOR (0x1F).
+  // - \x7F: DELETE (0x7F).
+  // These characters are removed to ensure the logs are clean and readable.
   const sanitized = rawLogs.replace(/\0/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
   
   // Split by lines and clean each line
