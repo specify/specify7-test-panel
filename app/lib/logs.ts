@@ -3,7 +3,7 @@ import * as path from 'path';
 
 const DOCKER_LOG_PATH = process.env.DOCKER_LOG_PATH || '/var/lib/docker/containers';
 
-export async function getContainerLogs(containerName: string): Promise<string> {
+export async function getContainerLogs(containerName: string, tail: number = 200): Promise<string> {
   try {
     const containerId = await findContainerIdByName(containerName);
     if (!containerId) {
