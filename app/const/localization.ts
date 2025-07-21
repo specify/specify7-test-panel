@@ -63,6 +63,7 @@ export const localization = {
   logs: 'Logs',
   workerLogs: 'Worker Logs',
   uploadNew: 'Upload New',
+  uploadJobs: 'Show Upload Jobs',
   usersOfDatabase: (database: string) => `Specify Users in "${database}"`,
   deleteDialogTitle: 'Delete Database?',
   deleteDialogMessage: (database: string) =>
@@ -100,4 +101,10 @@ export const localization = {
   failedToCloneDatabase: 'Failed to clone database',
   enterPrefix: 'Please enter a prefix.',
   previewDatabaseNameLabel: 'Preview:',
+  failedToFetchJobs: 'Failed to fetch jobs',
+  failedToCancelJob: 'Failed to cancel job',
+  noOngoingJobs: 'No ongoing jobs.',
+  jobId: 'ID:',
+  progress: 'Progress:',
+  state: 'State:',
 } as const;

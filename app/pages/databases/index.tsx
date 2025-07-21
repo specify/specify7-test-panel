@@ -17,6 +17,7 @@ import { multiSortFunction } from '../../lib/helpers';
 import { Deployment } from '../../lib/deployment';
 import { localization } from '../../const/localization';
 import { CloneDatabaseModal } from '../../components/CloneDatabaseModal';
+import { JobMonitor } from '../../components/JobMonitor';
 
 type DatabaseWithSize = Database & { readonly size?: string | undefined };
 
@@ -45,6 +46,7 @@ export default function Index(): JSX.Element {
 
   const [cloneDatabase, setCloneDatabase] = React.useState<string | undefined>(undefined);
   const [showSizes, setShowSizes] = React.useState(false);
+  const [showJobs, setShowJobs] = React.useState(false);
   const [sizes, setSizes] = React.useState<
     { readonly data: IR<number> } | string | undefined
   >(undefined);
@@ -102,7 +104,16 @@ export default function Index(): JSX.Element {
                 ? localization.loading
                 : localization.calculateSizes}
             </button>
+            <button
+              className={`${infoButtonClassName} flex items-center gap-2`}
+              title={localization.uploadJobs}
+              onClick={() => setShowJobs(j => !j)}
+            >
+              {icons.cog}
+              {localization.uploadJobs}
+            </button>
           </div>
+            {showJobs && <JobMonitor />}
             <ul className="flex flex-col gap-y-5">
               {databases.map(({ name, version, size }) => (
                 <li
