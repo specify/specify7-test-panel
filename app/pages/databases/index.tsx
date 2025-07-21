@@ -16,6 +16,7 @@ import { Database, useDatabases } from '../index';
 import { multiSortFunction } from '../../lib/helpers';
 import { Deployment } from '../../lib/deployment';
 import { localization } from '../../const/localization';
+import { CloneDatabaseModal } from '../../components/CloneDatabaseModal';
 
 type DatabaseWithSize = Database & { readonly size?: string | undefined };
 
@@ -42,6 +43,7 @@ export default function Index(): JSX.Element {
     string | undefined
   >(undefined);
 
+  const [cloneDatabase, setCloneDatabase] = React.useState<string | undefined>(undefined);
   const [showSizes, setShowSizes] = React.useState(false);
   const [sizes, setSizes] = React.useState<
     { readonly data: IR<number> } | string | undefined
@@ -130,6 +132,14 @@ export default function Index(): JSX.Element {
                   >
                     {icons.key}
                   </button>
+                  <button
+                    className="flex items-center justify-center text-purple-500 hover:bg-purple-100 rounded"
+                    type="button"
+                    title={localization.cloneDatabase}
+                    onClick={(): void => setCloneDatabase(name)}
+                  >
+                    {icons.clone}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -172,6 +182,12 @@ export default function Index(): JSX.Element {
             <ResetPasswordsDatabase
               database={resetPasswordsDatabase}
               onClose={(): void => setResetPasswordsDatabase(undefined)}
+            />
+          )}
+          {typeof cloneDatabase === 'string' && (
+            <CloneDatabaseModal
+              database={cloneDatabase}
+              onClose={(): void => setCloneDatabase(undefined)}
             />
           )}
         </>

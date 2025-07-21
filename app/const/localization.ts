@@ -91,4 +91,12 @@ export const localization = {
   noLogsAvailable: 'No logs available for this container',
   failedToDownload: 'Failed to download',
   pleaseTryAgain: 'Please try again.',
+  cloneDatabase: 'Clone Database',
+  cloningDatabase: 'Cloning...',
+  cloneDatabaseDialogTitle: 'Clone Database',
+  cloneDatabaseDialogMessage: (database: string): string => `Enter a prefix for the new database cloned from ${database}:`,
+  cloneDatabasePrefixPlaceholder: 'Prefix',
+  databaseCloned: (database: string): string => `Database cloned as ${database}.`,
+  failedToCloneDatabase: 'Failed to clone database',
+  enterPrefix: 'Please enter a prefix.',
 } as const;
