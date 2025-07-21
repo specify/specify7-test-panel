@@ -81,6 +81,28 @@ export default function Index(): JSX.Element {
             </Link>
             <h1 className="text-5xl">{localization.pageTitle}</h1>
             <h2 className="text-2xl">{localization.dashboard}</h2>
+             <div className="flex gap-2">
+            <Link href="/databases/upload" className={`${successButtonClassName} flex items-center gap-2`}>
+              {icons.upload}
+              {localization.uploadNew}
+            </Link>
+            <button
+              className={`${infoButtonClassName} flex items-center gap-2`}
+              title={localization.calculateSizes}
+              onClick={(): void => {
+                setShowSizes(true);
+                fetchApi('/api/databases/size')
+                  .then(setSizes)
+                  .catch(console.error);
+              }}
+              disabled={showSizes}
+            >
+              {icons.calculator}
+              {showSizes && sizes === undefined
+                ? localization.loading
+                : localization.calculateSizes}
+            </button>
+          </div>
             <ul className="flex flex-col gap-y-5">
               {databases.map(({ name, version, size }) => (
                 <li
@@ -143,28 +165,6 @@ export default function Index(): JSX.Element {
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="flex gap-2">
-            <Link href="/databases/upload" className={`${successButtonClassName} flex items-center gap-2`}>
-              {icons.upload}
-              {localization.uploadNew}
-            </Link>
-            <button
-              className={`${infoButtonClassName} flex items-center gap-2`}
-              title={localization.calculateSizes}
-              onClick={(): void => {
-                setShowSizes(true);
-                fetchApi('/api/databases/size')
-                  .then(setSizes)
-                  .catch(console.error);
-              }}
-              disabled={showSizes}
-            >
-              {icons.calculator}
-              {showSizes && sizes === undefined
-                ? localization.loading
-                : localization.calculateSizes}
-            </button>
           </div>
           {typeof listUsers === 'string' && (
             <ListUsers
