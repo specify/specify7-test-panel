@@ -13,14 +13,13 @@ server {
     server_name ${deployment.hostname}.${host};
     root /usr/share/nginx;
 
-    ssl_certificate /etc/letsencrypt/live/test.specifysystems.org/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/test.specifysystems.org/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/test.specifysystems.org-0001/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/test.specifysystems.org-0001/privkey.pem;
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 5m;
     ssl_prefer_server_ciphers on;
     proxy_read_timeout 300s;
     client_max_body_size 0;
-
 
     location /static/ {
         if ($request_method = 'GET') {
@@ -30,7 +29,11 @@ server {
            add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
         }
         root /volumes;
-        rewrite ^/static/config/(.*)$ /specify${deployment.schemaVersion}/config/$1 break;
+        ${
+          deployment.hasInteralSp7ConfigDirectory
+            ? `rewrite ^/static/config/(.*)$ /${deployment.hostname}-static-files/specify-config/config/$1 break;`
+            : `rewrite ^/static/config/(.*)$ /specify${deployment.schemaVersion}/config/$1 break;`
+        }
         rewrite ^/static/depository/(.*)$ /${deployment.hostname}-static-files/depository/$1 break;
         rewrite ^/static/(.*)$ /${deployment.hostname}-static-files/frontend-static/$1 break;
     }
