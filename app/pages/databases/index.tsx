@@ -2,6 +2,8 @@ import Link from 'next/link';
 import React from 'react';
 
 import {
+  infoButtonClassName,
+  successButtonClassName,
   dangerButtonClassName,
   primaryButtonClassName,
 } from '../../components/InteractivePrimitives';
@@ -131,11 +133,12 @@ export default function Index(): JSX.Element {
             </ul>
           </div>
           <div className="flex gap-2">
-            <Link href="/databases/upload" className="flex items-center justify-center text-green-400 hover:bg-green-100 rounded p-2" title={localization.uploadNew}>
+            <Link href="/databases/upload" className={`${successButtonClassName} flex items-center gap-2`}>
               {icons.upload}
+              {localization.uploadNew}
             </Link>
             <button
-              className="flex items-center justify-center text-blue-400 hover:bg-blue-100 rounded p-2"
+              className={`${infoButtonClassName} flex items-center gap-2`}
               title={localization.calculateSizes}
               onClick={(): void => {
                 setShowSizes(true);
@@ -146,6 +149,9 @@ export default function Index(): JSX.Element {
               disabled={showSizes}
             >
               {icons.calculator}
+              {showSizes && sizes === undefined
+                ? localization.loading
+                : localization.calculateSizes}
             </button>
           </div>
           {typeof listUsers === 'string' && (
