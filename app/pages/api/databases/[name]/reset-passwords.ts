@@ -32,8 +32,6 @@ export default async function handler(
     // Reset all user passwords to the test password
     await resetDatabasePasswords(connection, databaseName);
 
-    await connection.end();
-
     res.status(200).json({ success: true });
   } catch (error: any) {
     console.error('Failed to reset passwords:', error);
