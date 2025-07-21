@@ -85,6 +85,21 @@ export default function Index(): JSX.Element {
                   className="flex flex-row gap-x-5 rounded bg-gray-300 p-5"
                   key={name}
                 >
+                  <a
+                    className={`flex items-center justify-center rounded ${usedDatabases.has(name) ? 'text-gray-400 cursor-not-allowed pointer-events-none' : 'text-red-500 hover:bg-red-100'}`}
+                    href={usedDatabases.has(name) ? undefined : `/api/databases/${name}/drop`}
+                    title={localization.delete}
+                    onClick={(event): void => {
+                      if (usedDatabases.has(name)) {
+                        event.preventDefault();
+                        return;
+                      }
+                      event.preventDefault();
+                      setDeleteDatabase(name);
+                    }}
+                  >
+                    {icons.trash}
+                  </a>
                   <span className="flex-1">
                     {name}
                     <b> ({version ?? localization.corruptDatabase})</b>
@@ -92,28 +107,15 @@ export default function Index(): JSX.Element {
                       <b>{` (${size} ${localization.mb})`}</b>
                     )}
                   </span>
-                  {!usedDatabases.has(name) && (
-                    <a
-                      className="flex items-center justify-center text-red-400 hover:bg-red-100 rounded p-2"
-                      href={`/api/databases/${name}/drop`}
-                      title={localization.delete}
-                      onClick={(event): void => {
-                        event.preventDefault();
-                        setDeleteDatabase(name);
-                      }}
-                    >
-                      {icons.trash}
-                    </a>
-                  )}
                   <a
-                    className="flex items-center justify-center text-green-400 hover:bg-green-100 rounded p-2"
+                    className="flex items-center justify-center text-green-500 hover:bg-green-100 rounded"
                     href={`/api/databases/${name}/export`}
                     title={localization.download}
                   >
                     {icons.download}
                   </a>
                   <button
-                    className="flex items-center justify-center text-blue-400 hover:bg-blue-100 rounded p-2"
+                    className="flex items-center justify-center text-blue-500 hover:bg-blue-100 rounded"
                     type="button"
                     title={localization.listUsers}
                     onClick={(): void => setListUsers(name)}
@@ -121,7 +123,7 @@ export default function Index(): JSX.Element {
                     {icons.users}
                   </button>
                   <button
-                    className="flex items-center justify-center text-orange-400 hover:bg-orange-100 rounded p-2"
+                    className="flex items-center justify-center text-orange-500 hover:bg-orange-100 rounded"
                     type="button"
                     title={localization.resetPasswords}
                     onClick={(): void => setResetPasswordsDatabase(name)}
@@ -202,7 +204,7 @@ export function ListUsers({
               <li className="flex gap-x-1" key={id}>
                 <span>{name}</span>
                 <button
-                  className="flex items-center gap-1 text-blue-400 hover:underline"
+                  className="flex items-center gap-1 text-blue-500 hover:underline"
                   type="button"
                   onClick={(): void =>
                     void fetch(
