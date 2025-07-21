@@ -63,11 +63,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    await cloneDatabase(name, newName);
+    if (cloneProgress[newName] && !cloneProgress[newName].done) {
+      res.status(409).send({ error: 'Clone already in progress for this database name' });
+      return;
+    }
+    // Start the clone in the background
+    setImmediate(async () => {
+      try {
+        await cloneDatabase(name, newName);
+      } catch (error) {
+        console.error(error);
+        cloneProgress[newName] = { total: 1, current: 1, done: true, error: error?.toString() };
+      }
+    });
     noCaching(res).status(200).send({ success: true });
   } catch (error) {
     console.error(error);
-    cloneProgress[newName] = { total: 1, current: 1, done: true, error: error?.toString() };
     res.status(500).send({ error: error?.toString() });
   }
 }
