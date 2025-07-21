@@ -1,7 +1,2 @@
-# docker-compose doesn't like empty files, so this redundant mariadb extend
-# is provided:
-
-version: '3.9'
-services:
-  mariadb:
-    restart: unless-stopped
+# docker-compose doesn't like empty files
+services: {}

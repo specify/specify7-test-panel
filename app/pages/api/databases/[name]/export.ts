@@ -21,13 +21,12 @@ export default async function handler(
   await connectToDatabase();
 
   const databaseName = request.query.name;
+  const sanitizedFilename = String(databaseName).replace(/[^\w.-]/g, '_');
 
   try {
-    res.setHeader('Content-Type', 'text/plain');
-    res.setHeader('Cache-Control', `private, max-age=5000`);
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename=${databaseName}.sql`
+      `attachment; filename="${sanitizedFilename}.sql"`
     );
 
     const child = spawn(

@@ -13,6 +13,8 @@ import { ModalDialog } from './ModalDialog';
 import { useApi } from './useApi';
 import { ListUsers } from '../pages/databases';
 import { localization } from '../const/localization';
+import { ContainerLogs } from './ContainerLogs';
+import { getContainerName, getWorkerContainerName } from '../lib/containerUtils';
 
 export function DeploymentOptions({
   deployment,
@@ -42,6 +44,103 @@ export function DeploymentOptions({
   }
 
   const [listUsers, setListUsers] = React.useState(false);
+  const [showLogs, setShowLogs] = React.useState(false);
+  const [showWorkerLogs, setShowWorkerLogs] = React.useState(false);
+  const [downloading, setDownloading] = React.useState(false);
+  const [downloadingWorker, setDownloadingWorker] = React.useState(false);
+  
+  const mainLogsRefreshRef = React.useRef<(() => void) | null>(null);
+  const workerLogsRefreshRef = React.useRef<(() => void) | null>(null);
+
+  const LogsModalButtons = ({ 
+    refreshRef, 
+    onDownload, 
+    downloading, 
+    downloadLabel,
+    onClose 
+  }: {
+    refreshRef: React.MutableRefObject<(() => void) | null>;
+    onDownload: () => void;
+    downloading: boolean;
+    downloadLabel: string;
+    onClose: () => void;
+  }) => (
+    <div className="flex justify-between w-full">
+      <button
+        onClick={() => refreshRef.current?.()}
+        className={infoButtonClassName}
+        title="Refresh logs"
+      >
+        {icons.refresh}
+        <span className="ml-2">{localization.reload}</span>
+      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={onDownload}
+          disabled={downloading}
+          className={infoButtonClassName}
+        >
+          {icons.download}
+          <span className="ml-2">
+            {downloading ? localization.downloading : downloadLabel}
+          </span>
+        </button>
+        <button
+          className={infoButtonClassName}
+          type="button"
+          onClick={onClose}
+        >
+          {localization.close}
+        </button>
+      </div>
+    </div>
+  );
+
+  const handleDownloadLogs = async (containerType: 'main' | 'worker' = 'main') => {
+    if (!deployment.hostname) return;
+    
+    const isWorker = containerType === 'worker';
+    const setDownloadingState = isWorker ? setDownloadingWorker : setDownloading;
+    
+    setDownloadingState(true);
+    try {
+      const containerName = isWorker 
+        ? getWorkerContainerName(deployment.hostname)
+        : getContainerName(deployment.hostname);
+      
+      const response = await fetch(`/api/logs/${encodeURIComponent(containerName)}`);
+      if (!response.ok) throw new Error(`Failed to fetch ${isWorker ? 'worker ' : ''}logs for download`);
+      
+      const logsText = await response.text();
+      
+      if (!logsText || logsText.trim() === '') {
+        alert(localization.noLogsAvailable);
+        return;
+      }
+      
+      const timestamp = new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-');
+      const filename = `${containerName}-logs-${timestamp}.txt`;
+      
+      const blob = new Blob([logsText]);
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(`Failed to download ${isWorker ? 'worker ' : ''}logs:`, error);
+      const errorMessage = isWorker 
+        ? `${localization.failedToDownload} ${localization.workerLogs.toLowerCase()}. ${localization.pleaseTryAgain}`
+        : `${localization.failedToDownload} ${localization.logs.toLowerCase()}. ${localization.pleaseTryAgain}`;
+      alert(errorMessage);
+    } finally {
+      setDownloadingState(false);
+    }
+  };
 
   return (
     <>
@@ -57,6 +156,44 @@ export function DeploymentOptions({
           database={deployment.database}
           onClose={(): void => setListUsers(false)}
         />
+      )}
+      {showLogs && (
+        <ModalDialog
+          title={`${localization.view} ${localization.logs}`}
+          onClose={(): void => setShowLogs(false)}
+          buttons={
+            <LogsModalButtons
+              refreshRef={mainLogsRefreshRef}
+              onDownload={() => handleDownloadLogs('main')}
+              downloading={downloading}
+              downloadLabel={`${localization.download} ${localization.logs}`}
+              onClose={() => setShowLogs(false)}
+            />
+          }
+        >
+          <ContainerLogs deployment={deployment} refreshRef={mainLogsRefreshRef} />
+        </ModalDialog>
+      )}
+      {showWorkerLogs && (
+        <ModalDialog
+          title={`${localization.view} ${localization.workerLogs}`}
+          onClose={(): void => setShowWorkerLogs(false)}
+          buttons={
+            <LogsModalButtons
+              refreshRef={workerLogsRefreshRef}
+              onDownload={() => handleDownloadLogs('worker')}
+              downloading={downloadingWorker}
+              downloadLabel={`${localization.download} ${localization.workerLogs}`}
+              onClose={() => setShowWorkerLogs(false)}
+            />
+          }
+        >
+          <ContainerLogs 
+            deployment={deployment}
+            containerName={deployment.hostname ? getWorkerContainerName(deployment.hostname) : undefined}
+            refreshRef={workerLogsRefreshRef}
+          />
+        </ModalDialog>
       )}
       <ModalDialog
         buttons={
@@ -76,6 +213,20 @@ export function DeploymentOptions({
               onClick={(): void => setListUsers(!listUsers)}
             >
               {localization.listUsers}
+            </button>
+            <button
+              className={infoButtonClassName}
+              type="button"
+              onClick={(): void => setShowLogs(true)}
+            >
+              {`${localization.view} ${localization.logs}`}
+            </button>
+            <button
+              className={infoButtonClassName}
+              type="button"
+              onClick={(): void => setShowWorkerLogs(true)}
+            >
+              {`${localization.view} ${localization.workerLogs}`}
             </button>
             <button
               className={infoButtonClassName}

@@ -1,6 +1,4 @@
 # Production config
-
-version: '3.9'
 services:
   nginx:
     depends_on:
@@ -10,6 +8,7 @@ services:
       - '/etc/letsencrypt/archive:/etc/letsencrypt/archive:ro'
 
   panel:
+    container_name: panel
     build:
       context: ./.
       target: runner
@@ -19,6 +18,10 @@ services:
       - database
       - nginx
     restart: unless-stopped
+    user: "1000:988"
     volumes:
+      - '/var/lib/docker/containers:/var/lib/docker/containers:ro'
       - 'state:/home/node/state'
       - 'nginx-conf:/home/node/nginx.conf.d'
+    environment:
+      - DOCKER_LOG_PATH=/var/lib/docker/containers
