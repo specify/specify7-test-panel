@@ -94,51 +94,51 @@ export default function Index(): JSX.Element {
                   </span>
                   {!usedDatabases.has(name) && (
                     <a
-                      className="flex items-center gap-2 text-red-400 hover:underline"
+                      className="flex items-center justify-center text-red-400 hover:bg-red-100 rounded p-2"
                       href={`/api/databases/${name}/drop`}
+                      title={localization.delete}
                       onClick={(event): void => {
                         event.preventDefault();
                         setDeleteDatabase(name);
                       }}
                     >
                       {icons.trash}
-                      {localization.delete}
                     </a>
                   )}
                   <a
-                    className="flex items-center gap-2 text-green-400 hover:underline"
+                    className="flex items-center justify-center text-green-400 hover:bg-green-100 rounded p-2"
                     href={`/api/databases/${name}/export`}
+                    title={localization.download}
                   >
                     {icons.download}
-                    {localization.download}
                   </a>
                   <button
-                    className="flex items-center gap-2 text-blue-400 hover:underline"
+                    className="flex items-center justify-center text-blue-400 hover:bg-blue-100 rounded p-2"
                     type="button"
+                    title={localization.listUsers}
                     onClick={(): void => setListUsers(name)}
                   >
                     {icons.users}
-                    {localization.listUsers}
                   </button>
                   <button
-                    className="flex items-center gap-2 text-orange-400 hover:underline"
+                    className="flex items-center justify-center text-orange-400 hover:bg-orange-100 rounded p-2"
                     type="button"
+                    title={localization.resetPasswords}
                     onClick={(): void => setResetPasswordsDatabase(name)}
                   >
                     {icons.key}
-                    {localization.resetPasswords}
                   </button>
                 </li>
               ))}
             </ul>
           </div>
           <div className="flex gap-2">
-            <Link href="/databases/upload" className={`${successButtonClassName} flex items-center gap-2`}>
+            <Link href="/databases/upload" className="flex items-center justify-center text-green-400 hover:bg-green-100 rounded p-2" title={localization.uploadNew}>
               {icons.upload}
-              {localization.uploadNew}
             </Link>
             <button
-              className={`${infoButtonClassName} flex items-center gap-2`}
+              className="flex items-center justify-center text-blue-400 hover:bg-blue-100 rounded p-2"
+              title={localization.calculateSizes}
               onClick={(): void => {
                 setShowSizes(true);
                 fetchApi('/api/databases/size')
@@ -148,9 +148,6 @@ export default function Index(): JSX.Element {
               disabled={showSizes}
             >
               {icons.calculator}
-              {showSizes && sizes === undefined
-                ? localization.loading
-                : localization.calculateSizes}
             </button>
           </div>
           {typeof listUsers === 'string' && (
