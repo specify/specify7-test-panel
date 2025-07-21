@@ -24,19 +24,13 @@ export default async function handler(
   const sanitizedFilename = String(databaseName).replace(/[^\w.-]/g, '_');
 
   try {
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="${sanitizedFilename}.sql"`
-    );
-
-    const child = spawn(
-      'mysqldump',
+    const result = await spawn(
+      'mariadb-dump',
       [
-        `-u${process.env.MYSQL_USERNAME}`,
-        `-p${process.env.MYSQL_PASSWORD}`,
-        `-h${process.env.MYSQL_HOST}`,
-        `--databases ${databaseName}`,
-        '--no-create-db',
+        `--user=${process.env.MYSQL_USERNAME}`,
+        `--password=${process.env.MYSQL_PASSWORD}`,
+        `--host=${process.env.MYSQL_HOST}`,
+        databaseName,
       ],
       {
         stdio: ['ignore', 'pipe', 'pipe'],
@@ -44,11 +38,16 @@ export default async function handler(
       }
     );
 
-    child.stdout.pipe(res);
-    child.stderr.on('data', (error) => {
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${sanitizedFilename}.sql"`
+    );
+
+    result.stdout.pipe(res);
+    result.stderr.on('data', (error) => {
       throw new Error(error);
     });
-    await new Promise((resolve) => child.stdout.on('exit', resolve));
+    await new Promise((resolve) => result.stdout.on('exit', resolve));
   } catch (error) {
     res.status(500).json({
       error: (error as object).toString(),

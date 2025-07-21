@@ -117,7 +117,7 @@ export default async function handler(
     await connection.execute(`CREATE DATABASE \`${databaseName}\``);
     await run(
       [
-        `mysql -u${process.env.MYSQL_USERNAME} `,
+        `mariadb -u${process.env.MYSQL_USERNAME} `,
         `-p${process.env.MYSQL_PASSWORD} `,
         `-h${process.env.MYSQL_HOST} `,
         `--database "${databaseName}" < ${filePath}`,
