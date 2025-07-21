@@ -7,6 +7,7 @@ import {
   primaryButtonClassName,
   successButtonClassName,
 } from '../../components/InteractivePrimitives';
+import { icons } from '../../components/Icons';
 import Layout from '../../components/Layout';
 import { Loading, ModalDialog } from '../../components/ModalDialog';
 import { fetchApi, useApi } from '../../components/useApi';
@@ -93,34 +94,38 @@ export default function Index(): JSX.Element {
                   </span>
                   {!usedDatabases.has(name) && (
                     <a
-                      className="text-red-400 hover:underline"
+                      className="flex items-center gap-2 text-red-400 hover:underline"
                       href={`/api/databases/${name}/drop`}
                       onClick={(event): void => {
                         event.preventDefault();
                         setDeleteDatabase(name);
                       }}
                     >
+                      {icons.trash}
                       {localization.delete}
                     </a>
                   )}
                   <a
-                    className="text-green-400 hover:underline"
+                    className="flex items-center gap-2 text-green-400 hover:underline"
                     href={`/api/databases/${name}/export`}
                   >
+                    {icons.download}
                     {localization.download}
                   </a>
                   <button
-                    className="text-blue-400 hover:underline"
+                    className="flex items-center gap-2 text-blue-400 hover:underline"
                     type="button"
                     onClick={(): void => setListUsers(name)}
                   >
+                    {icons.users}
                     {localization.listUsers}
                   </button>
                   <button
-                    className="text-orange-400 hover:underline"
+                    className="flex items-center gap-2 text-orange-400 hover:underline"
                     type="button"
                     onClick={(): void => setResetPasswordsDatabase(name)}
                   >
+                    {icons.key}
                     {localization.resetPasswords}
                   </button>
                 </li>
@@ -128,11 +133,12 @@ export default function Index(): JSX.Element {
             </ul>
           </div>
           <div className="flex gap-2">
-            <Link href="/databases/upload" className={successButtonClassName}>
+            <Link href="/databases/upload" className={`${successButtonClassName} flex items-center gap-2`}>
+              {icons.upload}
               {localization.uploadNew}
             </Link>
             <button
-              className={infoButtonClassName}
+              className={`${infoButtonClassName} flex items-center gap-2`}
               onClick={(): void => {
                 setShowSizes(true);
                 fetchApi('/api/databases/size')
@@ -141,6 +147,7 @@ export default function Index(): JSX.Element {
               }}
               disabled={showSizes}
             >
+              {icons.calculator}
               {showSizes && sizes === undefined
                 ? localization.loading
                 : localization.calculateSizes}
@@ -189,29 +196,30 @@ export function ListUsers({
       {typeof users === 'string' ? (
         users
       ) : (
-        <ul className="flex flex-col gap-y-3">
-          {Object.entries(users.data).map(([id, name]) => (
-            <li className="flex gap-x-1" key={id}>
-              <span>{name}</span>
-              <button
-                className="text-blue-400 hover:underline"
-                type="button"
-                onClick={(): void =>
-                  void fetch(
-                    `/api/databases/${database}/user/${id}/make-admin`,
-                    {
-                      method: 'POST',
-                    }
-                  )
-                    .then(handleClose)
-                    .catch(console.error)
-                }
-              >
-                {localization.makeSuperUser}
-              </button>
-            </li>
-          ))}
-        </ul>
+                  <ul className="flex flex-col gap-y-3">
+            {Object.entries(users.data).map(([id, name]) => (
+              <li className="flex gap-x-1" key={id}>
+                <span>{name}</span>
+                <button
+                  className="flex items-center gap-1 text-blue-400 hover:underline"
+                  type="button"
+                  onClick={(): void =>
+                    void fetch(
+                      `/api/databases/${database}/user/${id}/make-admin`,
+                      {
+                        method: 'POST',
+                      }
+                    )
+                      .then(handleClose)
+                      .catch(console.error)
+                  }
+                >
+                  {icons.cog}
+                  {localization.makeSuperUser}
+                </button>
+              </li>
+            ))}
+          </ul>
       )}
     </ModalDialog>
   );
@@ -229,16 +237,17 @@ function DeleteDatabase({
       buttons={
         <>
           <button
-            className={primaryButtonClassName}
+            className={`${primaryButtonClassName} flex items-center gap-2`}
             type="button"
             onClick={handleClose}
           >
             {localization.cancel}
           </button>
           <a
-            className={dangerButtonClassName}
+            className={`${dangerButtonClassName} flex items-center gap-2`}
             href={`/api/databases/${database}/drop`}
           >
+            {icons.trash}
             {localization.delete}
           </a>
         </>
@@ -287,7 +296,7 @@ function ResetPasswordsDatabase({
       buttons={
         <>
           <button
-            className={primaryButtonClassName}
+            className={`${primaryButtonClassName} flex items-center gap-2`}
             type="button"
             onClick={handleClose}
             disabled={isResetting}
@@ -295,11 +304,12 @@ function ResetPasswordsDatabase({
             {localization.cancel}
           </button>
           <button
-            className={dangerButtonClassName}
+            className={`${dangerButtonClassName} flex items-center gap-2`}
             type="button"
             onClick={handleResetPasswords}
             disabled={isResetting}
           >
+            {icons.key}
             {isResetting ? localization.resettingPasswords : localization.resetPasswords}
           </button>
         </>
