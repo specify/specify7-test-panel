@@ -8,9 +8,6 @@ import { useDatabases } from '../index';
 import { localization } from '../../const/localization';
 import { generateDatabaseNameWithDate } from '../../lib/databaseNameHelper';
 
-const bytesToMb = (size: number): number =>
-  Math.round((size / 1024 / 1024) * 100) / 100;
-
 export default function Index(): JSX.Element {
   const databases = useDatabases();
   const [isUploading, setIsUploading] = React.useState<boolean>(false);
@@ -34,18 +31,18 @@ export default function Index(): JSX.Element {
         <Link href="/databases/" className="text-blue-500 hover:underline">
           {localization.goBack}
         </Link>
-        {`${localization.diskUsage} ${
-          typeof diskUsage === 'undefined'
-            ? localization.loading
-            : typeof diskUsage === 'string'
-            ? diskUsage
-            : `${bytesToMb(diskUsage.data.free)}/${bytesToMb(
-                diskUsage.data.size
-              )}${localization.mb}`
-        }`}
+        {(() => {
+          if (typeof diskUsage === 'undefined') return localization.loading;
+          if (typeof diskUsage === 'string') return diskUsage;
+          const used = diskUsage.data.size - diskUsage.data.free;
+          const usedGB = Math.round((used / 1024 / 1024 / 1024) * 10) / 10;
+          const totalGB = Math.round((diskUsage.data.size / 1024 / 1024 / 1024) * 10) / 10;
+          const percent = ((used / diskUsage.data.size) * 100).toFixed(2);
+          return `${localization.diskUsage} ${usedGB}/${totalGB} GB (${percent}% used)`;
+        })()}
         <h1 className="text-5xl">{localization.pageTitle}</h1>
         {isUploading ? (
-          <div className="flex flex-col gap-4 items-center">
+          <div className="flex flex-col gap-4">
             <h2 className="text-2xl">{localization.uploading}</h2>
             <div className="w-full h-2 bg-gray-200 rounded overflow-hidden max-w-xl">
               <div
