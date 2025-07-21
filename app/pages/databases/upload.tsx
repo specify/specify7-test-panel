@@ -16,6 +16,8 @@ export default function Index(): JSX.Element {
   const [isUploading, setIsUploading] = React.useState<boolean>(false);
   const [databaseName, setDatabaseName] = React.useState<string>('');
   const [fileSize, setFileSize] = React.useState<number | undefined>(undefined);
+  const [uploadProgress, setUploadProgress] = React.useState<number>(0); // 0-100
+  const [uploadError, setUploadError] = React.useState<string | null>(null);
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
@@ -43,18 +45,59 @@ export default function Index(): JSX.Element {
         }`}
         <h1 className="text-5xl">{localization.pageTitle}</h1>
         {isUploading ? (
-          <h2 className="text-2xl">{localization.uploading}</h2>
+          <div className="flex flex-col gap-4 items-center">
+            <h2 className="text-2xl">{localization.uploading}</h2>
+            <div className="w-full h-2 bg-gray-200 rounded overflow-hidden max-w-xl">
+              <div
+                className="h-full bg-blue-500 transition-all"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+            <div className="text-sm text-gray-600">{uploadProgress}%</div>
+            {uploadError && (
+              <div className="text-red-500 text-sm">{uploadError}</div>
+            )}
+          </div>
         ) : (
           <>
             <h2 className="text-2xl">{localization.uploadNewDatabase}</h2>
             <div>
               <form
-                action="/api/databases/upload"
                 className="inline-flex flex-col gap-y-5"
                 encType="multipart/form-data"
                 method="post"
                 ref={formRef}
-                onSubmit={() => setTimeout(() => setIsUploading(true), 200)}
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setIsUploading(true);
+                  setUploadProgress(0);
+                  setUploadError(null);
+                  const form = formRef.current;
+                  if (!form) return;
+                  const formData = new FormData(form);
+                  const xhr = new window.XMLHttpRequest();
+                  xhr.open('POST', '/api/databases/upload', true);
+                  xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                      const percent = Math.round((event.loaded / event.total) * 100);
+                      setUploadProgress(percent);
+                    }
+                  };
+                  xhr.onload = () => {
+                    if (xhr.status === 302) {
+                      setUploadProgress(100);
+                      window.location.href = '/databases/';
+                    } else if (xhr.status >= 400) {
+                      setIsUploading(false);
+                      setUploadError(xhr.responseText || 'Upload failed');
+                    }
+                  };
+                  xhr.onerror = () => {
+                    setIsUploading(false);
+                    setUploadError('Network error');
+                  };
+                  xhr.send(formData);
+                }}
               >
                 <input
                   accept=".sql,.gz,.tgz,.zip,.bz2,.tar,.xz"
