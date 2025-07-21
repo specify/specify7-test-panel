@@ -6,6 +6,7 @@ import path from 'node:path';
 
 import { getUser, run } from '../../../lib/apiUtils';
 import { connectToDatabase } from '../../../lib/database';
+import { generateDatabaseNameWithDate } from '../../../lib/databaseNameHelper';
 
 // First we need to disable the default body parser
 export const config = {
@@ -53,11 +54,7 @@ export default async function handler(
   if (databaseNameForm.match(/^\w+$/) === null)
     return res.status(400).json({ error: 'Database name is invalid' });
 
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  const databaseName = `${databaseNameForm}_${year}_${month}_${day}`;
+  const databaseName = generateDatabaseNameWithDate(databaseNameForm);
 
   const file = data.files.file as File | undefined;
 
