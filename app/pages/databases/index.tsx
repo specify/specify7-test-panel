@@ -3,9 +3,7 @@ import React from 'react';
 
 import {
   dangerButtonClassName,
-  infoButtonClassName,
   primaryButtonClassName,
-  successButtonClassName,
 } from '../../components/InteractivePrimitives';
 import { icons } from '../../components/Icons';
 import Layout from '../../components/Layout';
