@@ -12,32 +12,72 @@ export function CloneDatabaseModal({
 }): JSX.Element {
   const [prefix, setPrefix] = React.useState('');
   const [isCloning, setIsCloning] = React.useState(false);
+  const [progress, setProgress] = React.useState<{ total: number; current: number; done: boolean; error?: string } | null>(null);
+  const [newDbName, setNewDbName] = React.useState<string>('');
+
+  React.useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isCloning && newDbName) {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/databases/${database}/clone?newName=${encodeURIComponent(newDbName)}`);
+          if (res.ok) {
+            const status = await res.json();
+            setProgress(status);
+            if (status.done) {
+              clearInterval(interval!);
+              setIsCloning(false);
+              if (!status.error) {
+                alert(localization.databaseCloned(newDbName));
+                handleClose();
+              } else {
+                alert(`${localization.failedToCloneDatabase}: ${status.error}`);
+              }
+            }
+          }
+        } catch (err) {
+          // ignore polling errors
+        }
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isCloning, newDbName, database, handleClose]);
 
   const handleClone = async (): Promise<void> => {
     if (!prefix.trim()) {
       alert(localization.enterPrefix);
       return;
     }
+    const dbName = `${prefix.trim()}_${database}`;
+    setNewDbName(dbName);
     setIsCloning(true);
-    const newDbName = `${prefix.trim()}_${database}`;
+    setProgress(null);
     try {
       const response = await fetch(`/api/databases/${database}/clone`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newName: newDbName }),
+        body: JSON.stringify({ newName: dbName }),
       });
-      if (response.ok) {
-        alert(localization.databaseCloned(newDbName));
-        handleClose();
-      } else {
-        const error = await response.json();
-        alert(`${localization.failedToCloneDatabase}: ${error.error || response.statusText}`);
+      if (!response.ok) {
+        let errorMessage = response.statusText;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            const error = await response.json();
+            errorMessage = error.error || response.statusText;
+          } catch (jsonError) {
+            // Fallback to status text if JSON parsing fails
+          }
+        }
+        setIsCloning(false);
+        alert(`${localization.failedToCloneDatabase}: ${errorMessage}`);
       }
     } catch (error) {
+      setIsCloning(false);
       console.error('Failed to clone database:', error);
       alert(`${localization.failedToCloneDatabase}: ${error}`);
-    } finally {
-      setIsCloning(false);
     }
   };
 
@@ -77,6 +117,24 @@ export function CloneDatabaseModal({
           placeholder={localization.cloneDatabasePrefixPlaceholder}
           disabled={isCloning}
         />
+        {prefix.trim() && (
+          <div className="text-sm text-gray-600">
+            {localization.previewDatabaseNameLabel || 'Preview:'} <span className="font-mono">{`${prefix.trim()}_${database}`}</span>
+          </div>
+        )}
+        {isCloning && progress && progress.total > 0 && (
+          <div className="w-full h-2 bg-gray-200 rounded overflow-hidden">
+            <div
+              className="h-full bg-blue-500 transition-all"
+              style={{ width: `${(progress.current / progress.total) * 100}%` }}
+            />
+          </div>
+        )}
+        {isCloning && (!progress || progress.total === 0) && (
+          <div className="w-full h-2 bg-gray-200 rounded overflow-hidden">
+            <div className="h-full bg-blue-500 animate-pulse" style={{ width: '60%' }} />
+          </div>
+        )}
       </div>
     </ModalDialog>
   );

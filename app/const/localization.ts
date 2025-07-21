@@ -99,4 +99,5 @@ export const localization = {
   databaseCloned: (database: string): string => `Database cloned as ${database}.`,
   failedToCloneDatabase: 'Failed to clone database',
   enterPrefix: 'Please enter a prefix.',
+  previewDatabaseNameLabel: 'Preview:',
 } as const;
