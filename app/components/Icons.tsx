@@ -33,4 +33,10 @@ export const icons = {
       <circle cx="15" cy="17" r="1" fill="currentColor"/>
     </svg>
   ),
+  clone: (
+    <svg aria-hidden className={iconClassName} fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 4a2 2 0 012-2h6a2 2 0 012 2v2a1 1 0 102 0V4a4 4 0 00-4-4H6a4 4 0 00-4 4v6a4 4 0 004 4h2a1 1 0 100-2H6a2 2 0 01-2-2V4z" />
+      <path d="M8 8a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2h-6a2 2 0 01-2-2V8z" />
+    </svg>
+  ),
 } as const;
