@@ -37,6 +37,10 @@ export default function Index(): JSX.Element {
     string | undefined
   >(undefined);
 
+  const [resetPasswordsDatabase, setResetPasswordsDatabase] = React.useState<
+    string | undefined
+  >(undefined);
+
   const [showSizes, setShowSizes] = React.useState(false);
   const [sizes, setSizes] = React.useState<
     { readonly data: IR<number> } | string | undefined
@@ -112,6 +116,13 @@ export default function Index(): JSX.Element {
                   >
                     {localization.listUsers}
                   </button>
+                  <button
+                    className="text-orange-400 hover:underline"
+                    type="button"
+                    onClick={(): void => setResetPasswordsDatabase(name)}
+                  >
+                    {localization.resetPasswords}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -145,6 +156,12 @@ export default function Index(): JSX.Element {
             <DeleteDatabase
               database={deleteDatabase}
               onClose={(): void => setDeleteDatabase(undefined)}
+            />
+          )}
+          {typeof resetPasswordsDatabase === 'string' && (
+            <ResetPasswordsDatabase
+              database={resetPasswordsDatabase}
+              onClose={(): void => setResetPasswordsDatabase(undefined)}
             />
           )}
         </>
@@ -230,6 +247,67 @@ function DeleteDatabase({
       onClose={handleClose}
     >
       {localization.deleteDialogMessage(database)}
+    </ModalDialog>
+  );
+}
+
+function ResetPasswordsDatabase({
+  database,
+  onClose: handleClose,
+}: {
+  readonly database: string;
+  readonly onClose: () => void;
+}): JSX.Element {
+  const [isResetting, setIsResetting] = React.useState(false);
+
+  const handleResetPasswords = async (): Promise<void> => {
+    setIsResetting(true);
+    try {
+      const response = await fetch(`/api/databases/${database}/reset-passwords`, {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        alert(localization.passwordsReset);
+        handleClose();
+      } else {
+        const error = await response.json();
+        alert(`${localization.failedToResetPasswords}: ${error.error || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Failed to reset passwords:', error);
+      alert(`${localization.failedToResetPasswords}: ${error}`);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  return (
+    <ModalDialog
+      buttons={
+        <>
+          <button
+            className={primaryButtonClassName}
+            type="button"
+            onClick={handleClose}
+            disabled={isResetting}
+          >
+            {localization.cancel}
+          </button>
+          <button
+            className={dangerButtonClassName}
+            type="button"
+            onClick={handleResetPasswords}
+            disabled={isResetting}
+          >
+            {isResetting ? localization.resettingPasswords : localization.resetPasswords}
+          </button>
+        </>
+      }
+      title={localization.resetPasswordsDialogTitle}
+      onClose={handleClose}
+    >
+      {localization.resetPasswordsDialogMessage(database)}
     </ModalDialog>
   );
 }
