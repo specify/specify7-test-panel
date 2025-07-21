@@ -78,7 +78,7 @@ export default function Index(): JSX.Element {
             </Link>
             <h1 className="text-5xl">{localization.pageTitle}</h1>
             <h2 className="text-2xl">{localization.dashboard}</h2>
-            <ul className="flex w-8/12 flex-col gap-y-5">
+            <ul className="flex flex-col gap-y-5">
               {databases.map(({ name, version, size }) => (
                 <li
                   className="flex flex-row gap-x-5 rounded bg-gray-300 p-5"
