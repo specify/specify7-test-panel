@@ -55,6 +55,7 @@ uploadQueue.process(async (job) => {
 
     await run(`sed -i -e 's/^CREATE DATABASE.*$//g' ${dbFilePath}`);
     await run(`sed -i -e 's/^USE .*$//g' ${dbFilePath}`);
+    await run(`sed -i -e 's/^DROP DATABASE.*$//g' ${dbFilePath}`);
     job.progress(50);
     await connection.execute(`DROP DATABASE IF EXISTS \`${databaseName}\``);
     await connection.execute(`CREATE DATABASE \`${databaseName}\``);
