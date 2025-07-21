@@ -113,7 +113,13 @@ export function CloneDatabaseModal({
           type="text"
           className="border rounded p-2"
           value={prefix}
-          onChange={e => setPrefix(e.target.value)}
+          onChange={e => {
+            // Only allow underscores, no dashes or spaces
+            const raw = e.target.value;
+            // Replace any non-word character (except underscore) with underscore
+            const sanitized = raw.replace(/[^A-Za-z0-9_]+/g, '_');
+            setPrefix(sanitized);
+          }}
           placeholder={localization.cloneDatabasePrefixPlaceholder}
           disabled={isCloning}
         />
