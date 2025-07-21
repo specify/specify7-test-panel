@@ -7,6 +7,7 @@ import path from 'node:path';
 import { getUser, run } from '../../../lib/apiUtils';
 import { connectToDatabase } from '../../../lib/database';
 import { generateDatabaseNameWithDate } from '../../../lib/databaseNameHelper';
+import { resetDatabasePasswords } from '../../../lib/passwordUtils';
 
 // First we need to disable the default body parser
 export const config = {
@@ -14,8 +15,6 @@ export const config = {
     bodyParser: false,
   },
 };
-
-const testuserPassword = 'EC62DEF08F5E4FD556DAA86AEC5F3FB0390EF8A862A41ECA';
 
 export default async function handler(
   request: NextApiRequest,
@@ -120,11 +119,7 @@ export default async function handler(
         `--database "${databaseName}" < ${filePath}`,
       ].join('')
     );
-    await connection.execute(
-      `UPDATE \`${databaseName}\`.specifyuser
-       SET Password=?;`,
-      [testuserPassword]
-    );
+    await resetDatabasePasswords(connection, databaseName);
     res.writeHead(302, {
       Location: '/databases/',
     });
