@@ -67,7 +67,14 @@ export const localization = {
   deleteDialogTitle: 'Delete Database?',
   deleteDialogMessage: (database: string) =>
     `Are you sure you want to delete "${database}" database?`,
-  makeSuperUser: 'Make super user',
+  makeSuperUser: 'Make Institution Admin',
+  resetPasswords: 'Reset Passwords',
+  resetPasswordsDialogTitle: 'Reset All Passwords?',
+  resetPasswordsDialogMessage: (database: string) =>
+    `Are you sure you want to reset all user passwords in the "${database}" database?`,
+  resettingPasswords: 'Resetting passwords...',
+  passwordsReset: 'All passwords have been reset successfully',
+  failedToResetPasswords: 'Failed to reset passwords',
   calculateSizes: 'Calculate sizes',
   uploadNewDatabase: 'Upload new database',
   databaseName: 'Database Name',
