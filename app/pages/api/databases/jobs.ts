@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { uploadQueue } from '../../../lib/uploadQueue';
+import { uploadQueue } from '../../../lib/queue';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {

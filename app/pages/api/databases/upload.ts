@@ -3,7 +3,7 @@ import { IncomingForm } from 'formidable';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getUser } from '../../../lib/apiUtils';
 import { generateDatabaseNameWithDate } from '../../../lib/databaseNameHelper';
-import { uploadQueue } from '../../../lib/uploadQueue';
+import { uploadQueue } from '../../../lib/queue';
 
 // First we need to disable the default body parser
 export const config = {

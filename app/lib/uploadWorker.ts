@@ -1,4 +1,4 @@
-import { uploadQueue } from './uploadQueue';
+import { uploadQueue } from './queue';
 import { run } from './apiUtils';
 import { connectToDatabase } from './database';
 import { resetDatabasePasswords } from './passwordUtils';
