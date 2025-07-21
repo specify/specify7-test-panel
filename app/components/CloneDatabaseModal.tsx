@@ -30,6 +30,7 @@ export function CloneDatabaseModal({
               if (!status.error) {
                 alert(localization.databaseCloned(newDbName));
                 handleClose();
+                window.location.reload();
               } else {
                 alert(`${localization.failedToCloneDatabase}: ${status.error}`);
               }
