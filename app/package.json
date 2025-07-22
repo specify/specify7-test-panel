@@ -13,7 +13,8 @@
     "debug": "NODE_OPTIONS='--inspect' next dev",
     "dev": "next dev",
     "start": "next start -p ${PORT:=3000}",
-    "test": "npx tsc"
+    "test": "npx tsc",
+    "worker": "ts-node app/worker-entry.ts"
   },
   "dependencies": {
     "bull": "^4.16.5",

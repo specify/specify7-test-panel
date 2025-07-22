@@ -12,11 +12,10 @@ services:
     build:
       context: ./.
       target: runner
-    depends_on:
-      - mariadb
     networks:
       - database
       - nginx
+      - redis
     restart: unless-stopped
     user: "1000:988"
     volumes:
@@ -25,3 +24,28 @@ services:
       - 'nginx-conf:/home/node/nginx.conf.d'
     environment:
       - DOCKER_LOG_PATH=/var/lib/docker/containers
+
+  worker:
+    build:
+      context: ./.
+      target: runner
+    command: ["npm", "run", "worker"]
+    networks:
+      - database
+      - nginx
+      - redis
+    restart: unless-stopped
+    volumes:
+      - 'state:/home/node/state'
+      - 'nginx-conf:/home/node/nginx.conf.d'
+    environment:
+      - DOCKER_LOG_PATH=/var/lib/docker/containers
+
+networks:
+  database:
+  nginx:
+  redis:
+
+volumes:
+  state:
+  nginx-conf:
