@@ -18,7 +18,7 @@ FROM deps AS builder
 USER node
 WORKDIR /home/node/app
 COPY --chown=node:node app .
-RUN npm run build
+RUN npm run build && npx tsc --project tsconfig.json
 
 
 # Common for production & development deployments
