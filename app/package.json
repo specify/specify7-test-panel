@@ -14,7 +14,7 @@
     "dev": "next dev",
     "start": "next start -p ${PORT:=3000}",
     "test": "npx tsc",
-    "worker": "ts-node app/worker-entry.ts"
+    "worker": "node app/worker-entry.js"
   },
   "dependencies": {
     "bull": "^4.16.5",
