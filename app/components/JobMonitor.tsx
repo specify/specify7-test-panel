@@ -6,8 +6,10 @@ export function JobMonitor(): JSX.Element {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  const isFirstLoad = React.useRef(true);
   const fetchJobs = async () => {
-    setLoading(true);
+    // Only show loading on first load
+    if (isFirstLoad.current && jobs.length === 0) setLoading(true);
     setError(null);
     try {
       const res = await fetch('/api/databases/jobs');
@@ -17,6 +19,7 @@ export function JobMonitor(): JSX.Element {
       setError(localization.failedToFetchJobs || 'Failed to fetch jobs');
     } finally {
       setLoading(false);
+      isFirstLoad.current = false;
     }
   };
 
@@ -49,7 +52,8 @@ export function JobMonitor(): JSX.Element {
         {jobs.map(job => (
           <li key={job.id} className="flex items-center justify-between bg-white p-2 rounded shadow">
             <div>
-              <b>{localization.jobId || 'ID:'}</b> {job.id} <b>{localization.progress || 'Progress:'}</b> {job.progress}% <b>{localization.state || 'State:'}</b> {job.state}
+              <b>Type:</b> {job.data?.sourceDb && job.data?.targetDb ? 'Clone' : 'Upload'}
+              <b>{localization.progress || 'Progress:'}</b> {job.progress}% <b>{localization.state || 'State:'}</b> {job.state}
             </div>
             <button
               className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
