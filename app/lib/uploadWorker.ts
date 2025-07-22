@@ -6,9 +6,10 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 uploadQueue.process(async (job) => {
-  const { filePath, databaseName, originalFilename } = job.data;
+  console.log(`[UPLOAD WORKER] Received job`, job.id, job.data);
   job.progress(5);
   try {
+    const { filePath, databaseName, originalFilename } = job.data;
     const connection = await connectToDatabase();
     job.progress(10);
     const nameParts = originalFilename.split('.').slice(1);
@@ -48,6 +49,7 @@ uploadQueue.process(async (job) => {
           : `unzip -p ${filePath} ${databaseFilePath} > ${dbFilePath}`
       );
       job.progress(40);
+      console.log(`[UPLOAD WORKER] Extracted DB file: ${dbFilePath}`);
     } else {
       dbFilePath = filePath;
       job.progress(20);
@@ -71,9 +73,11 @@ uploadQueue.process(async (job) => {
     job.progress(90);
     await resetDatabasePasswords(connection, databaseName);
     job.progress(100);
+    console.log(`[UPLOAD WORKER] Job complete`, job.id);
     return { success: true };
   } catch (error: any) {
     job.progress(100);
+    console.error(`[UPLOAD WORKER] Error in job`, job.id, error);
     return { success: false, error: error.toString() };
   }
 });

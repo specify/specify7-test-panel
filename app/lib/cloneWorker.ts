@@ -2,24 +2,32 @@ import { cloneQueue } from './queue';
 import { connectToDatabase } from './database';
 
 cloneQueue.process(async (job) => {
-  const { sourceDb, targetDb } = job.data;
-  const connection = await connectToDatabase();
-  await connection.execute(`CREATE DATABASE \`${targetDb}\``);
-  const [tables] = await connection.query(
-    `SELECT table_name FROM information_schema.tables WHERE table_schema = ?`,
-    [sourceDb]
-  );
-  const total = (tables as Array<{ table_name: string }>).length;
-  let current = 0;
-  for (const { table_name } of tables as Array<{ table_name: string }>) {
-    await connection.execute(
-      `CREATE TABLE \`${targetDb}\`.\`${table_name}\` LIKE \`${sourceDb}\`.\`${table_name}\``
+  console.log(`[CLONE WORKER] Received job`, job.id, job.data);
+  try {
+    const { sourceDb, targetDb } = job.data;
+    const connection = await connectToDatabase();
+    await connection.execute(`CREATE DATABASE \`${targetDb}\``);
+    const [tables] = await connection.query(
+      `SELECT table_name FROM information_schema.tables WHERE table_schema = ?`,
+      [sourceDb]
     );
-    await connection.execute(
-      `INSERT INTO \`${targetDb}\`.\`${table_name}\` SELECT * FROM \`${sourceDb}\`.\`${table_name}\``
-    );
-    current++;
-    job.progress(Math.round((current / total) * 100));
+    const total = (tables as Array<{ table_name: string }>).length;
+    let current = 0;
+    for (const { table_name } of tables as Array<{ table_name: string }>) {
+      await connection.execute(
+        `CREATE TABLE \`${targetDb}\`.\`${table_name}\` LIKE \`${sourceDb}\`.\`${table_name}\``
+      );
+      await connection.execute(
+        `INSERT INTO \`${targetDb}\`.\`${table_name}\` SELECT * FROM \`${sourceDb}\`.\`${table_name}\``
+      );
+      current++;
+      job.progress(Math.round((current / total) * 100));
+      console.log(`[CLONE WORKER] Progress: ${current}/${total} (${Math.round((current / total) * 100)}%)`);
+    }
+    console.log(`[CLONE WORKER] Job complete`, job.id);
+    return { total, current, done: true };
+  } catch (err) {
+    console.error(`[CLONE WORKER] Error in job`, job.id, err);
+    return { error: err?.toString() };
   }
-  return { total, current, done: true };
 });
