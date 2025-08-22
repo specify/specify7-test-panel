@@ -79,6 +79,7 @@ export const localization = {
   mb: 'MB',
   nameConflict:
     'Database with this name already exists. Please delete it first',
+  finalDatabaseName: 'Final database name:',
   container: 'Container',
   noLogsAvailable: 'No logs available for this container',
   failedToDownload: 'Failed to download',

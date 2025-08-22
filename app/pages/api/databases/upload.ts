@@ -6,6 +6,7 @@ import path from 'node:path';
 
 import { getUser, run } from '../../../lib/apiUtils';
 import { connectToDatabase } from '../../../lib/database';
+import { generateDatabaseNameWithDate } from '../../../lib/databaseNameHelper';
 
 // First we need to disable the default body parser
 export const config = {
@@ -45,13 +46,15 @@ export default async function handler(
 
   if (typeof data === 'string') return res.status(400).json({ error: data });
 
-  const databaseName = data.fields.databaseName as string | undefined;
+  const databaseNameForm = data.fields.databaseName as string | undefined;
 
-  if (!databaseName)
+  if (!databaseNameForm)
     return res.status(400).json({ error: 'Database name is required' });
 
-  if (databaseName.match(/^\w+$/) === null)
+  if (databaseNameForm.match(/^\w+$/) === null)
     return res.status(400).json({ error: 'Database name is invalid' });
+
+  const databaseName = generateDatabaseNameWithDate(databaseNameForm);
 
   const file = data.files.file as File | undefined;
 
@@ -111,7 +114,7 @@ export default async function handler(
     await connection.execute(`CREATE DATABASE \`${databaseName}\``);
     await run(
       [
-        `mysql -u${process.env.MYSQL_USERNAME} `,
+        `mariadb -u${process.env.MYSQL_USERNAME} `,
         `-p${process.env.MYSQL_PASSWORD} `,
         `-h${process.env.MYSQL_HOST} `,
         `--database "${databaseName}" < ${filePath}`,

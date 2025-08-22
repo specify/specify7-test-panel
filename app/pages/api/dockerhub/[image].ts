@@ -19,6 +19,9 @@ type Response = {
     readonly name: string;
     readonly last_updated: string;
     readonly digest: string;
+    readonly images: RA<{
+      readonly architecture: string;
+    }>;
   }>;
   readonly next: string | undefined;
 };
@@ -35,7 +38,12 @@ const processTagsResponse = (tags: Response['results']): IR<DockerHubTag> =>
   Object.fromEntries(
     tags
       // Latest is an unpredictable branch, thus will exclude it
-      .filter(({ name }) => !name.startsWith('sha-') && name !== 'latest')
+      .filter(
+        ({ name, images }) =>
+          !name.startsWith('sha-') &&
+          name !== 'latest' &&
+          images.some(({ architecture }) => architecture === 'arm64')
+      )
       .map(({ name, last_updated, digest }) => [
         name,
         {
