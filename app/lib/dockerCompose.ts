@@ -132,7 +132,7 @@ ${Array.from(
       )
       .join('')}
     ${Array.from(
-      new Set(deployments.map(({ schemaVersion }) => schemaVersion).filter((schemaVersion) => schemaVersion.startsWith("6"))),
+      new Set(deployments.map(({ schemaVersion }) => schemaVersion)),
       (specifyVersion) => `
       - "specify${specifyVersion}:/volumes/specify${specifyVersion}:ro"`
     ).join('')}
@@ -145,7 +145,7 @@ ${deployments
   )
   .join('')}
     ${Array.from(
-      new Set(deployments.map(({ schemaVersion }) => schemaVersion).filter((schemaVersion) => schemaVersion.startsWith("6"))),
+      new Set(deployments.map(({ schemaVersion }) => schemaVersion)),
       (specifyVersion) => `
   specify${specifyVersion}:`
     ).join('')}`;
