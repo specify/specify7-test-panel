@@ -45,6 +45,7 @@ ${deployments
     environment:
       - DATABASE_NAME=${deployment.database}
       - DATABASE_HOST=${process.env.MYSQL_HOST}
+      - DATABASE_PORT=${process.env.MYSQL_PORT}
       - MASTER_NAME=${process.env.MYSQL_USERNAME}
       - MASTER_PASSWORD=${process.env.MYSQL_PASSWORD}
       - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
@@ -88,6 +89,7 @@ ${deployments
       - LANG=C.UTF-8
       - DATABASE_NAME=${deployment.database}
       - DATABASE_HOST=${process.env.MYSQL_HOST}
+      - DATABASE_PORT=${process.env.MYSQL_PORT}
       - MASTER_NAME=${process.env.MYSQL_USERNAME}
       - ASSET_SERVER_URL=${process.env.ASSET_SERVER_URL}
       - ASSET_SERVER_KEY=${process.env.ASSET_SERVER_KEY}
