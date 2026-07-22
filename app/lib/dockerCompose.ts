@@ -113,7 +113,7 @@ ${deployments
   .join('\n\n')}
 
 ${Array.from(
-  new Set(deployments.map(({ schemaVersion }) => schemaVersion)),
+  new Set(deployments.map(({ schemaVersion }) => schemaVersion).filter((schemaVersion) => schemaVersion.startsWith("6"))),
   (specifyVersion) => `
   specify${specifyVersion}:
     image: specifyconsortium/specify6-service:${specifyVersion}
@@ -145,7 +145,7 @@ ${deployments
   )
   .join('')}
     ${Array.from(
-      new Set(deployments.map(({ schemaVersion }) => schemaVersion)),
+      new Set(deployments.map(({ schemaVersion }) => schemaVersion).filter((schemaVersion) => schemaVersion.startsWith("6"))),
       (specifyVersion) => `
   specify${specifyVersion}:`
     ).join('')}`;
