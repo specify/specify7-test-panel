@@ -6,6 +6,7 @@ import Layout from '../../components/Layout';
 import { useApi } from '../../components/useApi';
 import { useDatabases } from '../index';
 import { localization } from '../../const/localization';
+import { generateDatabaseNameWithDate } from '../../lib/databaseNameHelper';
 
 const bytesToMb = (size: number): number =>
   Math.round((size / 1024 / 1024) * 100) / 100;
@@ -22,7 +23,8 @@ export default function Index(): JSX.Element {
 
   const isConflict =
     typeof databases === 'object' &&
-    databases.some(({ name }) => name === databaseName);
+    Boolean(databaseName) &&
+    databases.some(({ name }) => name === generateDatabaseNameWithDate(databaseName));
 
   return (
     <Layout title={localization.uploadNewDatabase} protected>
@@ -91,6 +93,16 @@ export default function Index(): JSX.Element {
                 diskUsage.data.free + fileSize >= diskUsage.data.size * 0.99 ? (
                   <p>{localization.notEnoughSpace}</p>
                 ) : undefined}
+                {databaseName && (
+                  <div className="flex flex-col gap-y-1">
+                    <label className="text-sm font-medium text-gray-700">
+                      {localization.finalDatabaseName}
+                    </label>
+                    <div className="rounded bg-gray-100 p-2 font-mono text-sm">
+                      {generateDatabaseNameWithDate(databaseName)}
+                    </div>
+                  </div>
+                )}
                 <input
                   className={`cursor-pointer rounded-xl bg-green-500 p-3
                     hover:bg-green-800`}
