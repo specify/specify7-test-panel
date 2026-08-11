@@ -120,8 +120,8 @@ const urlFromFilter = (
   image: string,
   filter: TagFilter,
   currentPage: number = 1,
-) => {
-  const url = formatUrl(
+) => 
+  formatUrl(
     `https://hub.docker.com/v2/repositories/specifyconsortium/${image}/tags/`,
     {
       page_size: filter.pageSize ?? MAX_PAGE_SIZE,
@@ -130,9 +130,6 @@ const urlFromFilter = (
       name: filter.name,
     },
   );
-  console.log(`Sending URL: ${url}`);
-  return url;
-}
 
 
 async function _fetchTags(url: string, filter: TagFilter, currentPage: number = 1): Promise<SuccessfulResponse['results']> {
@@ -187,7 +184,8 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const image = request.query.image as string;
-  await fetchTagsForImage(image)
+  const specialFilters = SPECIAL_TAGS[image as keyof typeof SPECIAL_TAGS] as RA<TagFilter> | undefined;
+  await fetchTagsForImage(image, specialFilters)
     .then((tags) => res.status(200).json({ data: tags }))
     .catch((error) => res.status(500).json({ error: error.toString() }));
 }
