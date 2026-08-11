@@ -124,17 +124,16 @@ const urlFromFilter = (
   formatUrl(
     `https://hub.docker.com/v2/repositories/specifyconsortium/${image}/tags/`,
     {
-      pageSize: filter.pageSize ?? MAX_PAGE_SIZE,
-      maxPages: filter.maxPages ?? PAGE_MAX,
+      page_size: filter.pageSize ?? MAX_PAGE_SIZE,
       page: currentPage,
-      orderby: filter.orderBy,
+      ordering: filter.orderBy,
       name: filter.name,
     },
   );
 
 
 async function _fetchTags(url: string, currentPage: number = 1): Promise<SuccessfulResponse['results']> {
-  return currentPage > PAGE_MAX ? [] : fetch(url)
+  return currentPage > PAGE_MAX ? Promise.resolve([]) : fetch(url)
     .then(async (response) => response.json())
     .then(async (response: Response) => {
       if ('message' in response) {
