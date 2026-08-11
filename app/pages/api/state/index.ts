@@ -16,7 +16,7 @@ import { createDockerConfig } from '../../../lib/dockerCompose';
 import { createNginxConfig } from '../../../lib/nginx';
 import type { RA } from '../../../lib/typescriptCommonTypes';
 import type { User } from '../../../lib/user';
-import { fetchTagsForImage } from '../dockerhub/[image]';
+import { fetchTagsForImage, SPECIAL_TAGS } from '../dockerhub/[image]';
 
 const configurationFile = path.resolve(stateDirectory, 'configuration.json');
 const nginxConfigurationFile = path.resolve(nginxConfigDirectory, 'nginx.conf');
@@ -74,7 +74,7 @@ export async function setState(
     autoDeploy
   );
 
-  const branches = await fetchTagsForImage('specify7-service');
+  const branches = await fetchTagsForImage('specify7-service', SPECIAL_TAGS['specify7-service']);
   const state = await Promise.all(
     rawState.map(async (deployment) => {
       const hasInteralSp7ConfigDirectory = await branchHasConfigDirectory(deployment.branch);
