@@ -121,6 +121,7 @@ async function _fetchTags(url: string, currentPage: number = 1): Promise<Success
       }
       return [
         ...response.results,
+        // BUG: this recursive call does not respect the maxPages option of the filter
         ...(typeof response.next === 'string' ? await _fetchTags(response.next, currentPage + 1) : [])
       ]
     });
