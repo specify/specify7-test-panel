@@ -120,7 +120,7 @@ const urlFromFilter = (
   image: string,
   filter: TagFilter,
   currentPage: number = 1,
-) => 
+) =>
   formatUrl(
     `https://hub.docker.com/v2/repositories/specifyconsortium/${image}/tags/`,
     {
@@ -150,8 +150,11 @@ async function _fetchTags(url: string, filter: TagFilter, currentPage: number = 
 const fetchTags = async (
   imageName: string,
   filter: TagFilter,
-): Promise<SuccessfulResponse["results"]> =>
-  _fetchTags(urlFromFilter(imageName, filter), filter);
+): Promise<SuccessfulResponse["results"]> => {
+  const url = urlFromFilter(imageName, filter);
+  console.log("fetching URL ", url, " with filter ", filter);
+  return _fetchTags(urlFromFilter(imageName, filter), filter);
+}
 
 const processTagsResponse = (tags: SuccessfulResponse['results']): IR<DockerHubTag> =>
   Object.fromEntries(
