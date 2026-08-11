@@ -10,39 +10,45 @@ const PAGE_MAX = 10;
 // The default maximum page size set by Docker
 const MAX_PAGE_SIZE = 100;
 
-type TagOrderBy = 'last_updated' | 'name' | 'tag_status' | 'tag_last_pulled' | 'tag_last_pushed';
+type TagOrderBy =
+  | "last_updated"
+  | "name"
+  | "tag_status"
+  | "tag_last_pulled"
+  | "tag_last_pushed";
 
 type TagFilter = {
   readonly orderBy?: TagOrderBy;
   readonly name?: string;
   readonly maxPages?: number;
   readonly pageSize?: number;
-}
+};
 
 const DEFAULT_TAG_FILTER: TagFilter = {
-  orderBy: 'last_updated',
+  orderBy: "last_updated",
   maxPages: PAGE_MAX,
-  pageSize: MAX_PAGE_SIZE
-}
+  pageSize: MAX_PAGE_SIZE,
+};
 
-export const SPECIAL_TAGS = ({
-  'specify7-service': [
+export const SPECIAL_TAGS = {
+  "specify7-service": [
     {
       // This is to make sure we have all of the v7 tags even if they're
       // excluded from the main tag fetch
-      orderBy: 'last_updated',
-      name: 'v7'
+      orderBy: "last_updated",
+      name: "v7",
     },
     {
-      name: 'main',
-      maxPages: 1
+      name: "main",
+      maxPages: 1,
     },
     {
-      orderBy: 'last_updated',
-      maxPages: 5
-    }
-  ]
-} as const)
+      orderBy: "last_updated",
+      maxPages: 5,
+    },
+  ],
+} as const;
+
 
 export type DockerHubTag = {
   readonly lastUpdated: string;
@@ -56,15 +62,21 @@ export const fetchTagsForImage = async (
   Promise.allSettled(
     (options ?? [DEFAULT_TAG_FILTER]).map(
       async (filter) => await fetchTags(imageName, filter),
-    )
+    ),
   )
     .then((results) =>
       results
-        .filter((result) => result.status === "fulfilled")
+        .filter(
+          (
+            result,
+          ): result is PromiseFulfilledResult<SuccessfulResponse["results"]> =>
+            result.status === "fulfilled",
+        )
         .map((result) => result.value),
     )
     .then((results) => mergeTagResponses(results))
     .then(processTagsResponse);
+
 
 
 type SuccessfulResponse = {
@@ -104,13 +116,22 @@ const mergeTagResponses = (responses: RA<SuccessfulResponse["results"]>) =>
     }
   ).merged;
 
-const urlFromFilter = (image: string, filter: TagFilter, currentPage: number = 1) => formatUrl(`https://hub.docker.com/v2/repositories/specifyconsortium/${image}/tags/`, {
-  pageSize: filter.pageSize ?? MAX_PAGE_SIZE,
-  maxPages: filter.maxPages ?? PAGE_MAX,
-  page: currentPage,
-  orderby: filter.orderBy,
-  name: filter.name
-})
+const urlFromFilter = (
+  image: string,
+  filter: TagFilter,
+  currentPage: number = 1,
+) =>
+  formatUrl(
+    `https://hub.docker.com/v2/repositories/specifyconsortium/${image}/tags/`,
+    {
+      pageSize: filter.pageSize ?? MAX_PAGE_SIZE,
+      maxPages: filter.maxPages ?? PAGE_MAX,
+      page: currentPage,
+      orderby: filter.orderBy,
+      name: filter.name,
+    },
+  );
+
 
 async function _fetchTags(url: string, currentPage: number = 1): Promise<SuccessfulResponse['results']> {
   return currentPage > PAGE_MAX ? [] : fetch(url)
@@ -127,8 +148,11 @@ async function _fetchTags(url: string, currentPage: number = 1): Promise<Success
     });
 }
 
-const fetchTags = async (imageName: string, filter: TagFilter): Promise<SuccessfulResponse['results']> => _fetchTags(urlFromFilter(imageName, filter));
-
+const fetchTags = async (
+  imageName: string,
+  filter: TagFilter,
+): Promise<SuccessfulResponse["results"]> =>
+  _fetchTags(urlFromFilter(imageName, filter));
 
 const processTagsResponse = (tags: SuccessfulResponse['results']): IR<DockerHubTag> =>
   Object.fromEntries(
