@@ -103,15 +103,15 @@ const mergeTagResponses = (responses: RA<SuccessfulResponse["results"]>) =>
     (previous, current) => {
       current.forEach((tag) => {
         // We exclude already seen tags from the accumulated result
-        if (!previous.seenDigests.has(tag.digest)) {
-          previous.seenDigests.add(tag.digest);
+        if (!previous.seenTags.has(tag.name)) {
+          previous.seenTags.add(tag.name);
           previous.merged.push(tag);
         }
       })
       return previous;
     },
     {
-      seenDigests: new Set<string>(),
+      seenTags: new Set<string>(),
       merged: [] as Writable<SuccessfulResponse["results"]>,
     }
   ).merged;
@@ -120,7 +120,7 @@ const urlFromFilter = (
   image: string,
   filter: TagFilter,
   currentPage: number = 1,
-) => 
+) =>
   formatUrl(
     `https://hub.docker.com/v2/repositories/specifyconsortium/${image}/tags/`,
     {
