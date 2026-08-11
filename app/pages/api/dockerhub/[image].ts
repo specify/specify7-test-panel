@@ -120,8 +120,8 @@ const urlFromFilter = (
   image: string,
   filter: TagFilter,
   currentPage: number = 1,
-) =>
-  formatUrl(
+) => {
+  const url = formatUrl(
     `https://hub.docker.com/v2/repositories/specifyconsortium/${image}/tags/`,
     {
       page_size: filter.pageSize ?? MAX_PAGE_SIZE,
@@ -130,10 +130,13 @@ const urlFromFilter = (
       name: filter.name,
     },
   );
+  console.log(`Sending URL: ${url}`);
+  return url;
+}
 
 
-async function _fetchTags(url: string, currentPage: number = 1): Promise<SuccessfulResponse['results']> {
-  return currentPage > PAGE_MAX ? Promise.resolve([]) : fetch(url)
+async function _fetchTags(url: string, filter: TagFilter, currentPage: number = 1): Promise<SuccessfulResponse['results']> {
+  return currentPage > (filter.maxPages ?? PAGE_MAX) ? Promise.resolve([]) : fetch(url)
     .then(async (response) => response.json())
     .then(async (response: Response) => {
       if ('message' in response) {
@@ -141,8 +144,8 @@ async function _fetchTags(url: string, currentPage: number = 1): Promise<Success
       }
       return [
         ...response.results,
-        // BUG: this recursive call does not respect the maxPages option of the filter
-        ...(typeof response.next === 'string' ? await _fetchTags(response.next, currentPage + 1) : [])
+        ...(typeof response.next === 'string' ?
+          await _fetchTags(response.next, filter, currentPage + 1) : [])
       ]
     });
 }
@@ -151,7 +154,7 @@ const fetchTags = async (
   imageName: string,
   filter: TagFilter,
 ): Promise<SuccessfulResponse["results"]> =>
-  _fetchTags(urlFromFilter(imageName, filter));
+  _fetchTags(urlFromFilter(imageName, filter), filter);
 
 const processTagsResponse = (tags: SuccessfulResponse['results']): IR<DockerHubTag> =>
   Object.fromEntries(
