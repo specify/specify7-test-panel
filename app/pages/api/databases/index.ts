@@ -4,6 +4,7 @@ import { getUser, noCaching } from '../../../lib/apiUtils';
 import { connectToDatabase } from '../../../lib/database';
 import type { IR, RA } from '../../../lib/typescriptCommonTypes';
 
+// WARNING: These are passed to a Regexp. Escape these if needed
 const databasesToExclude: RA<string> = [
   'information_schema',
   'performance_schema',
@@ -13,7 +14,7 @@ const databasesToExclude: RA<string> = [
 ];
 
 const excludeDatabases: RA<RegExp> = [
-  new RegExp(`^${databasesToExclude.map(RegExp.escape).join("|")}$`, "i"),
+  new RegExp(`^${databasesToExclude.join("|")}$`, "i"),
   // exlcude our staging databases
   new RegExp("^_staged_.+$", 'i')
 ]
