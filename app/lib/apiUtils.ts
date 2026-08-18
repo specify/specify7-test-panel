@@ -4,6 +4,7 @@ import fs from 'node:fs';
 
 import type { User } from './user';
 import { getUserInfo, getUserTokenCookie } from './user';
+import { filterArray, IR } from './typescriptCommonTypes';
 
 export async function getUser(
   request: NextApiRequest,
@@ -56,3 +57,33 @@ export function noCaching(res: NextApiResponse): NextApiResponse {
   res.setHeader('Expires', '0');
   return res;
 }
+
+export function formatUrl(
+  url: string,
+  parameters: IR<number | string | null | undefined>,
+): string {
+  const urlObject = new URL(url);
+  urlObject.search = new URLSearchParams({
+    ...Object.fromEntries(urlObject.searchParams),
+    ...Object.fromEntries(
+      filterArray(
+        Object.entries(parameters).map(([key, value]) =>
+          value === undefined || value === null
+            ? undefined
+            : [key, value.toString()]
+        )
+      )
+    ),
+  }).toString();
+  return urlObject.toString();
+}
+
+export type Writable<T> = {
+  -readonly [K in keyof T]: T[K];
+};
+
+/**
+ * Cast type to writable. Equivalent to doing "as Writable<T>", except this
+ * way, don't have to manually specify the generic type
+ */
+export const writable = <T>(value: T): Writable<T> => value;
