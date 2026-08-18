@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getUser, noCaching } from '../../../lib/apiUtils';
 import { connectToDatabase } from '../../../lib/database';
 import type { IR, RA } from '../../../lib/typescriptCommonTypes';
-import { databasesToExclude } from './index';
+import { includeDatabase } from './index';
 
 /**
  * Get database sizes in MB
@@ -29,7 +29,7 @@ const getDatabaseSizes = async (): Promise<IR<number>> =>
               readonly size: string;
             }>
           )
-            .filter(({ name }) => !databasesToExclude.has(name))
+            .filter(({ name }) => includeDatabase(name))
             .map(({ name, size }) => [name, Number.parseInt(size)])
         )
       )

@@ -4,12 +4,21 @@ import { getUser, noCaching } from '../../../lib/apiUtils';
 import { connectToDatabase } from '../../../lib/database';
 import type { IR, RA } from '../../../lib/typescriptCommonTypes';
 
-export const databasesToExclude = new Set([
+const databasesToExclude: RA<string> = [
   'information_schema',
   'performance_schema',
   'mysql',
   'sys',
-]);
+  'tmp'
+];
+
+const excludeDatabases: RA<RegExp> = [
+  new RegExp(`^${databasesToExclude.map(RegExp.escape).join("|")}$`, "i"),
+  // exlcude our staging databases
+  new RegExp("^_staged_.+$", 'i')
+]
+
+export const includeDatabase = (db_name: string): boolean => !excludeDatabases.some((regex) => regex.test(db_name));
 
 /** Get databases and schema versions */
 export const getDatabases = async (): Promise<IR<string | null>> =>
@@ -22,7 +31,7 @@ export const getDatabases = async (): Promise<IR<string | null>> =>
       .then(([rows]) =>
         (rows as unknown as RA<RA<string>>)
           .flat()
-          .filter((database) => !databasesToExclude.has(database))
+          .filter(includeDatabase)
       )
       .then(async (databases) =>
         Promise.all(
